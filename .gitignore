@@ -1,5 +1,6 @@
 node_modules/
 .next/
+trading-bot/.env
 trading-bot/popcat_synthetic.csv
 trading-bot/__pycache__/
 trading-bot/strategies/__pycache__/
