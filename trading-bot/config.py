@@ -9,36 +9,27 @@ API_SECRET = os.getenv("API_SECRET", "")
 USE_TESTNET = os.getenv("USE_TESTNET", "true").lower() == "true"
 
 SYMBOL = os.getenv("SYMBOL", "POPCAT/USDT:USDT")
-LEVERAGE = int(os.getenv("LEVERAGE", "10"))
+LEVERAGE = int(os.getenv("LEVERAGE", "25"))
 TIMEFRAME = os.getenv("TIMEFRAME", "15m")
-RISK_PERCENT = float(os.getenv("RISK_PERCENT", "1.0"))
-STRATEGY = os.getenv("STRATEGY", "rsi_macd")
+RISK_PERCENT = float(os.getenv("RISK_PERCENT", "2.0"))  # 2% risk per trade
+STRATEGY = os.getenv("STRATEGY", "macd_scalper")
 
-# Strategy parameters - RSI + MACD Momentum
+# MACD Scalper parameters
 RSI_PERIOD = 14
-RSI_LONG_THRESHOLD = 55
-RSI_SHORT_THRESHOLD = 45
-RSI_EXIT_LONG = 70
-RSI_EXIT_SHORT = 30
+RSI_MAX_LONG = 68    # don't buy if already overbought
+RSI_MIN_SHORT = 32   # don't sell if already oversold
 
 MACD_FAST = 12
 MACD_SLOW = 26
 MACD_SIGNAL = 9
 
-EMA_TREND_PERIOD = 50
+# Histogram must be in its zone for this many bars before a valid crossover
+MACD_CONFIRM_BARS = 3
 
-STOP_LOSS_PCT = 0.015           # 1.5% initial stop — minimal loss on bad entries
-
-# Trailing stop (replaces fixed TP so you ride the full pump)
-TRAIL_ACTIVATION_PCT = 0.05    # start trailing once trade is +5% in profit
-TRAIL_DISTANCE_PCT = 0.15      # trail 15% below the highest price reached
-# e.g. on a +50% pump: trail triggers at 50% * 0.85 = +42.5% gain
-# e.g. on a +100% pump: trail triggers at 100% * 0.85 = +85% gain
-
-# Breakout strategy parameters
-BREAKOUT_LOOKBACK = 20  # bars for high/low detection
-BREAKOUT_VOLUME_MULTIPLIER = 1.5  # require 1.5x average volume
+STOP_LOSS_PCT = 0.008           # 0.8% initial stop — tight, limits losses on bad entries
+TRAIL_ACTIVATION_PCT = 0.02    # start trailing at +2% profit
+TRAIL_DISTANCE_PCT = 0.06      # trail 6% below peak — lets the pump run, exits on real reversal
 
 # Backtesting defaults
-BACKTEST_DAYS = 90
-INITIAL_BALANCE = 1000.0  # USDT
+BACKTEST_DAYS = 7               # 1 week of 5m data — shows daily trade frequency
+INITIAL_BALANCE = 1000.0        # USDT
