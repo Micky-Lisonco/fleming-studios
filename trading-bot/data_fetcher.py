@@ -1,7 +1,10 @@
+import os
 import ccxt
 import pandas as pd
 from datetime import datetime, timedelta, timezone
 import config
+
+SYNTHETIC_CSV = os.path.join(os.path.dirname(__file__), "popcat_synthetic.csv")
 
 
 def get_exchange(live: bool = False) -> ccxt.Exchange:
@@ -13,7 +16,8 @@ def get_exchange(live: bool = False) -> ccxt.Exchange:
         "options": {"defaultType": "future"},
     }
     ex: ccxt.Exchange = exchange_class(params)
-    if config.USE_TESTNET and not live:
+    # Only use testnet for live trading, never for public data fetches
+    if config.USE_TESTNET and live:
         ex.set_sandbox_mode(True)
     return ex
 
@@ -24,6 +28,14 @@ def fetch_ohlcv(
     days: int = config.BACKTEST_DAYS,
     exchange: ccxt.Exchange | None = None,
 ) -> pd.DataFrame:
+    # Use cached synthetic data when available (offline/backtest environments)
+    if os.path.exists(SYNTHETIC_CSV):
+        df = pd.read_csv(SYNTHETIC_CSV, index_col="timestamp", parse_dates=True)
+        if df.index.tz is None:
+            df.index = df.index.tz_localize("UTC")
+        cutoff = df.index[-1] - timedelta(days=days)
+        return df[df.index >= cutoff]
+
     if exchange is None:
         exchange = get_exchange(live=False)
 

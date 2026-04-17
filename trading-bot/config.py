@@ -27,8 +27,13 @@ MACD_SIGNAL = 9
 
 EMA_TREND_PERIOD = 50
 
-STOP_LOSS_PCT = 0.015   # 1.5% stop loss (tight for high leverage)
-TAKE_PROFIT_PCT = 0.045 # 4.5% take profit (3:1 R:R)
+STOP_LOSS_PCT = 0.015           # 1.5% initial stop — minimal loss on bad entries
+
+# Trailing stop (replaces fixed TP so you ride the full pump)
+TRAIL_ACTIVATION_PCT = 0.05    # start trailing once trade is +5% in profit
+TRAIL_DISTANCE_PCT = 0.15      # trail 15% below the highest price reached
+# e.g. on a +50% pump: trail triggers at 50% * 0.85 = +42.5% gain
+# e.g. on a +100% pump: trail triggers at 100% * 0.85 = +85% gain
 
 # Breakout strategy parameters
 BREAKOUT_LOOKBACK = 20  # bars for high/low detection

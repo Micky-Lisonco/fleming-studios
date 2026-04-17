@@ -61,13 +61,10 @@ class RsiMacdStrategy(BaseStrategy):
         df.loc[long_cond, "signal"] = 1
         df.loc[short_cond, "signal"] = -1
 
-        # Stop-loss and take-profit prices
+        # Initial stop-loss only — trailing stop handles exits once in profit
         sl = config.STOP_LOSS_PCT
-        tp = config.TAKE_PROFIT_PCT
         df["sl_price"] = np.where(df["signal"] == 1, price * (1 - sl),
                           np.where(df["signal"] == -1, price * (1 + sl), np.nan))
-        df["tp_price"] = np.where(df["signal"] == 1, price * (1 + tp),
-                          np.where(df["signal"] == -1, price * (1 - tp), np.nan))
 
         return df
 

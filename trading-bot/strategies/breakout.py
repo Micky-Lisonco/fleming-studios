@@ -39,11 +39,8 @@ class BreakoutStrategy(BaseStrategy):
         df.loc[short_cond, "signal"] = -1
 
         sl = config.STOP_LOSS_PCT
-        tp = config.TAKE_PROFIT_PCT
         price = df["close"]
         df["sl_price"] = np.where(df["signal"] == 1, price * (1 - sl),
                           np.where(df["signal"] == -1, price * (1 + sl), np.nan))
-        df["tp_price"] = np.where(df["signal"] == 1, price * (1 + tp),
-                          np.where(df["signal"] == -1, price * (1 - tp), np.nan))
 
         return df

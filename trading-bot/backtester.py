@@ -48,25 +48,50 @@ class Backtester:
             # ── Manage open position ──────────────────────────────────────────
             if position is not None:
                 direction = position["direction"]
-                sl = position["sl_price"]
-                tp = position["tp_price"]
                 entry = position["entry_price"]
                 qty = position["qty"]
                 entry_time = position["entry_time"]
 
-                # Check SL/TP hit on this bar using high/low
-                sl_hit = (direction == 1 and row["low"] <= sl) or (direction == -1 and row["high"] >= sl)
-                tp_hit = (direction == 1 and row["high"] >= tp) or (direction == -1 and row["low"] <= tp)
+                # Update the best price seen since entry
+                if direction == 1:
+                    position["best_price"] = max(position["best_price"], row["high"])
+                else:
+                    position["best_price"] = min(position["best_price"], row["low"])
 
-                if sl_hit or tp_hit:
-                    exit_price = sl if sl_hit else tp
-                    reason = "SL" if sl_hit else "TP"
+                best = position["best_price"]
+
+                # Determine current stop: trailing or initial SL
+                if direction == 1:
+                    unrealised_pct = (best - entry) / entry
+                    if unrealised_pct >= config.TRAIL_ACTIVATION_PCT:
+                        current_sl = best * (1 - config.TRAIL_DISTANCE_PCT)
+                        position["sl_price"] = max(position["sl_price"], current_sl)
+                    sl = position["sl_price"]
+                    sl_hit = row["low"] <= sl
+                else:
+                    unrealised_pct = (entry - best) / entry
+                    if unrealised_pct >= config.TRAIL_ACTIVATION_PCT:
+                        current_sl = best * (1 + config.TRAIL_DISTANCE_PCT)
+                        position["sl_price"] = min(position["sl_price"], current_sl)
+                    sl = position["sl_price"]
+                    sl_hit = row["high"] >= sl
+
+                exit_price = None
+                reason = None
+
+                if sl_hit:
+                    exit_price = sl
+                    reason = "Trail-SL" if unrealised_pct >= config.TRAIL_ACTIVATION_PCT else "SL"
+                elif prev["signal"] != 0 and prev["signal"] != direction:
+                    exit_price = row["open"]
+                    reason = "Flip"
+
+                if exit_price is not None:
                     raw_pnl = direction * (exit_price - entry) * qty
-                    fee = (entry + exit_price) * qty * 0.00075 * 2  # taker fee both sides
+                    fee = (entry + exit_price) * qty * 0.00075 * 2
                     pnl = raw_pnl - fee
                     balance += pnl
                     rm.update_peak(balance)
-
                     result.trades.append(Trade(
                         entry_time=entry_time,
                         exit_time=row.name,
@@ -79,27 +104,6 @@ class Backtester:
                     ))
                     position = None
 
-                # Opposite signal flips position
-                elif prev["signal"] != 0 and prev["signal"] != direction:
-                    exit_price = row["open"]
-                    raw_pnl = direction * (exit_price - entry) * qty
-                    fee = (entry + exit_price) * qty * 0.00075 * 2
-                    pnl = raw_pnl - fee
-                    balance += pnl
-                    rm.update_peak(balance)
-
-                    result.trades.append(Trade(
-                        entry_time=entry_time,
-                        exit_time=row.name,
-                        direction=direction,
-                        entry_price=entry,
-                        exit_price=exit_price,
-                        qty=qty,
-                        pnl=pnl,
-                        exit_reason="Flip",
-                    ))
-                    position = None
-
             # ── Open new position ─────────────────────────────────────────────
             if position is None and prev["signal"] != 0:
                 if rm.max_drawdown_hit(balance):
@@ -109,7 +113,6 @@ class Backtester:
                 sig = prev["signal"]
                 entry_price = row["open"]
                 sl_price = prev["sl_price"]
-                tp_price = prev["tp_price"]
                 qty = rm.position_size(balance, entry_price, sl_price)
 
                 if qty > 0:
@@ -117,7 +120,7 @@ class Backtester:
                         "direction": sig,
                         "entry_price": entry_price,
                         "sl_price": sl_price,
-                        "tp_price": tp_price,
+                        "best_price": entry_price,  # tracks highest (long) or lowest (short) since entry
                         "qty": qty,
                         "entry_time": row.name,
                     }
