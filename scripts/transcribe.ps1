@@ -55,17 +55,43 @@ if (-not (Test-Path -LiteralPath $audioDir)) {
     exit 1
 }
 
-$whisper = Get-Command whisper -ErrorAction SilentlyContinue
-if (-not $whisper) {
+# Two engines, because the Python one needs Python. Faster-Whisper-XXL is
+# a standalone Windows executable - unzip and run, nothing to install -
+# and it is considerably faster on the same model.
+$engine = $null
+$exe = $null
+
+$xxl = Get-Command faster-whisper-xxl -ErrorAction SilentlyContinue
+if (-not $xxl) {
+    $found = Get-ChildItem "$env:USERPROFILE\Downloads","C:\","D:\" -Filter 'faster-whisper-xxl.exe' -Recurse -Depth 3 -ErrorAction SilentlyContinue |
+             Select-Object -First 1
+    if ($found) { $xxl = $found }
+}
+if ($xxl) {
+    $engine = 'xxl'
+    $exe = if ($xxl.Source) { $xxl.Source } else { $xxl.FullName }
+} else {
+    $py = Get-Command whisper -ErrorAction SilentlyContinue
+    if ($py) { $engine = 'python'; $exe = $py.Source }
+}
+
+if (-not $engine) {
     Write-Host ""
-    Write-Host "whisper not found. Install it with:" -ForegroundColor Yellow
-    Write-Host "    pip install -U openai-whisper"
+    Write-Host "No transcription engine found. Either works:" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "No Python? Any transcription service that exports .srt works"
-    Write-Host "just as well - drop the files in out\transcripts\ named to"
-    Write-Host "match the clips and everything downstream is identical."
+    Write-Host "  1. Faster-Whisper-XXL - a standalone exe, no Python needed."
+    Write-Host "     Download the Windows build, unzip it anywhere, and run"
+    Write-Host "     this script again. It will find the exe by itself."
+    Write-Host ""
+    Write-Host "  2. pip install -U openai-whisper   (needs Python)"
+    Write-Host ""
+    Write-Host "Or use any service that exports .srt - drop the files in"
+    Write-Host "the transcripts folder named to match the clips, and"
+    Write-Host "everything downstream is identical."
     exit 1
 }
+
+Write-Host "Engine: $engine  ($exe)"
 
 New-Item -ItemType Directory -Force -Path $srtDir | Out-Null
 
@@ -90,8 +116,13 @@ foreach ($file in $audio) {
     }
 
     Write-Host ("[{0}/{1}] {2}" -f $n, $audio.Count, $file.BaseName)
-    & whisper $file.FullName --model $Model --language $Language `
-        --output_format srt --output_dir $srtDir --verbose False
+    if ($engine -eq 'xxl') {
+        & $exe $file.FullName --model $Model --language $Language `
+            --output_format srt --output_dir $srtDir
+    } else {
+        & $exe $file.FullName --model $Model --language $Language `
+            --output_format srt --output_dir $srtDir --verbose False
+    }
 }
 
 Write-Host ""
