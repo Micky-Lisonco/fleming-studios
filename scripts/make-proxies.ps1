@@ -39,6 +39,29 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Invoke-Native {
+    <#
+      Runs a native command and returns everything it printed, including
+      stderr, as a plain string.
+
+      ffmpeg writes progress and warnings to stderr. PowerShell surfaces
+      native stderr as a NativeCommandError, which under
+      ErrorActionPreference = Stop terminates the script - so a harmless
+      warning from a camera edit list would end an otherwise fine run.
+    #>
+    param(
+        [Parameter(Mandatory = $true)] [string]   $Exe,
+        [Parameter(Mandatory = $true)] [string[]] $Arguments
+    )
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $Exe @Arguments 2>&1 | Out-String
+    } finally {
+        $ErrorActionPreference = $previous
+    }
+}
+
 if (-not (Test-Path -LiteralPath $SourcePath)) {
     Write-Error "Folder not found: $SourcePath"
     exit 1
@@ -71,10 +94,21 @@ if (-not $ffmpeg -or -not $ffprobe) {
 if ($Quality -eq 'low') { $height = 480; $vbr = '500k'; $maxrate = '700k' }
 else                    { $height = 640; $vbr = '900k'; $maxrate = '1200k' }
 
-$root      = Split-Path -Parent $PSScriptRoot
-$proxyDir  = Join-Path $root 'public\media-proxy'
-$audioDir  = Join-Path $root 'out\audio'
-$lookDir   = Join-Path $root 'out\lookbook'
+# Works inside the repo or dropped anywhere on its own.
+$parent = Split-Path -Parent $PSScriptRoot
+$inRepo = ((Split-Path -Leaf $PSScriptRoot) -eq 'scripts') -and
+          (Test-Path -LiteralPath (Join-Path $parent 'package.json'))
+
+if ($inRepo) {
+    $proxyDir = Join-Path $parent 'public\media-proxy'
+    $audioDir = Join-Path $parent 'out\audio'
+    $lookDir  = Join-Path $parent 'out\lookbook'
+} else {
+    $base     = Join-Path $PSScriptRoot 'footage-prep'
+    $proxyDir = Join-Path $base 'media-proxy'
+    $audioDir = Join-Path $base 'audio'
+    $lookDir  = Join-Path $base 'lookbook'
+}
 foreach ($d in @($proxyDir, $audioDir, $lookDir)) {
     New-Item -ItemType Directory -Force -Path $d | Out-Null
 }
@@ -82,6 +116,7 @@ foreach ($d in @($proxyDir, $audioDir, $lookDir)) {
 $extensions = @('.mp4', '.mov', '.m4v', '.mxf', '.avi', '.mkv', '.insv')
 $files = Get-ChildItem -LiteralPath $SourcePath -File -Recurse |
          Where-Object { $extensions -contains $_.Extension.ToLower() } |
+         Where-Object { $_.FullName -notlike "$proxyDir*" } |
          Sort-Object FullName
 
 if ($files.Count -eq 0) { Write-Error "No video files found under $SourcePath"; exit 1 }
@@ -103,8 +138,13 @@ foreach ($file in $files) {
 
     Write-Host ("[{0}/{1}] {2}" -f $n, $files.Count, $file.Name)
 
-    $probeRaw = & $ffprobe -v error -print_format json -show_format -show_streams $file.FullName 2>$null
-    $meta = $probeRaw | Out-String | ConvertFrom-Json
+    $probeRaw = Invoke-Native $ffprobe @('-v','error','-print_format','json','-show_format','-show_streams',$file.FullName)
+    try {
+        $meta = $probeRaw | ConvertFrom-Json
+    } catch {
+        Write-Host "    skipped - metadata would not parse" -ForegroundColor Yellow
+        continue
+    }
     $v    = $meta.streams | Where-Object { $_.codec_type -eq 'video' } | Select-Object -First 1
 
     $fps = 0.0
@@ -117,12 +157,13 @@ foreach ($file in $files) {
 
     # -- the proxy: same framing, same length, just small --
     $proxyPath = Join-Path $proxyDir "$stem.mp4"
-    & $ffmpeg -nostdin -y -loglevel error -i $file.FullName `
-        -vf "scale=-2:$height" `
-        -c:v libx264 -preset veryfast -b:v $vbr -maxrate $maxrate -bufsize 2M `
-        -pix_fmt yuv420p -movflags +faststart `
-        -c:a aac -b:a 64k -ac 1 `
-        $proxyPath 2>$null
+    $null = Invoke-Native $ffmpeg @(
+        '-nostdin','-y','-loglevel','error','-i',$file.FullName,
+        '-vf',"scale=-2:$height",
+        '-c:v','libx264','-preset','veryfast','-b:v',$vbr,'-maxrate',$maxrate,'-bufsize','2M',
+        '-pix_fmt','yuv420p','-movflags','+faststart',
+        '-c:a','aac','-b:a','64k','-ac','1',
+        $proxyPath)
 
     if (Test-Path -LiteralPath $proxyPath) {
         $proxyMB = [math]::Round((Get-Item -LiteralPath $proxyPath).Length / 1MB, 1)
@@ -133,9 +174,10 @@ foreach ($file in $files) {
     }
 
     # -- audio, because this is interview footage and the words decide the cut --
-    & $ffmpeg -nostdin -y -loglevel error -i $file.FullName `
-        -vn -c:a libmp3lame -b:a 64k -ac 1 -ar 16000 `
-        (Join-Path $audioDir "$stem.mp3") 2>$null
+    $null = Invoke-Native $ffmpeg @(
+        '-nostdin','-y','-loglevel','error','-i',$file.FullName,
+        '-vn','-c:a','libmp3lame','-b:a','64k','-ac','1','-ar','16000',
+        (Join-Path $audioDir "$stem.mp3"))
 
     # -- filmstrip: six frames across the clip, one small jpeg --
     # Sampled by time rather than by frame index: ffmpeg's select filter
@@ -143,9 +185,10 @@ foreach ($file in $files) {
     # matches nothing and writes no file.
     if ($durationSec -gt 0.5) {
         $stripRate = [math]::Round(6.5 / $durationSec, 6)
-        & $ffmpeg -nostdin -y -loglevel error -i $file.FullName `
-            -vf "fps=$stripRate,scale=-2:240,tile=6x1" `
-            -frames:v 1 -q:v 4 (Join-Path $lookDir "$stem.jpg") 2>$null
+        $null = Invoke-Native $ffmpeg @(
+            '-nostdin','-y','-loglevel','error','-i',$file.FullName,
+            '-vf',"fps=$stripRate,scale=-2:240,tile=6x1",
+            '-frames:v','1','-q:v','4',(Join-Path $lookDir "$stem.jpg"))
     }
 
     $manifest.Add([pscustomobject]@{

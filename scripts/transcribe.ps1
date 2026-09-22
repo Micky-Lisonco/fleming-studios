@@ -38,12 +38,20 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$root    = Split-Path -Parent $PSScriptRoot
-$audioDir = Join-Path $root 'out\audio'
-$srtDir   = Join-Path $root 'out\transcripts'
+$parent = Split-Path -Parent $PSScriptRoot
+$inRepo = ((Split-Path -Leaf $PSScriptRoot) -eq 'scripts') -and
+          (Test-Path -LiteralPath (Join-Path $parent 'package.json'))
+
+if ($inRepo) {
+    $audioDir = Join-Path $parent 'out\audio'
+    $srtDir   = Join-Path $parent 'out\transcripts'
+} else {
+    $audioDir = Join-Path $PSScriptRoot 'footage-prep\audio'
+    $srtDir   = Join-Path $PSScriptRoot 'footage-prep\transcripts'
+}
 
 if (-not (Test-Path -LiteralPath $audioDir)) {
-    Write-Error "No audio yet - run .\scripts\make-proxies.ps1 first."
+    Write-Error "No audio yet - run make-proxies.ps1 first."
     exit 1
 }
 
