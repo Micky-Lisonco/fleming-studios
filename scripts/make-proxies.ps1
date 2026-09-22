@@ -34,7 +34,16 @@ param(
     [string] $SourcePath,
 
     [ValidateSet('normal', 'low')]
-    [string] $Quality = 'normal'
+    [string] $Quality = 'normal',
+
+    # Path to a .cube LUT, e.g. a Canon C-Log to Rec.709 conversion. This is
+    # the correct way to handle log footage - use it whenever one exists.
+    [string] $Lut,
+
+    # Fallback when the footage is log but no .cube is to hand. Approximate,
+    # not a substitute for the real conversion, but far better than leaving
+    # it flat.
+    [switch] $LogFootage
 )
 
 $ErrorActionPreference = 'Stop'
@@ -67,6 +76,20 @@ if (-not (Test-Path -LiteralPath $SourcePath)) {
     exit 1
 }
 
+function ConvertTo-FilterPath {
+    <#
+      Rewrites a Windows path so it survives an ffmpeg filter argument.
+
+      Inside a filter, ':' separates options and '\' escapes, so a path like
+      D:\luts\canon.cube is parsed as gibberish and lut3d fails with
+      "Invalid argument". Forward slashes and an escaped colon fix it.
+    #>
+    param([string] $Path)
+    $p = $Path -replace '\\', '/'
+    $p = $p -replace ':', '\:'
+    return $p
+}
+
 function Find-Tool {
     param([string] $Name)
     $cmd = Get-Command $Name -ErrorAction SilentlyContinue
@@ -93,6 +116,24 @@ if (-not $ffmpeg -or -not $ffprobe) {
 
 if ($Quality -eq 'low') { $height = 480; $vbr = '500k'; $maxrate = '700k' }
 else                    { $height = 640; $vbr = '900k'; $maxrate = '1200k' }
+
+# The grade has to be baked into the proxies. Cutting log footage ungraded
+# means judging every shot through flat grey, and the choices that come out
+# of that do not survive contact with the finished grade.
+$grade = ''
+if ($Lut) {
+    if (-not (Test-Path -LiteralPath $Lut)) {
+        Write-Error "LUT not found: $Lut"
+        exit 1
+    }
+    $grade = "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $Lut).Path)'"
+    Write-Host "Grade: $Lut"
+} elseif ($LogFootage) {
+    $grade = "curves=all='0/0 0.2/0.06 0.5/0.45 0.8/0.88 1/1',eq=saturation=1.5"
+    Write-Host "Grade: built-in log approximation (supply -Lut for the real conversion)"
+} else {
+    Write-Host "Grade: none (add -LogFootage or -Lut if the footage is flat)"
+}
 
 # Works inside the repo or dropped anywhere on its own.
 $parent = Split-Path -Parent $PSScriptRoot
@@ -128,6 +169,7 @@ Write-Host ""
 $manifest = New-Object System.Collections.Generic.List[object]
 $n = 0
 $oversize = 0
+$failed = 0
 
 foreach ($file in $files) {
     $n++
@@ -157,13 +199,25 @@ foreach ($file in $files) {
 
     # -- the proxy: same framing, same length, just small --
     $proxyPath = Join-Path $proxyDir "$stem.mp4"
-    $null = Invoke-Native $ffmpeg @(
+    $proxyLog = Invoke-Native $ffmpeg @(
         '-nostdin','-y','-loglevel','error','-i',$file.FullName,
-        '-vf',"scale=-2:$height",
+        '-vf',$(if ($grade) { "scale=-2:$height,$grade" } else { "scale=-2:$height" }),
         '-c:v','libx264','-preset','veryfast','-b:v',$vbr,'-maxrate',$maxrate,'-bufsize','2M',
         '-pix_fmt','yuv420p','-movflags','+faststart',
         '-c:a','aac','-b:a','64k','-ac','1',
         $proxyPath)
+
+    # A silent ffmpeg failure used to leave an empty proxy and say nothing,
+    # which is the worst outcome: the cut then gets built against footage
+    # that is not there. Surface it loudly instead.
+    if (-not (Test-Path -LiteralPath $proxyPath) -or (Get-Item -LiteralPath $proxyPath).Length -eq 0) {
+        Write-Host "    FAILED to write a proxy for this clip" -ForegroundColor Red
+        if ($proxyLog.Trim()) {
+            Write-Host ("    ffmpeg said: " + ($proxyLog.Trim() -split "`n" | Select-Object -First 3 | Out-String).Trim()) -ForegroundColor Red
+        }
+        $failed++
+        continue
+    }
 
     if (Test-Path -LiteralPath $proxyPath) {
         $proxyMB = [math]::Round((Get-Item -LiteralPath $proxyPath).Length / 1MB, 1)
@@ -187,7 +241,7 @@ foreach ($file in $files) {
         $stripRate = [math]::Round(6.5 / $durationSec, 6)
         $null = Invoke-Native $ffmpeg @(
             '-nostdin','-y','-loglevel','error','-i',$file.FullName,
-            '-vf',"fps=$stripRate,scale=-2:240,tile=6x1",
+            '-vf',$(if ($grade) { "fps=$stripRate,scale=-2:240,$grade,tile=6x1" } else { "fps=$stripRate,scale=-2:240,tile=6x1" }),
             '-frames:v','1','-q:v','4',(Join-Path $lookDir "$stem.jpg"))
     }
 
@@ -211,6 +265,10 @@ Write-Host ""
 Write-Host "Proxies:    $proxyDir"    -ForegroundColor Green
 Write-Host "Audio:      $audioDir"    -ForegroundColor Green
 Write-Host "Filmstrips: $lookDir"     -ForegroundColor Green
+if ($failed -gt 0) {
+    Write-Host ""
+    Write-Host "$failed clips produced no proxy - see the messages above" -ForegroundColor Red
+}
 if ($oversize -gt 0) {
     Write-Host ""
     Write-Host "$oversize proxies are over 30 MB - re-run with -Quality low" -ForegroundColor Yellow
