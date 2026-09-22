@@ -5,12 +5,18 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "video": "remotion studio remotion/index.ts",
+    "video:render": "remotion render remotion/index.ts VerticalAd out/fleming-ad.mp4",
+    "video:still": "remotion still remotion/index.ts VerticalAd out/thumbnail.png --frame=40"
   },
   "dependencies": {
+    "@remotion/cli": "^4.0.526",
+    "@remotion/player": "^4.0.526",
     "next": "14.2.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "remotion": "^4.0.526",
     "three": "0.163.0"
   },
   "devDependencies": {
@@ -18,10 +24,10 @@
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
     "@types/three": "0.163.0",
-    "typescript": "5.4.5",
-    "tailwindcss": "3.4.4",
     "autoprefixer": "10.4.19",
-    "postcss": "8.4.38"
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.4",
+    "typescript": "5.4.5"
   },
   "overrides": {
     "react": "18.3.1",
