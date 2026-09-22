@@ -334,37 +334,51 @@ export const SHOTS_AD: Shot[] = [
  * moving, long enough to actually read two lines.
  */
 export const SHOTS_EXPLAINER: Shot[] = [
-  // ── HOOK (0.0s – 2.2s) — four cuts, two outside and two inside.
-  // One held shot gives a stranger nothing to be curious about.
+  /**
+   * The subject is the machine, not the manager.
+   *
+   * An earlier version leaned on the interview footage because it was
+   * the only material shot indoors - and ended up with six of fourteen
+   * shots being a woman standing still, in a film whose job is to
+   * explain an object. She now appears twice, in the one beat where
+   * being inside is the point.
+   *
+   * The device footage carries the rest. The long drone clips hold far
+   * more than one usable shot each: 23 runs a minute, 22 nearly as
+   * long, so the same file supplies several genuinely different
+   * moments at different timecodes rather than one.
+   */
+
+  // ── HOOK (0.0s – 2.2s) — four cuts, all object. The second runs at
+  // 0.55 speed: the metal drifting past slowly is what makes a tube
+  // look like something worth understanding.
   { id: "x1a-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 14, startFrom: 40,  move: "left",  accent: BRAND.oxygen },
-  { id: "x1b-top",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 14, startFrom: 120, move: "push",  accent: BRAND.oxygen },
-  { id: "x1c-tube",   file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 14, startFrom: 40,  move: "push",  accent: BRAND.oxygen },
-  { id: "x1d-seats",  file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 14, startFrom: 300, move: "pull",  accent: BRAND.oxygen },
+  { id: "x1b-slow",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 14, startFrom: 200, move: "right", speed: 0.55, accent: BRAND.oxygen },
+  { id: "x1c-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 14, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
+  { id: "x1d-air",    file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 14, startFrom: 250, move: "push",  accent: BRAND.oxygen },
 
-  // ── Every beat below runs across TWO shots. A line of text held over
-  // a single locked shot for three and a half seconds is where
-  // attention goes to die; the words stay put and the pictures change
-  // under them.
+  // ── WHAT IT IS (2.2s – 5.7s) — the object, whole, in daylight.
+  { id: "x2a-top",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 44, startFrom: 120, move: "push", speed: 0.8,  accent: BRAND.oxygen },
+  { id: "x2b-length", file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 44, startFrom: 900, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
 
-  // WHAT IT IS (2.2s – 5.7s)
-  { id: "x2a-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 44, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
-  { id: "x2b-reveal", file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 44, startFrom: 300, move: "push",  accent: BRAND.oxygen },
+  // ── WHAT FOR (5.7s – 9.2s) — who arrives at it and what they have
+  // just done. Cobbles and cyclists say "after a hard ride" without a
+  // word of explanation.
+  { id: "x3a-arrive", file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 44, startFrom: 150, move: "push", speed: 1.15, accent: BRAND.cobble },
+  { id: "x3b-cobble", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 44, startFrom: 25,  move: "push", speed: 1.2,  accent: BRAND.cobble },
 
-  // WHAT FOR (5.7s – 9.2s)
-  { id: "x3a-chair",  file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 44, startFrom: 75,  move: "push",  accent: BRAND.oxygen },
-  { id: "x3b-vip",    file: "14-6E8A6405.mp4",                  kind: "video", durationInFrames: 44, startFrom: 50,  move: "pull",  accent: BRAND.oxygen },
+  // ── HOW IT GOES (9.2s – 12.7s) — the ONE beat where being inside is
+  // the point, so the only two shots with a person in them sit here.
+  { id: "x4a-inside", file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 44, startFrom: 40,  move: "push", accent: BRAND.pulse },
+  { id: "x4b-chair",  file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 44, startFrom: 75,  move: "pull", accent: BRAND.pulse },
 
-  // HOW IT GOES (9.2s – 12.7s)
-  { id: "x4a-detail", file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 44, startFrom: 700, move: "pull",  accent: BRAND.pulse },
-  { id: "x4b-seat",   file: "16-6E8A6407.mp4",                  kind: "video", durationInFrames: 44, startFrom: 400, move: "push",  accent: BRAND.pulse },
+  // ── FOR WHOM (12.7s – 16.2s) — back outside, to the riders.
+  { id: "x5a-riders", file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 44, startFrom: 200, move: "left", speed: 0.75, accent: BRAND.pulse },
+  { id: "x5b-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 44, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.pulse },
 
-  // FOR WHOM (12.7s – 16.2s)
-  { id: "x5a-riders", file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 44, startFrom: 300, move: "pull",  speed: 1.15, accent: BRAND.pulse },
-  { id: "x5b-arrive", file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 44, startFrom: 150, move: "push",  speed: 1.15, accent: BRAND.pulse },
-
-  // THE ONLY ONE (16.2s – 18.1s)
-  { id: "x6a-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull",  speed: 1.15, accent: BRAND.oxygen },
-  { id: "x6b-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull",  speed: 1.1,  accent: BRAND.oxygen },
+  // ── THE ONLY ONE (16.2s – 18.1s)
+  { id: "x6a-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
+  { id: "x6b-place",  file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 22, startFrom: 200, move: "push", speed: 1.1, accent: BRAND.oxygen },
 ];
 
 export type Film = {
