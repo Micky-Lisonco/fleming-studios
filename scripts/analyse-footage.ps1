@@ -14,7 +14,8 @@
 
 .PARAMETER SampleSeconds
   Seconds per clip used for the measured picture and loudness stats.
-  Container metadata is always read for the whole file. Default 60.
+  Container metadata is always read for the whole file. Default 30.
+  Lower it to 10 if 30 clips is taking too long.
 
 .EXAMPLE
   .\scripts\analyse-footage.ps1 -SourcePath "E:\oxygen-shoot"
@@ -39,10 +40,35 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string] $SourcePath,
 
-    [int] $SampleSeconds = 60
+    [int] $SampleSeconds = 30
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Invoke-Native {
+    <#
+      Runs a native command and returns everything it printed, including
+      stderr, as a plain string.
+
+      ffmpeg writes progress and warnings to stderr. PowerShell surfaces
+      native stderr as a NativeCommandError, which under
+      ErrorActionPreference = Stop terminates the script - so a harmless
+      "Missing key frame while searching for timestamp" from a Canon edit
+      list would end an otherwise fine run. Dropping to Continue for the
+      duration of the call treats that output as what it is: text.
+    #>
+    param(
+        [Parameter(Mandatory = $true)] [string]   $Exe,
+        [Parameter(Mandatory = $true)] [string[]] $Arguments
+    )
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $Exe @Arguments 2>&1 | Out-String
+    } finally {
+        $ErrorActionPreference = $previous
+    }
+}
 
 if (-not (Test-Path -LiteralPath $SourcePath)) {
     Write-Error "Folder not found: $SourcePath"
@@ -132,7 +158,7 @@ foreach ($file in $files) {
     Write-Host ("[{0}/{1}] {2}" -f $n, $files.Count, $file.Name)
 
     # -- container and stream metadata: instant, whole file, exact --
-    $probeRaw = & $ffprobe -v error -print_format json -show_format -show_streams $file.FullName 2>$null
+    $probeRaw = Invoke-Native $ffprobe @('-v','error','-print_format','json','-show_format','-show_streams',$file.FullName)
     if (-not $probeRaw) {
         $report.Add("-- [$n] $($file.Name)")
         $report.Add("   UNREADABLE - ffprobe could not open this file")
@@ -140,7 +166,15 @@ foreach ($file in $files) {
         continue
     }
 
-    $meta  = $probeRaw | Out-String | ConvertFrom-Json
+    try {
+        $meta = $probeRaw | ConvertFrom-Json
+    } catch {
+        $report.Add("-- [$n] $($file.Name)")
+        $report.Add("   UNREADABLE - could not parse the stream metadata")
+        $report.Add("")
+        Write-Host "    skipped - metadata would not parse" -ForegroundColor Yellow
+        continue
+    }
     $v     = $meta.streams | Where-Object { $_.codec_type -eq 'video' } | Select-Object -First 1
     $a     = $meta.streams | Where-Object { $_.codec_type -eq 'audio' } | Select-Object -First 1
 
@@ -165,16 +199,21 @@ foreach ($file in $files) {
     # -- measured: audio loudness, so the interview can be levelled --
     $lufs = ''; $lra = ''; $peak = ''
     if ($a) {
-        $loudRaw = & $ffmpeg -nostdin -hide_banner -t $SampleSeconds -i $file.FullName `
-                       -af 'loudnorm=print_format=json' -f null - 2>&1 | Out-String
+        # -vn skips video decoding entirely, which on 4K footage is the
+        # difference between seconds and minutes per clip.
+        $loudRaw = Invoke-Native $ffmpeg @(
+            '-nostdin','-hide_banner','-t',"$SampleSeconds",'-i',$file.FullName,
+            '-vn','-af','loudnorm=print_format=json','-f','null','-')
         if ($loudRaw -match '"input_i"\s*:\s*"([^"]+)"')   { $lufs = $Matches[1] }
         if ($loudRaw -match '"input_lra"\s*:\s*"([^"]+)"') { $lra  = $Matches[1] }
         if ($loudRaw -match '"input_tp"\s*:\s*"([^"]+)"')  { $peak = $Matches[1] }
     }
 
     # -- measured: picture, to spot flat/log or crushed footage --
-    $statsRaw = & $ffmpeg -nostdin -hide_banner -t $SampleSeconds -i $file.FullName `
-                    -vf 'signalstats,metadata=print' -f null - 2>&1 | Out-String
+    # -an likewise skips the audio track on the picture pass.
+    $statsRaw = Invoke-Native $ffmpeg @(
+        '-nostdin','-hide_banner','-t',"$SampleSeconds",'-i',$file.FullName,
+        '-an','-vf','signalstats,metadata=print','-f','null','-')
 
     $lumaValues = [regex]::Matches($statsRaw, 'lavfi\.signalstats\.YAVG=([\d.]+)')   | ForEach-Object { [double]$_.Groups[1].Value }
     $satValues  = [regex]::Matches($statsRaw, 'lavfi\.signalstats\.SATAVG=([\d.]+)') | ForEach-Object { [double]$_.Groups[1].Value }
