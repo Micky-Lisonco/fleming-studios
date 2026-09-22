@@ -209,6 +209,8 @@ foreach ($file in $files) {
         if ($loudRaw -match '"input_tp"\s*:\s*"([^"]+)"')  { $peak = $Matches[1] }
     }
 
+    $pixFmt = if ($v -and $v.pix_fmt) { $v.pix_fmt } else { '?' }
+
     # -- measured: picture, to spot flat/log or crushed footage --
     # -an likewise skips the audio track on the picture pass.
     $statsRaw = Invoke-Native $ffmpeg @(
@@ -218,9 +220,17 @@ foreach ($file in $files) {
     $lumaValues = [regex]::Matches($statsRaw, 'lavfi\.signalstats\.YAVG=([\d.]+)')   | ForEach-Object { [double]$_.Groups[1].Value }
     $satValues  = [regex]::Matches($statsRaw, 'lavfi\.signalstats\.SATAVG=([\d.]+)') | ForEach-Object { [double]$_.Groups[1].Value }
 
+    # signalstats reports in the source's own bit depth, so a 10-bit clip
+    # comes back on a 0-1023 scale and an 8-bit one on 0-255. Comparing
+    # them raw makes 10-bit footage look four times brighter than it is,
+    # and makes every threshold below meaningless. Normalise to 8-bit.
+    $depthScale = 1.0
+    if ($pixFmt -match '10(le|be)$') { $depthScale = 4.0 }
+    elseif ($pixFmt -match '12(le|be)$') { $depthScale = 16.0 }
+
     $lumaAvg = 0.0; $satAvg = 0.0
-    if ($lumaValues.Count -gt 0) { $lumaAvg = [math]::Round(($lumaValues | Measure-Object -Average).Average, 1) }
-    if ($satValues.Count  -gt 0) { $satAvg  = [math]::Round(($satValues  | Measure-Object -Average).Average, 1) }
+    if ($lumaValues.Count -gt 0) { $lumaAvg = [math]::Round((($lumaValues | Measure-Object -Average).Average / $depthScale), 1) }
+    if ($satValues.Count  -gt 0) { $satAvg  = [math]::Round((($satValues  | Measure-Object -Average).Average / $depthScale), 1) }
 
     # -- the notes that actually decide how we treat the clip --
     $notes = New-Object System.Collections.Generic.List[string]
@@ -228,7 +238,6 @@ foreach ($file in $files) {
     $transfer = if ($v -and $v.color_transfer) { $v.color_transfer } else { 'unset' }
     $primaries = if ($v -and $v.color_primaries) { $v.color_primaries } else { 'unset' }
     $space = if ($v -and $v.color_space) { $v.color_space } else { 'unset' }
-    $pixFmt = if ($v -and $v.pix_fmt) { $v.pix_fmt } else { '?' }
 
     if ($transfer -in @('arib-std-b67', 'smpte2084')) {
         $notes.Add("HDR ($transfer) - needs tone-mapping to Rec.709 or it renders washed out and dull")
@@ -239,11 +248,17 @@ foreach ($file in $files) {
     if ($rotation -ne 0) {
         $notes.Add("rotation ${rotation} deg in metadata - check orientation before cropping")
     }
-    if ($lumaAvg -gt 0 -and $lumaAvg -lt 70) {
+    if ($lumaAvg -gt 0 -and $lumaAvg -lt 60) {
         $notes.Add("low average luma ($lumaAvg) - underexposed or log, will need a lift")
     }
-    if ($satAvg -gt 0 -and $satAvg -lt 45) {
-        $notes.Add("low saturation ($satAvg) - looks like a flat/log profile awaiting a LUT")
+    # Deliberately quiet unless the colour metadata also suggests log. A
+    # grey room under overcast Flemish light is genuinely desaturated
+    # footage, not a profile problem, and calling every such clip "log"
+    # sends the grade in exactly the wrong direction.
+    if ($satAvg -gt 0 -and $satAvg -lt 14 -and $transfer -notmatch 'bt709|iec61966|unset') {
+        $notes.Add("very low saturation ($satAvg) with non-Rec.709 transfer - may be a log profile")
+    } elseif ($satAvg -gt 0 -and $satAvg -lt 14) {
+        $notes.Add("low saturation ($satAvg) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT")
     }
     if ($lufs -ne '' -and [double]$lufs -lt -26) {
         $notes.Add("quiet dialogue ($lufs LUFS) - needs bringing up to about -14 for social")

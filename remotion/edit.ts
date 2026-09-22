@@ -27,11 +27,25 @@
  *  footage, different words — so each campaign gets its own video
  *  without a second edit. Pick the composition in the Studio sidebar.
  *
- *  30 frames = 1 second. The ad is 600 frames = 20 seconds.
+ *  25 frames = 1 second. The ad is 500 frames = 20 seconds.
  */
 
-export const FPS = 30;
-export const TARGET_FRAMES = 20 * FPS; // 600
+/**
+ * 25, not 30, and this is forced by the footage rather than chosen.
+ *
+ * The Canon rolls at 50p and the drone at 25p. Against a 25 fps timeline
+ * both divide cleanly - the Canon drops every other frame, the drone maps
+ * one to one - so every frame in the finished film is a real frame. A 30
+ * fps timeline would have to resample both (50 to 30 and 25 to 30 are each
+ * awkward ratios), which shows up as judder on exactly the moving shots
+ * this ad is built from: the aerials and the cobbles.
+ *
+ * It also means the Canon material can run at half speed with no
+ * interpolation at all - 50p played at 25 is genuinely smooth slow motion,
+ * not software guessing at in-between frames.
+ */
+export const FPS = 25;
+export const TARGET_FRAMES = 20 * FPS; // 500
 
 /**
  * ── TWO FORMATS ───────────────────────────────────────────────
@@ -156,7 +170,7 @@ export type Shot = {
    */
   file: string | null;
   kind: "video" | "image";
-  /** 30 frames = 1 second. */
+  /** 25 frames = 1 second. */
   durationInFrames: number;
   /** Trim: start this many frames into the source. Video only. */
   startFrom?: number;
@@ -238,41 +252,41 @@ export const SHOTS: Shot[] = [
   // speaks. The drone material earns its place here: the Flemish Ardennes
   // are the reason the hotel exists, and no interior shot says that in a
   // second and a half.
-  { id: "01-aerial",   file: null, kind: "video", durationInFrames: 42, accent: BRAND.cobble, wants: "aerial" },
+  { id: "01-aerial",   file: null, kind: "video", durationInFrames: 35, accent: BRAND.cobble, wants: "aerial" },
 
   // ── SOUNDBITE 1 — the hook, in her words.
-  { id: "02-hook",     file: null, kind: "video", durationInFrames: 54, accent: BRAND.oxygen, audible: true, speaker: "fien", wants: "interview" },
+  { id: "02-hook",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.oxygen, audible: true, speaker: "fien", wants: "interview" },
 
   // ── B-ROLL — the ride.
-  { id: "03-pave",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.cobble, wants: "broll" },
-  { id: "04-turn",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen, wants: "broll" },
+  { id: "03-pave",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.cobble, wants: "broll" },
+  { id: "04-turn",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.oxygen, wants: "broll" },
 
   // ── ARRIVING — the aerial returns, to place the hotel itself.
-  { id: "05-approach", file: null, kind: "video", durationInFrames: 30, accent: BRAND.oxygen, wants: "aerial" },
-  { id: "06-reveal",   file: null, kind: "video", durationInFrames: 27, accent: BRAND.oxygen, wants: "broll" },
+  { id: "05-approach", file: null, kind: "video", durationInFrames: 25, accent: BRAND.oxygen, wants: "aerial" },
+  { id: "06-reveal",   file: null, kind: "video", durationInFrames: 23, accent: BRAND.oxygen, wants: "broll" },
 
   // ── SOUNDBITE 2 — what the room actually is. Stronger from her than
   // the same claim as a caption.
-  { id: "07-what",     file: null, kind: "video", durationInFrames: 54, accent: BRAND.oxygen, audible: true, wants: "interview" },
+  { id: "07-what",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.oxygen, audible: true, wants: "interview" },
 
   // ── B-ROLL — inside, the hour passing.
-  { id: "08-hour",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen, wants: "broll" },
-  { id: "09-breathe",  file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse, wants: "broll" },
+  { id: "08-hour",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.oxygen, wants: "broll" },
+  { id: "09-breathe",  file: null, kind: "video", durationInFrames: 20, accent: BRAND.pulse, wants: "broll" },
 
   // ── SOUNDBITE 3 — the only one in the Benelux. The reason the ad
   // exists, so it has to come from her, not a title card.
-  { id: "10-only",     file: null, kind: "video", durationInFrames: 54, accent: BRAND.pulse, audible: true, wants: "interview" },
+  { id: "10-only",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.pulse, audible: true, wants: "interview" },
 
   // ── B-ROLL — after.
-  { id: "11-after",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse, wants: "broll" },
-  { id: "12-roll",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse, wants: "broll" },
+  { id: "11-after",    file: null, kind: "video", durationInFrames: 20, accent: BRAND.pulse, wants: "broll" },
+  { id: "12-roll",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.pulse, wants: "broll" },
 
   // ── SOUNDBITE 4 — the invitation. Her closing line.
-  { id: "13-invite",   file: null, kind: "video", durationInFrames: 54, accent: BRAND.pulse, audible: true, wants: "interview" },
+  { id: "13-invite",   file: null, kind: "video", durationInFrames: 45, accent: BRAND.pulse, audible: true, wants: "interview" },
 
   // ── THE PAYOFF — pull back out to the landscape to close.
-  { id: "14-payoff",   file: null, kind: "video", durationInFrames: 48, accent: BRAND.pulse, wants: "broll" },
-  { id: "15-away",     file: null, kind: "video", durationInFrames: 48, accent: BRAND.oxygen, wants: "aerial" },
+  { id: "14-payoff",   file: null, kind: "video", durationInFrames: 40, accent: BRAND.pulse, wants: "broll" },
+  { id: "15-away",     file: null, kind: "video", durationInFrames: 40, accent: BRAND.oxygen, wants: "aerial" },
 ];
 
 /** Words for one campaign. The timeline above never changes between them. */
@@ -365,7 +379,7 @@ export const SPEAKERS: Record<string, { name: string; role: string }> = {
  * whether or not the brand assets have landed.
  */
 export const END_CARD = {
-  durationInFrames: 45,
+  durationInFrames: 37,
   /** Filename in `public/`. Null renders the wordmark as type instead. */
   logo: null as string | null, // e.g. "flanders-logo.png"
   accent: BRAND.oxygen,
