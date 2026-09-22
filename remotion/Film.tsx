@@ -17,6 +17,7 @@ import {
 } from "./edit";
 import type { Film as FilmDef } from "./edit";
 import { EndCard } from "./components/EndCard";
+import { TextCard } from "./components/TextCard";
 import { ProgressBar } from "./components/ProgressBar";
 import { Shot } from "./components/Shot";
 
@@ -87,6 +88,23 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
           <EndCard endCard={film.endCard} />
         </Sequence>
       ) : null}
+
+      {/* Text beats that span several shots. Above the footage, below
+          the loop fade. */}
+      {(film.overlays ?? []).map((ov, i) => (
+        <Sequence
+          key={`overlay-${i}`}
+          from={ov.from}
+          durationInFrames={ov.durationInFrames}
+          name={`Text: ${ov.card.title}`}
+        >
+          <TextCard
+            card={ov.card}
+            accent={BRAND.oxygen}
+            durationInFrames={ov.durationInFrames}
+          />
+        </Sequence>
+      ))}
 
       {film.endCard ? <ProgressBar accent={BRAND.oxygen} /> : null}
 

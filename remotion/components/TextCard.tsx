@@ -6,7 +6,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { BRAND, layoutFor } from "../edit";
-import { fitFontSize } from "./fitText";
+import { FONT_FAMILY, fitFontSize } from "./fitText";
 
 export type Card = {
   /** Small line above the headline. */
@@ -20,10 +20,15 @@ export type Card = {
  * A full-frame text beat over the footage.
  *
  * Different job from Caption: a caption decorates a shot, this one IS
- * the shot's content and the picture behind it is atmosphere. So it
- * sits centre, carries a scrim heavy enough to guarantee contrast over
- * anything, and gets long enough on screen to actually be read - about
- * three and a half seconds for a headline and a line of body.
+ * the shot's content and the picture behind it is atmosphere.
+ *
+ * Anchored to the LOWER part of the frame, not the centre. Centred text
+ * lands squarely on the face of whoever is on camera, and the face is
+ * the most valuable thing in the shot. Sitting it low also matches
+ * where people already expect burned-in text in a feed.
+ *
+ * The scrim is a gradient rising from the bottom rather than a flat
+ * wash, so the picture stays bright where nothing is written.
  *
  * Built for the explainer cut, where someone who has never heard of a
  * zuurstofkamer has to understand what it is, why it exists and who it
@@ -50,7 +55,7 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  const scrim = interpolate(frame, [0, 8], [0, 0.62], { extrapolateRight: "clamp" });
+  const scrim = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
 
   const available = width - layout.sidePad * 2;
   const titleSize = fitFontSize(card.title, available, layout.captionSize, {
@@ -60,17 +65,25 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
 
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
-      <AbsoluteFill style={{ backgroundColor: `rgba(4,18,26,${scrim})` }} />
+      {/* Gradient, not a flat wash: dark where the words are, clear
+          where the picture is doing the work. */}
+      <AbsoluteFill
+        style={{
+          opacity: scrim,
+          background:
+            "linear-gradient(to top, rgba(4,18,26,0.92) 0%, rgba(4,18,26,0.86) 30%, rgba(4,18,26,0.45) 52%, rgba(4,18,26,0) 70%)",
+        }}
+      />
 
       <AbsoluteFill
         style={{
           alignItems: "center",
-          justifyContent: "center",
-          padding: `0 ${layout.sidePad}px`,
+          justifyContent: "flex-end",
+          padding: `0 ${layout.sidePad}px ${layout.captionBottom}px`,
           textAlign: "center",
           opacity,
           transform: `translateY(${y}px)`,
-          fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
+          fontFamily: FONT_FAMILY,
         }}
       >
         {card.kicker ? (
@@ -122,9 +135,9 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
 
         <div
           style={{
-            marginTop: 30,
-            width: 84,
-            height: 6,
+            marginTop: 28,
+            width: 96,
+            height: 7,
             background: accent,
             boxShadow: `0 0 26px ${accent}`,
           }}

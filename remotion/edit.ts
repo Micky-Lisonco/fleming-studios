@@ -89,15 +89,18 @@ export type Layout = {
 export const FORMATS: Record<"vertical" | "wide", Layout> = {
   vertical: {
     width: 1080, height: 1920,
-    captionSize: 128, captionSizeLong: 104, subSize: 40,
+    // Sized for a phone held at arm's length, not for a desktop preview.
+    // Type that looks generous on a 27-inch monitor is small in the
+    // hand, and small type in a feed is simply not read.
+    captionSize: 148, captionSizeLong: 124, subSize: 58,
     // Clear of the bottom fifth, where Reels and TikTok put their own UI.
-    captionBottom: 360, sidePad: 72,
-    logoWidth: 560, wordmarkSize: 118,
+    captionBottom: 360, sidePad: 64,
+    logoWidth: 560, wordmarkSize: 124,
   },
   wide: {
     width: 1920, height: 1080,
-    captionSize: 96, captionSizeLong: 76, subSize: 34,
-    captionBottom: 120, sidePad: 104,
+    captionSize: 112, captionSizeLong: 92, subSize: 46,
+    captionBottom: 120, sidePad: 96,
     logoWidth: 520, wordmarkSize: 104,
   },
 };
@@ -331,12 +334,37 @@ export const SHOTS_AD: Shot[] = [
  * moving, long enough to actually read two lines.
  */
 export const SHOTS_EXPLAINER: Shot[] = [
-  { id: "x1-hook",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 50, startFrom: 40,  move: "left", accent: BRAND.oxygen },
-  { id: "x2-what",   file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 88, startFrom: 75,  move: "pull", accent: BRAND.oxygen },
-  { id: "x3-why",    file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 88, startFrom: 50,  move: "push", accent: BRAND.oxygen },
-  { id: "x4-how",    file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 88, startFrom: 75,  move: "push", accent: BRAND.pulse },
-  { id: "x5-who",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 88, startFrom: 120, move: "pull", accent: BRAND.pulse },
-  { id: "x6-unique", file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 50, startFrom: 250, move: "pull", accent: BRAND.oxygen },
+  // ── HOOK (0.0s – 2.2s) — four cuts, two outside and two inside.
+  // One held shot gives a stranger nothing to be curious about.
+  { id: "x1a-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 14, startFrom: 40,  move: "left",  accent: BRAND.oxygen },
+  { id: "x1b-top",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 14, startFrom: 120, move: "push",  accent: BRAND.oxygen },
+  { id: "x1c-tube",   file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 14, startFrom: 40,  move: "push",  accent: BRAND.oxygen },
+  { id: "x1d-seats",  file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 14, startFrom: 300, move: "pull",  accent: BRAND.oxygen },
+
+  // ── Every beat below runs across TWO shots. A line of text held over
+  // a single locked shot for three and a half seconds is where
+  // attention goes to die; the words stay put and the pictures change
+  // under them.
+
+  // WHAT IT IS (2.2s – 5.7s)
+  { id: "x2a-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 44, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
+  { id: "x2b-reveal", file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 44, startFrom: 300, move: "push",  accent: BRAND.oxygen },
+
+  // WHAT FOR (5.7s – 9.2s)
+  { id: "x3a-chair",  file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 44, startFrom: 75,  move: "push",  accent: BRAND.oxygen },
+  { id: "x3b-vip",    file: "14-6E8A6405.mp4",                  kind: "video", durationInFrames: 44, startFrom: 50,  move: "pull",  accent: BRAND.oxygen },
+
+  // HOW IT GOES (9.2s – 12.7s)
+  { id: "x4a-detail", file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 44, startFrom: 700, move: "pull",  accent: BRAND.pulse },
+  { id: "x4b-seat",   file: "16-6E8A6407.mp4",                  kind: "video", durationInFrames: 44, startFrom: 400, move: "push",  accent: BRAND.pulse },
+
+  // FOR WHOM (12.7s – 16.2s)
+  { id: "x5a-riders", file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 44, startFrom: 300, move: "pull",  speed: 1.15, accent: BRAND.pulse },
+  { id: "x5b-arrive", file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 44, startFrom: 150, move: "push",  speed: 1.15, accent: BRAND.pulse },
+
+  // THE ONLY ONE (16.2s – 18.1s)
+  { id: "x6a-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull",  speed: 1.15, accent: BRAND.oxygen },
+  { id: "x6b-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull",  speed: 1.1,  accent: BRAND.oxygen },
 ];
 
 export type Film = {
@@ -365,6 +393,16 @@ export type Film = {
     venue: string;
     cta: string;
   } | null;
+  /**
+   * Text beats that run across several shots rather than sitting on
+   * one. The opening montage needs a single line held over four quick
+   * cuts; a per-shot card would re-animate on every one of them.
+   */
+  overlays?: Array<{
+    from: number;
+    durationInFrames: number;
+    card: { kicker?: string; title: string; body?: string };
+  }>;
   /**
    * Frames of fade from and to black at the two ends. A header video
    * loops, and a hard cut from the last frame back to the first reads
@@ -446,30 +484,31 @@ FILMS["ad-explainer-nl"] = {
   shots: SHOTS_EXPLAINER,
   energy: "high",
   captions: {},
-  cards: {
-    "x1-hook": { title: "Wat is dit?" },
-    "x2-what": {
+  overlays: [
+    { from: 0,   durationInFrames: 56, card: { title: "Wat is dit?" } },
+    { from: 56,  durationInFrames: 88, card: {
       kicker: "Wat het is",
       title: "Een zuurstofkamer",
       body: "Je ademt er bijna twee keer zoveel zuurstof in als buiten.",
-    },
-    "x3-why": {
+    } },
+    { from: 144, durationInFrames: 88, card: {
       kicker: "Waarvoor",
       title: "Om te herstellen",
       body: "Na een zware rit. Of na een zware week.",
-    },
-    "x4-how": {
+    } },
+    { from: 232, durationInFrames: 88, card: {
       kicker: "Hoe het gaat",
       title: "Twee uur. Een stoel.",
       body: "Geen masker, niets aan. Je zit, je leest, je rust.",
-    },
-    "x5-who": {
+    } },
+    { from: 320, durationInFrames: 88, card: {
       kicker: "Voor wie",
       title: "Renners, groepen, bedrijven",
       body: "En voor wie gewoon eens iets voor zichzelf wil doen.",
-    },
-    "x6-unique": { title: "De enige in de Benelux" },
-  },
+    } },
+    { from: 408, durationInFrames: 44, card: { title: "De enige in de Benelux" } },
+  ],
+  cards: {},
   endCard: {
     durationInFrames: 48,
     wordmark: "FLANDERS",
