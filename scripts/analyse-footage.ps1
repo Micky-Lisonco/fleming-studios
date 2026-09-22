@@ -19,6 +19,14 @@
 .EXAMPLE
   .\scripts\analyse-footage.ps1 -SourcePath "E:\oxygen-shoot"
 
+.EXAMPLE
+  # Standalone: drop this file anywhere and point it at the footage.
+  # No repo, no git, no npm. Results land in a folder beside the script.
+  .\analyse-footage.ps1 -SourcePath "D:\OXIGEN"
+
+  # If Windows refuses to run it ("running scripts is disabled"):
+  powershell -ExecutionPolicy Bypass -File .\analyse-footage.ps1 -SourcePath "D:\OXIGEN"
+
 .NOTES
   Needs ffmpeg (which includes ffprobe):
       winget install Gyan.FFmpeg
@@ -43,15 +51,27 @@ if (-not (Test-Path -LiteralPath $SourcePath)) {
 
 function Find-Tool {
     param([string] $Name)
+
     $cmd = Get-Command $Name -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
-    # winget's ffmpeg does not always land on PATH straight away.
+
+    # winget's shim often does not reach PATH until the shell is restarted,
+    # and the real binary sits several folders deep under Packages. Look in
+    # both places before giving up, so a fresh install just works.
     $guesses = @(
         "$env:LOCALAPPDATA\Microsoft\WinGet\Links\$Name.exe",
         "$env:ProgramFiles\ffmpeg\bin\$Name.exe",
         "C:\ffmpeg\bin\$Name.exe"
     )
     foreach ($g in $guesses) { if (Test-Path -LiteralPath $g) { return $g } }
+
+    $packages = "$env:LOCALAPPDATA\Microsoft\WinGet\Packages"
+    if (Test-Path -LiteralPath $packages) {
+        $found = Get-ChildItem -LiteralPath $packages -Filter "$Name.exe" -Recurse -ErrorAction SilentlyContinue |
+                 Select-Object -First 1
+        if ($found) { return $found.FullName }
+    }
+
     return $null
 }
 
@@ -67,8 +87,16 @@ if (-not $ffprobe -or -not $ffmpeg) {
     exit 1
 }
 
-$root      = Split-Path -Parent $PSScriptRoot
-$outDir    = Join-Path $root 'out\analysis'
+# Works two ways. Inside the repo it writes to out\analysis alongside
+# everything else; dropped on its own anywhere it writes beside itself, so
+# it can be used without cloning or installing a thing.
+$parent = Split-Path -Parent $PSScriptRoot
+$inRepo = ((Split-Path -Leaf $PSScriptRoot) -eq 'scripts') -and
+          (Test-Path -LiteralPath (Join-Path $parent 'package.json'))
+
+if ($inRepo) { $outDir = Join-Path $parent 'out\analysis' }
+else         { $outDir = Join-Path $PSScriptRoot 'footage-analysis' }
+
 $reportPath = Join-Path $outDir 'report.txt'
 $jsonPath   = Join-Path $outDir 'footage.json'
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
@@ -76,6 +104,7 @@ New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $extensions = @('.mp4', '.mov', '.m4v', '.mxf', '.avi', '.mkv', '.insv')
 $files = Get-ChildItem -LiteralPath $SourcePath -File -Recurse |
          Where-Object { $extensions -contains $_.Extension.ToLower() } |
+         Where-Object { $_.FullName -notlike "$outDir*" } |
          Sort-Object FullName
 
 if ($files.Count -eq 0) {
