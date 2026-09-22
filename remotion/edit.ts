@@ -345,45 +345,75 @@ export const SHOTS_AD: Shot[] = [
 export const SHOTS_EXPLAINER: Shot[] = [
   /**
    * Two generated stills, both of a cyclist on a road. Nothing
-   * generated is set inside the chamber any more: every attempt at an
-   * invented interior read as a waiting room next to the real one, and
-   * the real one is the entire product.
+   * generated is set inside the chamber: every invented interior read
+   * as a waiting room next to the real one, and the real one is the
+   * entire product.
+   *
+   * The rest is chosen off the contact sheets rather than off the
+   * filenames. Nineteen of the thirty clips are Fien talking to camera,
+   * which is how she ended up in five shots of a film with no speech in
+   * it; the seven that are not - the empty row of chairs, the control
+   * panel, the recliner, the headrest, the porthole - are the ones that
+   * show the product, and they now carry it.
    */
 
-  // ── 1. WHAT IT IS (0.0s – 2.8s)
-  { id: "e01-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 22, startFrom: 40,  move: "left",  accent: BRAND.oxygen },
-  { id: "e02-slow",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 24, startFrom: 200, move: "right", speed: 0.55, accent: BRAND.oxygen },
-  { id: "e03-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 24, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
+  // ── 1. WHAT IT IS (0.0s - 2.8s)
+  //
+  // Three cameras, far to close, because the first question anyone has
+  // is how big it is. This beat used to be clip 30 twice - the tightest
+  // coverage on the shoot - so the film opened by zooming in on the one
+  // thing it needed to stand back from.
+  //
+  // The two wide ones are letterboxed, not cropped. The chamber is
+  // roughly fifteen metres of horizontal object, and a 9:16 crop of a
+  // 16:9 frame keeps about a quarter of its width: cropped, even the
+  // widest drone shot shows the middle third of a silver tube and no
+  // sense of its length.
+  //
+  // They sit high in the frame rather than centred, so the picture and
+  // the text card each get their own air.
+  { id: "e01-far",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 24, startFrom: 150, fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
+  { id: "e02-scale",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 24, startFrom: 60,  fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
+  { id: "e03-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 22, startFrom: 40,  move: "left", accent: BRAND.oxygen },
 
-  // ── 2. THE OXYGEN (2.8s – 5.6s)
-  { id: "e04-whole",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 900, move: "pull", speed: 1.1, accent: BRAND.oxygen },
-  { id: "e05-inside", file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 35, startFrom: 40,  move: "push", accent: BRAND.oxygen },
+  // ── 2. THE OXYGEN (2.8s - 5.6s)
+  //
+  // Outside to inside, then the proof. The interior is empty on
+  // purpose - it is the room being sold, not an interview - and the
+  // control panel with its gauges, its emergency stop and its intercom
+  // is the shot that says this is a real installation and not a
+  // wellness gimmick. No number is claimed; the screen is atmosphere.
+  { id: "e04-inside", file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 35, startFrom: 120, move: "push", accent: BRAND.oxygen },
+  { id: "e05-panel",  file: "04-6E8A6395.mp4",                  kind: "video", durationInFrames: 35, startFrom: 60,  move: "pull", accent: BRAND.oxygen },
 
-  // ── 3. THE CHAIR (5.6s – 8.4s) — the real one. It is a heated
-  // massage recliner with a reading lamp and a USB socket, and the
-  // footage shows that far better than any generated interior did.
-  { id: "e06-chair1", file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 35, startFrom: 60,  move: "push", accent: BRAND.pulse },
-  { id: "e07-chair2", file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 35, startFrom: 700, move: "pull", accent: BRAND.pulse },
+  // ── 3. THE CHAIR (5.6s - 8.4s) - the empty recliner first, then the
+  // only shot of Fien left in the film. She earns this one: the card
+  // says "wegzakken in een massagestoel" and she is the person doing
+  // it. Five appearances in a film with no speech was four too many.
+  { id: "e06-chair",  file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 35, startFrom: 40,  move: "push", accent: BRAND.pulse },
+  { id: "e07-sit",    file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 35, startFrom: 700, move: "pull", accent: BRAND.pulse },
 
-  // ── 4. FOR RIDERS (8.4s – 11.2s) — a cyclist riding, plainly. The
-  // previous still had riders standing against the tank at a distance,
-  // where they read as bystanders rather than as the audience.
+  // ── 4. FOR RIDERS (8.4s - 11.2s) - a cyclist riding, plainly. The
+  // one subject the shoot has no footage of.
   { id: "e08-ride",   file: "cyclist-road.png",                 kind: "image", durationInFrames: 35, move: "push", accent: BRAND.cobble },
   { id: "e09-climb",  file: "cyclist-climb.png",                kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.cobble },
 
-  // ── 5. GROUPS AND COMPANIES (11.2s – 13.6s) — real footage. The row
-  // of chairs down the length of the tube says seventeen places on its
-  // own; a staged group of colleagues did not.
-  { id: "e10-row",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 30, startFrom: 300, move: "pull", accent: BRAND.oxygen },
+  // ── 5. GROUPS AND COMPANIES (11.2s - 13.6s) - the empty row of
+  // chairs running the length of the tube. It says "zeventien
+  // plaatsen" without being told to. This slot used to hold a close-up
+  // of Fien's face, which said nothing about seventeen of anything.
+  { id: "e10-row",    file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 30, startFrom: 120, move: "push", accent: BRAND.oxygen },
   { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 30, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
 
-  // ── 6. EVERYONE ELSE (13.6s – 16.4s) — real footage here too. The
-  // generated interior kept reading as a waiting room, and there is no
-  // version of an invented chamber that beats the one that exists.
-  { id: "e12-vip1",   file: "15-6E8A6406.mp4",                  kind: "video", durationInFrames: 35, startFrom: 25,  move: "push", accent: BRAND.pulse },
-  { id: "e13-vip2",   file: "16-6E8A6407.mp4",                  kind: "video", durationInFrames: 35, startFrom: 395, move: "pull", accent: BRAND.pulse },
+  // ── 6. EVERYONE ELSE (13.6s - 16.4s) - the card says everybody, so
+  // the picture should have people in it. The drone pulls back off the
+  // portholes to the whole chamber standing in the square with a crowd
+  // and a rack of bikes around it, then the porthole from the inside:
+  // you, in there, and the rest of the day out there.
+  { id: "e12-crowd",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 1150, fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.pulse },
+  { id: "e13-window", file: "19-6E8A6410.mp4",                  kind: "video", durationInFrames: 35, startFrom: 20,  move: "push", accent: BRAND.pulse },
 
-  // ── 7. THE ONLY ONE (16.4s – 18.4s)
+  // ── 7. THE ONLY ONE (16.4s - 18.4s)
   { id: "e14-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 25, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
   { id: "e15-place",  file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 25, startFrom: 200, move: "push", speed: 1.1, accent: BRAND.oxygen },
 ];

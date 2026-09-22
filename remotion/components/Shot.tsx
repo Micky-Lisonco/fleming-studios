@@ -138,6 +138,23 @@ export const Shot: React.FC<{
     transform: `translateX(${moveX}%) scale(${scale})`,
   };
 
+  // A 16:9 frame cropped to 9:16 keeps about a quarter of its width, so
+  // a shot of something long and horizontal - which the chamber is -
+  // arrives showing the middle third of it and nothing else. No choice
+  // of clip fixes that; the crop is what throws the size away. "contain"
+  // fits the whole width in and letterboxes, and this is what fills the
+  // space above and below: the same frame, blown up and blurred out, so
+  // the letterbox reads as depth instead of as two black bars.
+  const backdropStyle: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "50% 50%",
+    transform: "scale(1.3)",
+    filter: "blur(44px) saturate(0.75) brightness(0.42)",
+  };
+  const letterboxed = fit === "contain";
+
   return (
     // Deliberately no background colour. A shot that painted its own
     // black meant any frame where the incoming video had not decoded yet
@@ -145,6 +162,21 @@ export const Shot: React.FC<{
     // Transparent instead, so a frame that is not ready shows the
     // previous shot rather than a hole.
     <AbsoluteFill style={{ opacity }}>
+      {letterboxed && shotSource(shot) !== null ? (
+        shot.kind === "video" ? (
+          <OffthreadVideo
+            src={staticFile(shotSource(shot)!)}
+            startFrom={shotStartFrom(shot)}
+            playbackRate={NO_SPEED ? 1 : shot.speed ?? 1}
+            muted
+            volume={0}
+            style={backdropStyle}
+          />
+        ) : (
+          <Img src={staticFile(shotSource(shot)!)} style={backdropStyle} />
+        )
+      ) : null}
+
       {shotSource(shot) === null ? (
         <Placeholder shot={shot} index={index} />
       ) : shot.kind === "video" ? (

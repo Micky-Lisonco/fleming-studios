@@ -12,7 +12,7 @@
     "video:render:all": "node scripts/render-all.mjs",
     "video:render:wide": "remotion render remotion/index.ts brand-wide out/brand-wide.mp4",
     "cut:export": "node --experimental-strip-types --no-warnings scripts/export-cut.mjs",
-    "video:render:safe": "remotion render remotion/index.ts brand-wide out/brand-wide.mp4 --concurrency=1"
+    "video:render:explainer": "remotion render remotion/index.ts ad-explainer-nl out/ad-explainer-nl.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.526",

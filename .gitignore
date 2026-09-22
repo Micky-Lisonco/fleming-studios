@@ -5,3 +5,6 @@ tsconfig.tsbuildinfo
 public/media-proxy/*.mp4
 public/media/
 public/images/*.png
+
+# Local render stand-ins, never committed.
+public/media-standin/
