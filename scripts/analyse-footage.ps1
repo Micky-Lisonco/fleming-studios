@@ -256,6 +256,24 @@ foreach ($file in $files) {
     }
     if ($notes.Count -eq 0) { $notes.Add("nothing flagged") }
 
+    # Camera make, model and whatever else the body wrote. This is how the
+    # camera identifies itself, and it saves asking a human what they shot
+    # on. The log profile usually is NOT here - Canon and Sony keep that in
+    # proprietary maker notes that ffprobe does not read, which is what
+    # exiftool is for.
+    $tagPairs = @()
+    foreach ($src in @($meta.format.tags, ($meta.streams | Where-Object { $_.codec_type -eq 'video' } | Select-Object -First 1).tags)) {
+        if ($src) {
+            foreach ($t in $src.PSObject.Properties) {
+                if ($t.Name -match 'make|model|software|encoder|comment|creation|handler|major_brand' -and
+                    $t.Value -and $t.Name -notmatch 'minor_version') {
+                    $tagPairs += ("{0}={1}" -f $t.Name, $t.Value)
+                }
+            }
+        }
+    }
+    $tagLine = if ($tagPairs.Count) { ($tagPairs | Select-Object -Unique) -join '  ' } else { '(none written)' }
+
     $audioDesc = if ($a) {
         "$($a.codec_name), $($a.channels) ch @ $($a.sample_rate) Hz"
     } else { "none" }
@@ -266,6 +284,7 @@ foreach ($file in $files) {
     $report.Add(("   length   {0}s, {1} MB" -f [math]::Round($durationSec), [math]::Round($file.Length / 1MB)))
     $report.Add(("   audio    {0} - {1} LUFS, range {2} LU, peak {3} dBTP" -f $audioDesc, $(if($lufs){$lufs}else{'?'}), $(if($lra){$lra}else{'?'}), $(if($peak){$peak}else{'?'})))
     $report.Add(("   picture  luma avg {0}, saturation avg {1}" -f $lumaAvg, $satAvg))
+    $report.Add(("   camera   {0}" -f $tagLine))
     $report.Add(("   notes    {0}" -f ($notes -join '; ')))
     $report.Add("")
 
@@ -292,6 +311,7 @@ foreach ($file in $files) {
         truePeak       = $peak
         lumaAvg        = $lumaAvg
         satAvg         = $satAvg
+        cameraTags     = $tagLine
         notes          = ($notes -join '; ')
     })
 }
