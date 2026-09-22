@@ -142,8 +142,15 @@ export const CONFORMED = MEDIA_DIR === "media";
 /** Resolves a bare filename against whichever media folder is active. */
 export const resolveMedia = (file: string): string => `${MEDIA_DIR}/${file}`;
 
-/** The file a shot plays, in whichever mode is active. */
+/**
+ * The file a shot plays, in whichever mode is active.
+ *
+ * Stills are the exception: they live in public/images, they are
+ * already final, and there is no master to conform them from - so they
+ * resolve the same way in every mode.
+ */
 export const shotSource = (shot: Shot): string | null => {
+  if (shot.kind === "image") return shot.file ? `images/${shot.file}` : null;
   if (CONFORMED) return `${MEDIA_DIR}/${shot.id}.mp4`;
   return shot.file ? `${MEDIA_DIR}/${shot.file}` : null;
 };
@@ -154,7 +161,7 @@ export const shotSource = (shot: Shot): string | null => {
  * the shot was chosen for.
  */
 export const shotStartFrom = (shot: Shot): number =>
-  CONFORMED ? 0 : (shot.startFrom ?? 0);
+  shot.kind === "image" ? 0 : CONFORMED ? 0 : (shot.startFrom ?? 0);
 
 /**
  * Palette: clinical oxygen blues against the warm stone of the cobbles,
@@ -364,7 +371,12 @@ export const SHOTS_EXPLAINER: Shot[] = [
   // ── WHAT FOR (5.7s – 9.2s) — who arrives at it and what they have
   // just done. Cobbles and cyclists say "after a hard ride" without a
   // word of explanation.
-  { id: "x3a-arrive", file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 44, startFrom: 150, move: "push", speed: 1.15, accent: BRAND.cobble },
+  // The footage has no tired rider in it - there was no reason to shoot
+  // one - so this beat had drone shots under a line about being spent
+  // after a hard ride. A still carries it instead. Generated, not
+  // filmed, and deliberately the only place in the cut where that is
+  // true besides the rest shot below.
+  { id: "x3a-tired",  file: "tired-cyclist.png", kind: "image", durationInFrames: 44, move: "push", accent: BRAND.cobble },
   { id: "x3b-cobble", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 44, startFrom: 25,  move: "push", speed: 1.2,  accent: BRAND.cobble },
 
   // ── HOW IT GOES (9.2s – 12.7s) — the ONE beat where being inside is
@@ -374,7 +386,10 @@ export const SHOTS_EXPLAINER: Shot[] = [
 
   // ── FOR WHOM (12.7s – 16.2s) — back outside, to the riders.
   { id: "x5a-riders", file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 44, startFrom: 200, move: "left", speed: 0.75, accent: BRAND.pulse },
-  { id: "x5b-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 44, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.pulse },
+  // "En voor wie gewoon eens iets voor zichzelf wil doen" - the
+  // non-athlete half of the audience, who appear nowhere in the
+  // footage. Riders in the shot before, someone at rest in this one.
+  { id: "x5b-rest",   file: "resting.png", kind: "image", durationInFrames: 44, move: "pull", accent: BRAND.pulse },
 
   // ── THE ONLY ONE (16.2s – 18.1s)
   { id: "x6a-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },

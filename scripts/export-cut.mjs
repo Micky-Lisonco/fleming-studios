@@ -15,6 +15,8 @@ const shots = [];
 for (const film of Object.values(FILMS)) {
   for (const shot of film.shots) {
     if (!shot.file) continue;
+    // Stills are already final and have no master to trim from.
+    if (shot.kind === "image") continue;
     shots.push({
       id: shot.id,
       film: film.id,
