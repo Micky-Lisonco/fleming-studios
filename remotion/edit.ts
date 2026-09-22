@@ -89,17 +89,19 @@ export type Layout = {
 export const FORMATS: Record<"vertical" | "wide", Layout> = {
   vertical: {
     width: 1080, height: 1920,
-    // Sized for a phone held at arm's length, not for a desktop preview.
-    // Type that looks generous on a 27-inch monitor is small in the
-    // hand, and small type in a feed is simply not read.
-    captionSize: 148, captionSizeLong: 124, subSize: 58,
+    // Sized for a phone held at arm's length, not for a desktop
+    // preview, and sized to FILL the frame rather than to fit a line.
+    // Headlines run to two or three lines at this size; that is the
+    // point. Type this large is what reads as someone speaking to you
+    // rather than as a caption sitting politely under a picture.
+    captionSize: 196, captionSizeLong: 168, subSize: 78,
     // Clear of the bottom fifth, where Reels and TikTok put their own UI.
     captionBottom: 360, sidePad: 64,
     logoWidth: 560, wordmarkSize: 124,
   },
   wide: {
     width: 1920, height: 1080,
-    captionSize: 112, captionSizeLong: 92, subSize: 46,
+    captionSize: 148, captionSizeLong: 124, subSize: 60,
     captionBottom: 120, sidePad: 96,
     logoWidth: 520, wordmarkSize: 104,
   },
@@ -500,35 +502,35 @@ FILMS["ad-explainer-nl"] = {
   energy: "high",
   captions: {},
   overlays: [
-    // Declarative, not rhetorical. The old cut asked "Wat is dit?" and
-    // then answered itself, which is a device an audience has seen a
-    // thousand times and which spends two seconds saying nothing. It
-    // states what the thing is instead, from the first frame.
+    // Short lines, because the type is large. At 196px a headline gets
+    // two or three words per line and a supporting line gets five or
+    // six - so the copy has to be written to that, not trimmed to fit
+    // afterwards. Every body line below is one breath.
     { from: 0,   durationInFrames: 70, card: {
       title: "Dit is een zuurstofkamer",
     } },
     { from: 70,  durationInFrames: 70, card: {
-      title: "Bijna twee keer zoveel zuurstof",
+      title: "Twee keer zoveel zuurstof",
       body: "Als in de lucht buiten.",
     } },
     { from: 140, durationInFrames: 70, card: {
       title: "Twee uur in een stoel",
-      body: "Geen masker, niets aan. Je zit, je leest, je rust.",
+      body: "Geen masker. Niets aan.",
     } },
     { from: 210, durationInFrames: 70, card: {
       kicker: "Voor wie",
       title: "Renners",
-      body: "Na een zware rit door de Vlaamse Ardennen.",
+      body: "Na een zware rit.",
     } },
     { from: 280, durationInFrames: 70, card: {
       kicker: "Voor wie",
       title: "Groepen en bedrijven",
-      body: "Zeventien plaatsen, op een locatie die nergens anders bestaat.",
+      body: "Zeventien plaatsen.",
     } },
     { from: 350, durationInFrames: 60, card: {
       kicker: "Voor wie",
-      title: "En voor iedereen daartussen",
-      body: "Wie gewoon eens twee uur voor zichzelf wil.",
+      title: "En iedereen daartussen",
+      body: "Twee uur voor jezelf.",
     } },
     { from: 410, durationInFrames: 50, card: {
       title: "De enige in de Benelux",

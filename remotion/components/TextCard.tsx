@@ -66,9 +66,12 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
   );
 
   const available = width - layout.sidePad * 2;
+  // Up to three lines. A headline that wraps at full size beats one
+  // that shrinks to fit, every time.
   const titleSize = fitFontSize(card.title, available, layout.captionSize, {
     fontWeight: 800,
     letterSpacing: "-0.035em",
+    maxLines: 3,
   });
 
   return (
@@ -102,7 +105,7 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
               letterSpacing: "0.24em",
               color: accent,
               textTransform: "uppercase",
-              marginBottom: 20,
+              marginBottom: 16,
             }}
           >
             {card.kicker}
@@ -113,7 +116,7 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
           style={{
             fontSize: titleSize,
             fontWeight: 800,
-            lineHeight: 1.0,
+            lineHeight: 0.92,
             letterSpacing: "-0.035em",
             color: BRAND.white,
             textTransform: "uppercase",
@@ -143,9 +146,9 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
 
         <div
           style={{
-            marginTop: 28,
-            width: 96,
-            height: 7,
+            marginTop: 26,
+            width: 110,
+            height: 8,
             background: accent,
             boxShadow: `0 0 26px ${accent}`,
           }}

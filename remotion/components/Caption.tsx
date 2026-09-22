@@ -46,7 +46,7 @@ export const Caption: React.FC<{
             text,
             width - layout.sidePad * 2,
             text.length > 14 ? layout.captionSizeLong : layout.captionSize,
-            { fontWeight: 800, letterSpacing: "-0.04em" }
+            { fontWeight: 800, letterSpacing: "-0.04em", maxLines: 2 }
           ),
           lineHeight: 0.92,
           fontWeight: 800,
