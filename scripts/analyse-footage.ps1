@@ -1,0 +1,242 @@
+<#
+.SYNOPSIS
+  Read the camera masters where they sit and write a report.
+
+.DESCRIPTION
+  Nothing is copied, uploaded or transcoded. This reads the files on
+  whatever drive they live on — internal, external, NAS — and writes a few
+  hundred KB of text describing them: codec, resolution, frame rate, colour
+  handling, rotation, exposure and audio loudness, with a note on anything
+  that needs treatment before it goes in an ad.
+
+.PARAMETER SourcePath
+  Folder holding the footage, e.g. E:\oxygen-shoot
+
+.PARAMETER SampleSeconds
+  Seconds per clip used for the measured picture and loudness stats.
+  Container metadata is always read for the whole file. Default 60.
+
+.EXAMPLE
+  .\scripts\analyse-footage.ps1 -SourcePath "E:\oxygen-shoot"
+
+.NOTES
+  Needs ffmpeg (which includes ffprobe):
+      winget install Gyan.FFmpeg
+  Then open a NEW terminal so PATH refreshes.
+
+  Written for Windows PowerShell 5.1, which is what Windows 11 ships.
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string] $SourcePath,
+
+    [int] $SampleSeconds = 60
+)
+
+$ErrorActionPreference = 'Stop'
+
+if (-not (Test-Path -LiteralPath $SourcePath)) {
+    Write-Error "Folder not found: $SourcePath"
+    exit 1
+}
+
+function Find-Tool {
+    param([string] $Name)
+    $cmd = Get-Command $Name -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    # winget's ffmpeg does not always land on PATH straight away.
+    $guesses = @(
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Links\$Name.exe",
+        "$env:ProgramFiles\ffmpeg\bin\$Name.exe",
+        "C:\ffmpeg\bin\$Name.exe"
+    )
+    foreach ($g in $guesses) { if (Test-Path -LiteralPath $g) { return $g } }
+    return $null
+}
+
+$ffprobe = Find-Tool 'ffprobe'
+$ffmpeg  = Find-Tool 'ffmpeg'
+
+if (-not $ffprobe -or -not $ffmpeg) {
+    Write-Host ""
+    Write-Host "ffmpeg not found. Install it with:" -ForegroundColor Yellow
+    Write-Host "    winget install Gyan.FFmpeg"
+    Write-Host ""
+    Write-Host "Then close this window, open a new one, and run this again."
+    exit 1
+}
+
+$root      = Split-Path -Parent $PSScriptRoot
+$outDir    = Join-Path $root 'out\analysis'
+$reportPath = Join-Path $outDir 'report.txt'
+$jsonPath   = Join-Path $outDir 'footage.json'
+New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+
+$extensions = @('.mp4', '.mov', '.m4v', '.mxf', '.avi', '.mkv', '.insv')
+$files = Get-ChildItem -LiteralPath $SourcePath -File -Recurse |
+         Where-Object { $extensions -contains $_.Extension.ToLower() } |
+         Sort-Object FullName
+
+if ($files.Count -eq 0) {
+    Write-Error "No video files found under $SourcePath"
+    exit 1
+}
+
+Write-Host ""
+Write-Host "Analysing $($files.Count) clips from $SourcePath"
+Write-Host "Sampling ${SampleSeconds}s per clip for measured statistics."
+Write-Host ""
+
+$report = New-Object System.Collections.Generic.List[string]
+$rows   = New-Object System.Collections.Generic.List[object]
+
+$report.Add("FOOTAGE ANALYSIS")
+$report.Add("Source:  $SourcePath")
+$report.Add("Sampled: ${SampleSeconds}s per clip for measured statistics")
+$report.Add("Date:    $(Get-Date -Format 'yyyy-MM-dd HH:mm')")
+$report.Add("")
+
+$n = 0
+foreach ($file in $files) {
+    $n++
+    Write-Host ("[{0}/{1}] {2}" -f $n, $files.Count, $file.Name)
+
+    # ── container and stream metadata: instant, whole file, exact ──
+    $probeRaw = & $ffprobe -v error -print_format json -show_format -show_streams $file.FullName 2>$null
+    if (-not $probeRaw) {
+        $report.Add("── [$n] $($file.Name)")
+        $report.Add("   UNREADABLE — ffprobe could not open this file")
+        $report.Add("")
+        continue
+    }
+
+    $meta  = $probeRaw | Out-String | ConvertFrom-Json
+    $v     = $meta.streams | Where-Object { $_.codec_type -eq 'video' } | Select-Object -First 1
+    $a     = $meta.streams | Where-Object { $_.codec_type -eq 'audio' } | Select-Object -First 1
+
+    $fps = 0.0
+    if ($v -and $v.r_frame_rate -match '^(\d+)/(\d+)$') {
+        $den = [double]$Matches[2]
+        if ($den -gt 0) { $fps = [math]::Round([double]$Matches[1] / $den, 3) }
+    }
+
+    $rotation = 0
+    if ($v -and $v.side_data_list) {
+        foreach ($sd in $v.side_data_list) {
+            if ($null -ne $sd.rotation) { $rotation = $sd.rotation }
+        }
+    }
+
+    $durationSec = 0.0
+    if ($meta.format.duration) { $durationSec = [double]$meta.format.duration }
+    $bitrateMbps = 0.0
+    if ($meta.format.bit_rate) { $bitrateMbps = [math]::Round([double]$meta.format.bit_rate / 1e6, 1) }
+
+    # ── measured: audio loudness, so the interview can be levelled ──
+    $lufs = ''; $lra = ''; $peak = ''
+    if ($a) {
+        $loudRaw = & $ffmpeg -nostdin -hide_banner -t $SampleSeconds -i $file.FullName `
+                       -af 'loudnorm=print_format=json' -f null - 2>&1 | Out-String
+        if ($loudRaw -match '"input_i"\s*:\s*"([^"]+)"')   { $lufs = $Matches[1] }
+        if ($loudRaw -match '"input_lra"\s*:\s*"([^"]+)"') { $lra  = $Matches[1] }
+        if ($loudRaw -match '"input_tp"\s*:\s*"([^"]+)"')  { $peak = $Matches[1] }
+    }
+
+    # ── measured: picture, to spot flat/log or crushed footage ──
+    $statsRaw = & $ffmpeg -nostdin -hide_banner -t $SampleSeconds -i $file.FullName `
+                    -vf 'signalstats,metadata=print' -f null - 2>&1 | Out-String
+
+    $lumaValues = [regex]::Matches($statsRaw, 'lavfi\.signalstats\.YAVG=([\d.]+)')   | ForEach-Object { [double]$_.Groups[1].Value }
+    $satValues  = [regex]::Matches($statsRaw, 'lavfi\.signalstats\.SATAVG=([\d.]+)') | ForEach-Object { [double]$_.Groups[1].Value }
+
+    $lumaAvg = 0.0; $satAvg = 0.0
+    if ($lumaValues.Count -gt 0) { $lumaAvg = [math]::Round(($lumaValues | Measure-Object -Average).Average, 1) }
+    if ($satValues.Count  -gt 0) { $satAvg  = [math]::Round(($satValues  | Measure-Object -Average).Average, 1) }
+
+    # ── the notes that actually decide how we treat the clip ──
+    $notes = New-Object System.Collections.Generic.List[string]
+
+    $transfer = if ($v -and $v.color_transfer) { $v.color_transfer } else { 'unset' }
+    $primaries = if ($v -and $v.color_primaries) { $v.color_primaries } else { 'unset' }
+    $space = if ($v -and $v.color_space) { $v.color_space } else { 'unset' }
+    $pixFmt = if ($v -and $v.pix_fmt) { $v.pix_fmt } else { '?' }
+
+    if ($transfer -in @('arib-std-b67', 'smpte2084')) {
+        $notes.Add("HDR ($transfer) — needs tone-mapping to Rec.709 or it renders washed out and dull")
+    }
+    if ($pixFmt -match '10(le|be)$') {
+        $notes.Add("10-bit — fine, but the delivery is 8-bit yuv420p")
+    }
+    if ($rotation -ne 0) {
+        $notes.Add("rotation ${rotation} deg in metadata — check orientation before cropping")
+    }
+    if ($lumaAvg -gt 0 -and $lumaAvg -lt 70) {
+        $notes.Add("low average luma ($lumaAvg) — underexposed or log, will need a lift")
+    }
+    if ($satAvg -gt 0 -and $satAvg -lt 45) {
+        $notes.Add("low saturation ($satAvg) — looks like a flat/log profile awaiting a LUT")
+    }
+    if ($lufs -ne '' -and [double]$lufs -lt -26) {
+        $notes.Add("quiet dialogue ($lufs LUFS) — needs bringing up to about -14 for social")
+    }
+    if ($peak -ne '' -and [double]$peak -gt -1) {
+        $notes.Add("peaks at $peak dBTP — risk of clipping")
+    }
+    if (-not $a) {
+        $notes.Add("NO AUDIO — cannot carry a soundbite")
+    }
+    if ($notes.Count -eq 0) { $notes.Add("nothing flagged") }
+
+    $audioDesc = if ($a) {
+        "$($a.codec_name), $($a.channels) ch @ $($a.sample_rate) Hz"
+    } else { "none" }
+
+    $report.Add("── [$n] $($file.Name)")
+    $report.Add(("   video    {0} {1}x{2} @ {3} fps, {4}, {5} Mb/s" -f $v.codec_name, $v.width, $v.height, $fps, $pixFmt, $bitrateMbps))
+    $report.Add(("   colour   primaries={0} transfer={1} space={2}" -f $primaries, $transfer, $space))
+    $report.Add(("   length   {0}s, {1} MB" -f [math]::Round($durationSec), [math]::Round($file.Length / 1MB)))
+    $report.Add(("   audio    {0} — {1} LUFS, range {2} LU, peak {3} dBTP" -f $audioDesc, $(if($lufs){$lufs}else{'?'}), $(if($lra){$lra}else{'?'}), $(if($peak){$peak}else{'?'})))
+    $report.Add(("   picture  luma avg {0}, saturation avg {1}" -f $lumaAvg, $satAvg))
+    $report.Add(("   notes    {0}" -f ($notes -join '; ')))
+    $report.Add("")
+
+    $rows.Add([pscustomobject]@{
+        n              = $n
+        file           = $file.Name
+        path           = $file.FullName
+        codec          = $v.codec_name
+        width          = $v.width
+        height         = $v.height
+        fps            = $fps
+        durationSec    = [math]::Round($durationSec, 2)
+        bitrateMbps    = $bitrateMbps
+        sizeMB         = [math]::Round($file.Length / 1MB)
+        pixFmt         = $pixFmt
+        colorPrimaries = $primaries
+        colorTransfer  = $transfer
+        colorSpace     = $space
+        rotation       = $rotation
+        audioCodec     = $(if ($a) { $a.codec_name } else { 'none' })
+        audioChannels  = $(if ($a) { $a.channels } else { 0 })
+        lufs           = $lufs
+        lra            = $lra
+        truePeak       = $peak
+        lumaAvg        = $lumaAvg
+        satAvg         = $satAvg
+        notes          = ($notes -join '; ')
+    })
+}
+
+$report.Add("── $n clips analysed ──")
+
+# ASCII keeps the file readable wherever it ends up.
+$report -join "`r`n" | Out-File -FilePath $reportPath -Encoding utf8
+$rows | ConvertTo-Json -Depth 4 | Out-File -FilePath $jsonPath -Encoding utf8
+
+Write-Host ""
+Write-Host "Report: $reportPath" -ForegroundColor Green
+Write-Host "JSON:   $jsonPath"   -ForegroundColor Green
+Write-Host ""
+Write-Host "Both are plain text and small. Send those two files — nothing"
+Write-Host "else needs to move, and the footage stays where it is."

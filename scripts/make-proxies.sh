@@ -97,9 +97,14 @@ find "$SRC" -maxdepth 1 -type f \
     "$AUDIO_DIR/$STEM.mp3" 2>/dev/null || true
 
   # ── filmstrip: six frames across the clip, one small jpeg ─────────
-  ffmpeg -nostdin -y -loglevel error -i "$FILE" \
-    -vf "select='not(mod(n\,floor(n_frames/6)))',scale=-2:240,tile=6x1" \
-    -frames:v 1 -q:v 4 "$LOOK_DIR/$STEM.jpg" 2>/dev/null || true
+  # Sampled by time, not by frame index: ffmpeg's select filter has no
+  # n_frames variable, so mod(n, n_frames/6) silently matches nothing.
+  STRIP_RATE=$(awk -v d="$DUR" 'BEGIN{ if (d+0 > 0.5) printf "%.6f", 6.5/d; else print "" }')
+  if [ -n "$STRIP_RATE" ]; then
+    ffmpeg -nostdin -y -loglevel error -i "$FILE" \
+      -vf "fps=$STRIP_RATE,scale=-2:240,tile=6x1" \
+      -frames:v 1 -q:v 4 "$LOOK_DIR/$STEM.jpg" 2>/dev/null || true
+  fi
 
   # ── manifest row ──────────────────────────────────────────────────
   [ $FIRST -eq 0 ] && echo "," >> "$MANIFEST"

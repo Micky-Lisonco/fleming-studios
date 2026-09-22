@@ -2,3 +2,5 @@ node_modules/
 .next/
 out/
 tsconfig.tsbuildinfo
+public/media-proxy/*.mp4
+public/media/
