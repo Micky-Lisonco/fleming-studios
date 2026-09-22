@@ -1,11 +1,20 @@
-Generated stills, for beats where the footage does not match the words.
+Generated stills, for what the camera never shot.
 
-Referenced from remotion/edit.ts as images/<filename>, independent of
-REMOTION_MEDIA_DIR: they are already final, so they are not conformed
-and not trimmed.
+The shoot has no footage of anyone using the room: the chamber is only
+ever seen empty or from the air. That is the single most important
+thing the explainer has to show, so six of its fifteen shots are
+generated - five of them inside the chamber.
 
-  tired-cyclist.png   a rider spent after a hard ride
-  resting.png         someone at rest, not an athlete
+  inside-cyclists.png   two riders in kit, reclined, shoes off
+  inside-group.png      five colleagues along a row of chairs
+  inside-rest.png       a man alone, head back, eyes closed
+  inside-reading.png    a woman reading, light from a porthole
+  inside-armrest.png    close detail, a hand on an armrest
+  riders-outside.png    riders leaning bikes against the chamber
 
-Committed to the repo on purpose - a few hundred KB each, and the edit
-does not render without them.
+Each was written to match the real interior in the footage: curved pale
+walls, oval portholes, grey-brown recliners, pale green botanical wall
+panels, small round side tables.
+
+Fetch them with scripts\fetch-images.ps1. They are gitignored - binary
+and regenerable - so that script is how they arrive on a new checkout.

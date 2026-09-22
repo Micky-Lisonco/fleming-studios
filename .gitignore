@@ -4,3 +4,4 @@ out/
 tsconfig.tsbuildinfo
 public/media-proxy/*.mp4
 public/media/
+public/images/*.png

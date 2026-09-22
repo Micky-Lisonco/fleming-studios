@@ -342,58 +342,44 @@ export const SHOTS_AD: Shot[] = [
  */
 export const SHOTS_EXPLAINER: Shot[] = [
   /**
-   * The subject is the machine, not the manager.
+   * Seventeen shots, seven beats. The subject is the chamber.
    *
-   * An earlier version leaned on the interview footage because it was
-   * the only material shot indoors - and ended up with six of fourteen
-   * shots being a woman standing still, in a film whose job is to
-   * explain an object. She now appears twice, in the one beat where
-   * being inside is the point.
-   *
-   * The device footage carries the rest. The long drone clips hold far
-   * more than one usable shot each: 23 runs a minute, 22 nearly as
-   * long, so the same file supplies several genuinely different
-   * moments at different timecodes rather than one.
+   * The generated stills all sit INSIDE it. That is the shot nobody
+   * filmed - the camera never rolled on anyone actually using the room -
+   * and it is the one the whole argument depends on. An earlier attempt
+   * put a woman resting in an anonymous beige room against "iets voor
+   * zichzelf", which said nothing about the product: a chair in a room
+   * is not a reason to drive an hour.
    */
 
-  // ── HOOK (0.0s – 2.2s) — four cuts, all object. The second runs at
-  // 0.55 speed: the metal drifting past slowly is what makes a tube
-  // look like something worth understanding.
-  { id: "x1a-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 14, startFrom: 40,  move: "left",  accent: BRAND.oxygen },
-  { id: "x1b-slow",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 14, startFrom: 200, move: "right", speed: 0.55, accent: BRAND.oxygen },
-  { id: "x1c-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 14, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
-  { id: "x1d-air",    file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 14, startFrom: 250, move: "push",  accent: BRAND.oxygen },
+  // ── 1. WHAT IT IS (0.0s – 2.8s) — three cuts of the object.
+  { id: "e01-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 22, startFrom: 40,  move: "left",  accent: BRAND.oxygen },
+  { id: "e02-slow",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 24, startFrom: 200, move: "right", speed: 0.55, accent: BRAND.oxygen },
+  { id: "e03-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 24, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
 
-  // ── WHAT IT IS (2.2s – 5.7s) — the object, whole, in daylight.
-  { id: "x2a-top",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 44, startFrom: 120, move: "push", speed: 0.8,  accent: BRAND.oxygen },
-  { id: "x2b-length", file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 44, startFrom: 900, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
+  // ── 2. THE OXYGEN (2.8s – 5.6s)
+  { id: "e04-whole",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 900, move: "pull", speed: 1.1, accent: BRAND.oxygen },
+  { id: "e05-inside", file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 35, startFrom: 40,  move: "push", accent: BRAND.oxygen },
 
-  // ── WHAT FOR (5.7s – 9.2s) — who arrives at it and what they have
-  // just done. Cobbles and cyclists say "after a hard ride" without a
-  // word of explanation.
-  // The footage has no tired rider in it - there was no reason to shoot
-  // one - so this beat had drone shots under a line about being spent
-  // after a hard ride. A still carries it instead. Generated, not
-  // filmed, and deliberately the only place in the cut where that is
-  // true besides the rest shot below.
-  { id: "x3a-tired",  file: "tired-cyclist.png", kind: "image", durationInFrames: 44, move: "push", accent: BRAND.cobble },
-  { id: "x3b-cobble", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 44, startFrom: 25,  move: "push", speed: 1.2,  accent: BRAND.cobble },
+  // ── 3. WHAT IT IS LIKE (5.6s – 8.4s) — inside, in use.
+  { id: "e06-rest",   file: "inside-rest.png",                  kind: "image", durationInFrames: 35, move: "push", accent: BRAND.pulse },
+  { id: "e07-arm",    file: "inside-armrest.png",               kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.pulse },
 
-  // ── HOW IT GOES (9.2s – 12.7s) — the ONE beat where being inside is
-  // the point, so the only two shots with a person in them sit here.
-  { id: "x4a-inside", file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 44, startFrom: 40,  move: "push", accent: BRAND.pulse },
-  { id: "x4b-chair",  file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 44, startFrom: 75,  move: "pull", accent: BRAND.pulse },
+  // ── 4. FOR RIDERS (8.4s – 11.2s)
+  { id: "e08-tired",  file: "riders-outside.png",               kind: "image", durationInFrames: 35, move: "push", accent: BRAND.cobble },
+  { id: "e09-riders", file: "inside-cyclists.png",              kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.cobble },
 
-  // ── FOR WHOM (12.7s – 16.2s) — back outside, to the riders.
-  { id: "x5a-riders", file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 44, startFrom: 200, move: "left", speed: 0.75, accent: BRAND.pulse },
-  // "En voor wie gewoon eens iets voor zichzelf wil doen" - the
-  // non-athlete half of the audience, who appear nowhere in the
-  // footage. Riders in the shot before, someone at rest in this one.
-  { id: "x5b-rest",   file: "resting.png", kind: "image", durationInFrames: 44, move: "pull", accent: BRAND.pulse },
+  // ── 5. FOR GROUPS AND COMPANIES (11.2s – 14.0s)
+  { id: "e10-group",  file: "inside-group.png",                 kind: "image", durationInFrames: 35, move: "push", accent: BRAND.oxygen },
+  { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 35, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
 
-  // ── THE ONLY ONE (16.2s – 18.1s)
-  { id: "x6a-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 22, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
-  { id: "x6b-place",  file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 22, startFrom: 200, move: "push", speed: 1.1, accent: BRAND.oxygen },
+  // ── 6. AND FOR ANYONE ELSE (14.0s – 16.4s)
+  { id: "e12-read",   file: "inside-reading.png",               kind: "image", durationInFrames: 30, move: "push", accent: BRAND.pulse },
+  { id: "e13-chair",  file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 30, startFrom: 75,  move: "pull", accent: BRAND.pulse },
+
+  // ── 7. THE ONLY ONE (16.4s – 18.4s)
+  { id: "e14-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 25, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
+  { id: "e15-place",  file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 25, startFrom: 200, move: "push", speed: 1.1, accent: BRAND.oxygen },
 ];
 
 export type Film = {
@@ -514,32 +500,44 @@ FILMS["ad-explainer-nl"] = {
   energy: "high",
   captions: {},
   overlays: [
-    { from: 0,   durationInFrames: 56, card: { title: "Wat is dit?" } },
-    { from: 56,  durationInFrames: 88, card: {
-      kicker: "Wat het is",
-      title: "Een zuurstofkamer",
-      body: "Je ademt er bijna twee keer zoveel zuurstof in als buiten.",
+    // Declarative, not rhetorical. The old cut asked "Wat is dit?" and
+    // then answered itself, which is a device an audience has seen a
+    // thousand times and which spends two seconds saying nothing. It
+    // states what the thing is instead, from the first frame.
+    { from: 0,   durationInFrames: 70, card: {
+      title: "Dit is een zuurstofkamer",
     } },
-    { from: 144, durationInFrames: 88, card: {
-      kicker: "Waarvoor",
-      title: "Om te herstellen",
-      body: "Na een zware rit. Of na een zware week.",
+    { from: 70,  durationInFrames: 70, card: {
+      title: "Bijna twee keer zoveel zuurstof",
+      body: "Als in de lucht buiten.",
     } },
-    { from: 232, durationInFrames: 88, card: {
-      kicker: "Hoe het gaat",
-      title: "Twee uur. Een stoel.",
+    { from: 140, durationInFrames: 70, card: {
+      title: "Twee uur in een stoel",
       body: "Geen masker, niets aan. Je zit, je leest, je rust.",
     } },
-    { from: 320, durationInFrames: 88, card: {
+    { from: 210, durationInFrames: 70, card: {
       kicker: "Voor wie",
-      title: "Renners, groepen, bedrijven",
-      body: "En voor wie gewoon eens iets voor zichzelf wil doen.",
+      title: "Renners",
+      body: "Na een zware rit door de Vlaamse Ardennen.",
     } },
-    { from: 408, durationInFrames: 44, card: { title: "De enige in de Benelux" } },
+    { from: 280, durationInFrames: 70, card: {
+      kicker: "Voor wie",
+      title: "Groepen en bedrijven",
+      body: "Zeventien plaatsen, op een locatie die nergens anders bestaat.",
+    } },
+    { from: 350, durationInFrames: 60, card: {
+      kicker: "Voor wie",
+      title: "En voor iedereen daartussen",
+      body: "Wie gewoon eens twee uur voor zichzelf wil.",
+    } },
+    { from: 410, durationInFrames: 50, card: {
+      title: "De enige in de Benelux",
+      body: "Zegelsem, Brakel.",
+    } },
   ],
   cards: {},
   endCard: {
-    durationInFrames: 48,
+    durationInFrames: 40,
     wordmark: "FLANDERS",
     line: "COBBLESTONE PARADISE",
     venue: "Zegelsem, Brakel - Vlaamse Ardennen",
