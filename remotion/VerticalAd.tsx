@@ -1,5 +1,5 @@
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
-import { BRAND, CROSSFADE, END_CARD, MUSIC, SHOTS } from "./edit";
+import { BRAND, CROSSFADE, END_CARD, MUSIC, SHOTS, resolveMedia } from "./edit";
 import { EndCard } from "./components/EndCard";
 import { ProgressBar } from "./components/ProgressBar";
 import { Shot } from "./components/Shot";
@@ -36,11 +36,11 @@ export const VerticalAd: React.FC = () => {
         <EndCard />
       </Sequence>
 
-      <ProgressBar accent={BRAND.teal} />
+      <ProgressBar accent={BRAND.oxygen} />
 
-      {MUSIC.src ? (
+      {MUSIC.file ? (
         <Audio
-          src={staticFile(MUSIC.src)}
+          src={staticFile(resolveMedia(MUSIC.file))}
           startFrom={MUSIC.startFrom}
           volume={MUSIC.volume}
         />

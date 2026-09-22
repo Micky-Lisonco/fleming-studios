@@ -2,14 +2,14 @@
  * ─────────────────────────────────────────────────────────────
  *  THE EDIT — this is the only file you need to touch.
  * ─────────────────────────────────────────────────────────────
- *  The whole 20-second vertical ad is described here: which file
- *  plays, for how long, what it says on screen. Everything else
- *  (rendering, transitions, safe areas, export) is handled for you.
+ *  Client:  Normocare — the oxygen room (normobaric therapy)
+ *  Venue:   Flanders Cobblestone Paradise, Brakel, Flemish Ardennes
+ *  Output:  20s, 1080x1920, for Reels / TikTok / Shorts
  *
- *  To swap a clip:      change `src`
- *  To hold a shot:      change `durationInFrames`
- *  To reorder:          move the object up or down the list
- *  To trim a clip:      set `startFrom` (skips N frames of the source)
+ *  To swap a clip:   change `file`
+ *  To hold a shot:   change `durationInFrames`
+ *  To reorder:       move the object up or down the list
+ *  To trim a clip:   set `startFrom` (skips N frames into the source)
  *
  *  30 frames = 1 second. The ad is 600 frames = 20 seconds.
  */
@@ -19,83 +19,114 @@ export const WIDTH = 1080;
 export const HEIGHT = 1920;
 export const TARGET_FRAMES = 20 * FPS; // 600
 
-/** Fleming Studios palette, lifted from the studio doors. */
+/**
+ * ── OFFLINE / ONLINE ──────────────────────────────────────────
+ * The cut is designed against small proxies, then rendered against
+ * the full-resolution masters. Both folders hold files with the SAME
+ * names, so switching is one line — no re-linking, no re-cutting.
+ *
+ *   "media-proxy"  light stand-ins from scripts/make-proxies.sh
+ *   "media"        the camera masters, for the final render
+ *
+ * Or override per-render without editing anything:
+ *   REMOTION_MEDIA_DIR=media npm run video:render
+ */
+const ENV_DIR =
+  typeof process !== "undefined" ? process.env?.REMOTION_MEDIA_DIR : undefined;
+
+export const MEDIA_DIR: string = ENV_DIR || "media-proxy";
+
+/** Resolves a bare filename against whichever media folder is active. */
+export const resolveMedia = (file: string): string => `${MEDIA_DIR}/${file}`;
+
+/**
+ * Palette: clinical oxygen blues against the warm stone of the cobbles,
+ * so the ride half and the recovery half read as two different worlds.
+ * Swap these for the real Normocare / Flanders brand values once we have them.
+ */
 export const BRAND = {
-  black: "#000000",
+  black: "#04121A",
   white: "#FFFFFF",
-  cyan: "#00D4FF",
-  violet: "#8B5CF6",
-  amber: "#FFB800",
-  mint: "#00E5B0",
-  copper: "#C0692E",
-  teal: "#00FFD0",
+  oxygen: "#00C2FF",
+  pulse: "#00E5B0",
+  cobble: "#C08B4A",
+  deep: "#0A2433",
 } as const;
 
 export type Shot = {
-  /** Short name, only used for your own reference in the studio timeline. */
+  /** Short name, shown on the Studio timeline. */
   id: string;
   /**
-   * Path to the file, relative to `public/`. e.g. "media/clip-01.mp4".
-   * Leave as null and a labelled placeholder card renders instead, so the
-   * edit always plays even before every file has landed.
+   * Bare filename inside the active media folder, e.g. "03-koppenberg.mp4".
+   * Leave null and a labelled placeholder renders instead, so the edit
+   * always plays end to end while footage is still coming in.
    */
-  src: string | null;
+  file: string | null;
   kind: "video" | "image";
   /** 30 frames = 1 second. */
   durationInFrames: number;
-  /** Trim: start this many frames into the source file. Video only. */
+  /** Trim: start this many frames into the source. Video only. */
   startFrom?: number;
-  /** Big on-screen line. Keep it to ~4 words — this is a thumb-stopper, not a paragraph. */
+  /** Big on-screen line. ~4 words — a thumb-stopper, not a paragraph. */
   caption?: string;
   /** Small line under the caption. */
   sub?: string;
-  /** Accent colour for this shot's caption bar. */
+  /** Accent colour for this shot. */
   accent?: string;
-  /** Let this clip's own sound through. Off by default so the music bed stays clean. */
+  /** Let this clip's own sound through. Off by default so the bed stays clean. */
   audible?: boolean;
   /** How the file fills the 9:16 frame. "cover" crops, "contain" letterboxes. */
   fit?: "cover" | "contain";
-  /** Slow push-in on the shot. Off by default for video, on for stills. */
+  /** Slow push-in. On by default for stills. */
   kenBurns?: boolean;
 };
 
 /**
  * ── THE 15 SHOTS ──────────────────────────────────────────────
- * Durations are tuned for social: a long hook to stop the scroll,
- * then fast cuts through the body, then room to read the end card.
- * The sum is checked against TARGET_FRAMES at the bottom of this file.
+ * Two halves. The first is the damage: cobbles, effort, legs gone.
+ * The second is the repair: the chamber, the hour, the morning after.
+ * The palette turns from stone to oxygen blue at shot 06 — that colour
+ * flip is the story beat, so keep it there even if clips move around.
  */
 export const SHOTS: Shot[] = [
-  // ── HOOK (0.0s – 2.5s) — the scroll-stopper, give it room to land.
-  { id: "01-hook",     src: null, kind: "video", durationInFrames: 75, caption: "THE MACHINES WON", sub: "So we taught them to work for you", accent: BRAND.cyan },
+  // ── THE RIDE (0.0s – 8.2s) ──
+  { id: "01-hook",    file: null, kind: "video", durationInFrames: 75, caption: "COBBLES DON'T FORGIVE", sub: "The Flemish Ardennes take everything you have", accent: BRAND.cobble },
+  { id: "02-pave",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.cobble },
+  { id: "03-climb",   file: null, kind: "video", durationInFrames: 33, caption: "RIDE HARD", accent: BRAND.cobble },
+  { id: "04-effort",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.cobble },
+  { id: "05-empty",   file: null, kind: "video", durationInFrames: 33, caption: "THEN THE LEGS GO", accent: BRAND.cobble },
 
-  // ── BODY (2.5s – 15.7s) — twelve fast cuts, 1.1s each.
-  { id: "02",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.cyan },
-  { id: "03",          src: null, kind: "video", durationInFrames: 33, caption: "BRANDING", accent: BRAND.cyan },
-  { id: "04",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.violet },
-  { id: "05",          src: null, kind: "video", durationInFrames: 33, caption: "WEBSITES", accent: BRAND.violet },
-  { id: "06",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.amber },
-  { id: "07",          src: null, kind: "video", durationInFrames: 33, caption: "CONTENT", accent: BRAND.amber },
-  { id: "08",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.mint },
-  { id: "09",          src: null, kind: "video", durationInFrames: 33, caption: "CAMPAIGNS", accent: BRAND.mint },
-  { id: "10",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.copper },
-  { id: "11",          src: null, kind: "video", durationInFrames: 33, caption: "AI PRODUCTION", accent: BRAND.copper },
-  { id: "12",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.teal },
-  { id: "13",          src: null, kind: "video", durationInFrames: 33, accent: BRAND.teal },
+  // ── THE TURN (8.2s – 12.6s) — palette flips to oxygen here ──
+  { id: "06-arrive",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
+  { id: "07-door",    file: null, kind: "video", durationInFrames: 33, caption: "STEP INSIDE", accent: BRAND.oxygen },
+  { id: "08-chamber", file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
+  { id: "09-reveal",  file: null, kind: "video", durationInFrames: 33, caption: "THE OXYGEN ROOM", sub: "Normobaric therapy — no pressure chamber, no mask", accent: BRAND.oxygen },
 
-  // ── TURN (15.7s – 18.5s) — slow down, let the payoff breathe.
-  { id: "14-payoff",   src: null, kind: "video", durationInFrames: 45, caption: "ONE STUDIO", sub: "Six rooms. Every discipline.", accent: BRAND.teal },
-  { id: "15-closer",   src: null, kind: "video", durationInFrames: 39, accent: BRAND.teal },
+  // ── THE REPAIR (12.6s – 17.7s) ──
+  { id: "10-settle",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
+  { id: "11-session", file: null, kind: "video", durationInFrames: 33, caption: "SIXTY MINUTES", accent: BRAND.oxygen },
+  { id: "12-breathe", file: null, kind: "video", durationInFrames: 33, caption: "LACTATE CLEARED", accent: BRAND.pulse },
+  { id: "13-rest",    file: null, kind: "video", durationInFrames: 33, caption: "SORENESS EASED", accent: BRAND.pulse },
+
+  // ── THE PAYOFF (17.7s – 18.5s) ──
+  { id: "14-morning", file: null, kind: "video", durationInFrames: 45, caption: "TOMORROW YOU RIDE AGAIN", accent: BRAND.pulse },
+  { id: "15-depart",  file: null, kind: "video", durationInFrames: 39, accent: BRAND.pulse },
 ];
 
-/** ── END CARD (18.5s – 20.0s) — logo, line, call to action. */
+/**
+ * ── END CARD ──────────────────────────────────────────────────
+ * `logo` and `venueLogo` are filenames in `public/`. Either can be null,
+ * and the wordmark renders as type instead — so the card is finished
+ * whether or not the brand assets have landed.
+ */
 export const END_CARD = {
   durationInFrames: 45,
-  logo: "logo.png",
-  /** Tagline under the logo. Leave empty to let the logo stand alone. */
-  line: "THE STUDIO THAT ADAPTED",
-  cta: "flemingstudios.com",
-  accent: BRAND.teal,
+  logo: null as string | null, // e.g. "normocare-logo.png"
+  wordmark: "NORMOCARE",
+  line: "THE OXYGEN ROOM",
+  venue: "at Flanders Cobblestone Paradise",
+  cta: "normocare.net",
+  accent: BRAND.oxygen,
 };
 
 export const TOTAL_FRAMES =
@@ -106,12 +137,12 @@ export const CROSSFADE = 6;
 
 /**
  * ── MUSIC ─────────────────────────────────────────────────────
- * Drop a track in `public/media/` and point at it. Clips are muted
- * by default so the bed stays clean; set `audible: true` on a shot
- * to let that one clip's own sound through.
+ * Drop a track in the media folder and name it here. Clips are muted by
+ * default; set `audible: true` on a shot to let its own sound through
+ * (worth doing on one cobble shot — the rattle sells the first half).
  */
-export const MUSIC: { src: string | null; startFrom: number; volume: number } = {
-  src: null, // e.g. "media/track.mp3"
+export const MUSIC: { file: string | null; startFrom: number; volume: number } = {
+  file: null, // e.g. "track.mp3"
   startFrom: 0,
   volume: 0.85,
 };

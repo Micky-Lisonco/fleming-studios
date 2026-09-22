@@ -7,7 +7,7 @@ import {
   useCurrentFrame,
 } from "remotion";
 import type { Shot as ShotType } from "../edit";
-import { BRAND } from "../edit";
+import { BRAND, resolveMedia } from "../edit";
 import { Caption } from "./Caption";
 import { Overlay } from "./Overlay";
 
@@ -17,7 +17,7 @@ import { Overlay } from "./Overlay";
  * is cut in.
  */
 const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index }) => {
-  const accent = shot.accent ?? BRAND.teal;
+  const accent = shot.accent ?? BRAND.oxygen;
   return (
     <AbsoluteFill
       style={{
@@ -43,7 +43,7 @@ const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index 
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
         }}
       >
-        public/media/{shot.id}.mp4
+        {resolveMedia(`${shot.id}.mp4`)}
       </div>
     </AbsoluteFill>
   );
@@ -57,7 +57,7 @@ export const Shot: React.FC<{
   isFirst: boolean;
 }> = ({ shot, index, crossfade, isFirst }) => {
   const frame = useCurrentFrame();
-  const accent = shot.accent ?? BRAND.teal;
+  const accent = shot.accent ?? BRAND.oxygen;
 
   const opacity = isFirst
     ? 1
@@ -84,18 +84,18 @@ export const Shot: React.FC<{
 
   return (
     <AbsoluteFill style={{ opacity, backgroundColor: BRAND.black }}>
-      {shot.src === null ? (
+      {shot.file === null ? (
         <Placeholder shot={shot} index={index} />
       ) : shot.kind === "video" ? (
         <OffthreadVideo
-          src={staticFile(shot.src)}
+          src={staticFile(resolveMedia(shot.file))}
           startFrom={shot.startFrom ?? 0}
           muted={!shot.audible}
           volume={shot.audible ? 1 : 0}
           style={mediaStyle}
         />
       ) : (
-        <Img src={staticFile(shot.src)} style={mediaStyle} />
+        <Img src={staticFile(resolveMedia(shot.file))} style={mediaStyle} />
       )}
 
       <Overlay accent={accent} />

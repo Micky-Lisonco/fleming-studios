@@ -14,7 +14,7 @@ export const EndCard: React.FC = () => {
   const { fps } = useVideoConfig();
 
   const enter = spring({ frame, fps, config: { damping: 200, mass: 0.7 } });
-  const scale = interpolate(enter, [0, 1], [0.86, 1]);
+  const scale = interpolate(enter, [0, 1], [0.88, 1]);
   const opacity = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
   const ctaIn = interpolate(frame, [10, 22], [0, 1], {
     extrapolateLeft: "clamp",
@@ -33,39 +33,68 @@ export const EndCard: React.FC = () => {
     >
       <AbsoluteFill
         style={{
-          background: `radial-gradient(circle at 50% 45%, ${END_CARD.accent}22 0%, rgba(0,0,0,0) 55%)`,
+          background: `radial-gradient(circle at 50% 44%, ${END_CARD.accent}26 0%, rgba(0,0,0,0) 58%)`,
         }}
       />
 
       {/*
-        The logo and the tagline are deliberately siblings rather than children
-        of one scaled wrapper: a transform on a shared parent would isolate the
-        logo's blend mode from the glow painted behind it, and the supplied
-        logo is a JPEG on a solid black box that needs to blend away.
+        Logo and type are siblings, not children of one scaled wrapper: a
+        transform on a shared parent would isolate the logo's blend mode
+        from the glow painted behind it, and supplied logos are often a
+        JPEG on a solid black box that needs to blend away.
       */}
-      <Img
-        src={staticFile(END_CARD.logo)}
-        style={{
-          width: 560,
-          objectFit: "contain",
-          transform: `scale(${scale})`,
-          mixBlendMode: "screen",
-        }}
-      />
+      {END_CARD.logo ? (
+        <Img
+          src={staticFile(END_CARD.logo)}
+          style={{
+            width: 560,
+            objectFit: "contain",
+            transform: `scale(${scale})`,
+            mixBlendMode: "screen",
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            transform: `scale(${scale})`,
+            fontSize: 118,
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
+            color: BRAND.white,
+          }}
+        >
+          {END_CARD.wordmark}
+        </div>
+      )}
 
       {END_CARD.line ? (
         <div
           style={{
-            marginTop: 32,
+            marginTop: 20,
             transform: `scale(${scale})`,
-            fontSize: 40,
-            fontWeight: 500,
-            letterSpacing: "0.16em",
-            color: "rgba(255,255,255,0.72)",
+            fontSize: 42,
+            fontWeight: 600,
+            letterSpacing: "0.18em",
+            color: END_CARD.accent,
             textTransform: "uppercase",
           }}
         >
           {END_CARD.line}
+        </div>
+      ) : null}
+
+      {END_CARD.venue ? (
+        <div
+          style={{
+            marginTop: 40,
+            transform: `scale(${scale})`,
+            fontSize: 34,
+            fontWeight: 400,
+            letterSpacing: "0.02em",
+            color: "rgba(255,255,255,0.62)",
+          }}
+        >
+          {END_CARD.venue}
         </div>
       ) : null}
 
