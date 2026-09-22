@@ -109,6 +109,14 @@ Write-Host ""
 $n = 0
 foreach ($file in $audio) {
     $n++
+    # The drone clips carry no audio, so their extracted mp3 is empty or
+    # near-empty. Feeding those to whisper costs minutes per clip and
+    # returns nothing, or worse, hallucinated speech from silence.
+    if ($file.Length -lt 20KB) {
+        Write-Host ("[{0}/{1}] {2} - no audio, skipping" -f $n, $audio.Count, $file.BaseName) -ForegroundColor DarkGray
+        continue
+    }
+
     $srtPath = Join-Path $srtDir "$($file.BaseName).srt"
     if (Test-Path -LiteralPath $srtPath) {
         Write-Host ("[{0}/{1}] {2} - already done" -f $n, $audio.Count, $file.BaseName)
