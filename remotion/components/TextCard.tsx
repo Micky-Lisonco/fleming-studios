@@ -9,11 +9,12 @@ import { BRAND, layoutFor } from "../edit";
 import { FONT_FAMILY, fitFontSize } from "./fitText";
 
 /**
- * Where the text band begins, as a percentage of frame height. Below
- * the midline so a face in the upper half stays clear, high enough that
- * a two-line card is not sitting on the floor of the screen.
+ * Minimum height of the text block, as a fraction of frame height.
+ * Content is centred inside it, so a short card is lifted off the
+ * bottom rather than sitting on it. A card taller than this simply
+ * grows upward.
  */
-const BAND_TOP_PERCENT = 46;
+const MIN_BLOCK_HEIGHT = 0.34;
 
 export type Card = {
   /** Small line above the headline. */
@@ -29,17 +30,16 @@ export type Card = {
  * Different job from Caption: a caption decorates a shot, this one IS
  * the shot's content and the picture behind it is atmosphere.
  *
- * Sits in a fixed band across the lower half of the frame, with its
- * content centred INSIDE that band.
+ * The block's BOTTOM edge is pinned clear of the frame bottom, and it
+ * grows upward from there. It also carries a minimum height with its
+ * content centred inside, so a short two-line card sits well up the
+ * frame instead of on the floor.
  *
- * Bottom-anchoring it looked wrong: a short card with two lines fell to
- * the very bottom of the screen while a tall card with a kicker and a
- * body line reached up past the middle, so the type appeared to jump
- * around between beats. Centring within a fixed band keeps every beat
- * in the same place regardless of how much it has to say - and lifts
- * the short ones off the floor.
- *
- * The band starts below the midline so it still clears a face.
+ * Both halves matter. A fixed band with centred content looked right
+ * for short cards and pushed long ones off the bottom of the screen -
+ * text centred in a box overflows equally at both ends, and the end
+ * that matters is the one being cut off. Growing upward from a pinned
+ * bottom edge cannot overflow downward at all.
  *
  * The scrim is a gradient rising from the bottom rather than a flat
  * wash, so the picture stays bright where nothing is written.
@@ -100,13 +100,19 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
         }}
       />
 
-      <AbsoluteFill
+      <div
         style={{
-          top: `${BAND_TOP_PERCENT}%`,
-          bottom: layout.captionBottom * 0.62,
+          position: "absolute",
+          left: layout.sidePad,
+          right: layout.sidePad,
+          // Pinned bottom: whatever the card says, it cannot run off the
+          // bottom of the screen.
+          bottom: layout.captionBottom * 0.68,
+          minHeight: height * MIN_BLOCK_HEIGHT,
+          display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: `0 ${layout.sidePad}px`,
           textAlign: "center",
           opacity,
           transform: `translateY(${y}px)`,
@@ -169,7 +175,7 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
             boxShadow: `0 0 26px ${accent}`,
           }}
         />
-      </AbsoluteFill>
+      </div>
     </AbsoluteFill>
   );
 };

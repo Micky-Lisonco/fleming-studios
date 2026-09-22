@@ -344,11 +344,10 @@ export const SHOTS_AD: Shot[] = [
  */
 export const SHOTS_EXPLAINER: Shot[] = [
   /**
-   * Generated stills only where no footage exists. Everything the
-   * camera actually captured is used in preference to an invented
-   * version of it - the chairs especially, which are heated massage
-   * recliners and look it, and which a generated interior made to look
-   * like a waiting room.
+   * Two generated stills, both of a cyclist on a road. Nothing
+   * generated is set inside the chamber any more: every attempt at an
+   * invented interior read as a waiting room next to the real one, and
+   * the real one is the entire product.
    */
 
   // ── 1. WHAT IT IS (0.0s – 2.8s)
@@ -378,9 +377,11 @@ export const SHOTS_EXPLAINER: Shot[] = [
   { id: "e10-row",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 35, startFrom: 300, move: "pull", accent: BRAND.oxygen },
   { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 35, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
 
-  // ── 6. EVERYONE ELSE (14.0s – 16.4s)
-  { id: "e12-rest",   file: "inside-rest.png",                  kind: "image", durationInFrames: 30, move: "push", accent: BRAND.pulse },
-  { id: "e13-chair3", file: "14-6E8A6405.mp4",                  kind: "video", durationInFrames: 30, startFrom: 50,  move: "pull", accent: BRAND.pulse },
+  // ── 6. EVERYONE ELSE (14.0s – 16.4s) — real footage here too. The
+  // generated interior kept reading as a waiting room, and there is no
+  // version of an invented chamber that beats the one that exists.
+  { id: "e12-vip1",   file: "15-6E8A6406.mp4",                  kind: "video", durationInFrames: 30, startFrom: 25,  move: "push", accent: BRAND.pulse },
+  { id: "e13-vip2",   file: "16-6E8A6407.mp4",                  kind: "video", durationInFrames: 30, startFrom: 400, move: "pull", accent: BRAND.pulse },
 
   // ── 7. THE ONLY ONE (16.4s – 18.4s)
   { id: "e14-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 25, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
