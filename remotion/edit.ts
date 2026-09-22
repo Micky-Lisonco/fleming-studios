@@ -176,6 +176,16 @@ export type Shot = {
   subtitles?: Subtitle[];
   /** Key into SPEAKERS. Shows a name super the first time we see them. */
   speaker?: string;
+  /**
+   * What kind of material this slot wants. Not used at render time - it
+   * is there so assigning 30 clips to 15 slots is a matter of matching
+   * like for like.
+   *
+   *   aerial    the DJI drone clips
+   *   interview Fien on camera, sound on
+   *   broll     everything else the Canon shot
+   */
+  wants?: "aerial" | "interview" | "broll";
   /** How the file fills the frame. "cover" crops, "contain" letterboxes. */
   fit?: "cover" | "contain";
   /**
@@ -224,41 +234,45 @@ export const SHOTS: Shot[] = [
    * in the .srt minus `startFrom` in seconds, times 30.
    */
 
-  // ── SOUNDBITE 1 — the hook. Her best line, whatever that turns out
-  // to be. Runs long because a sentence needs room to land.
-  { id: "01-hook",    file: null, kind: "video", durationInFrames: 66, accent: BRAND.oxygen, audible: true, speaker: "fien" },
+  // ── AERIAL OPEN (0.0s – 1.6s) — establish where this is before anyone
+  // speaks. The drone material earns its place here: the Flemish Ardennes
+  // are the reason the hotel exists, and no interior shot says that in a
+  // second and a half.
+  { id: "01-aerial",   file: null, kind: "video", durationInFrames: 42, accent: BRAND.cobble, wants: "aerial" },
 
-  // ── B-ROLL — the ride. Muted, poster captions only.
-  { id: "02-pave",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.cobble },
-  { id: "03-turn",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen },
+  // ── SOUNDBITE 1 — the hook, in her words.
+  { id: "02-hook",     file: null, kind: "video", durationInFrames: 54, accent: BRAND.oxygen, audible: true, speaker: "fien", wants: "interview" },
 
-  // ── B-ROLL — arriving at the room.
-  { id: "04-arrive",  file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen },
-  { id: "05-reveal",  file: null, kind: "video", durationInFrames: 27, accent: BRAND.oxygen },
+  // ── B-ROLL — the ride.
+  { id: "03-pave",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.cobble, wants: "broll" },
+  { id: "04-turn",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen, wants: "broll" },
 
-  // ── SOUNDBITE 2 — what the room actually is, in her words. Always
-  // stronger than the same claim as a caption.
-  { id: "06-what",    file: null, kind: "video", durationInFrames: 60, accent: BRAND.oxygen, audible: true },
+  // ── ARRIVING — the aerial returns, to place the hotel itself.
+  { id: "05-approach", file: null, kind: "video", durationInFrames: 30, accent: BRAND.oxygen, wants: "aerial" },
+  { id: "06-reveal",   file: null, kind: "video", durationInFrames: 27, accent: BRAND.oxygen, wants: "broll" },
+
+  // ── SOUNDBITE 2 — what the room actually is. Stronger from her than
+  // the same claim as a caption.
+  { id: "07-what",     file: null, kind: "video", durationInFrames: 54, accent: BRAND.oxygen, audible: true, wants: "interview" },
 
   // ── B-ROLL — inside, the hour passing.
-  { id: "07-hour",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen },
-  { id: "08-breathe", file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse },
+  { id: "08-hour",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.oxygen, wants: "broll" },
+  { id: "09-breathe",  file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse, wants: "broll" },
 
   // ── SOUNDBITE 3 — the only one in the Benelux. The reason the ad
-  // exists, and it has to come from her, not from a title card.
-  { id: "09-only",    file: null, kind: "video", durationInFrames: 60, accent: BRAND.pulse, audible: true },
+  // exists, so it has to come from her, not a title card.
+  { id: "10-only",     file: null, kind: "video", durationInFrames: 54, accent: BRAND.pulse, audible: true, wants: "interview" },
 
   // ── B-ROLL — after.
-  { id: "10-hold",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse },
-  { id: "11-after",   file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse },
-  { id: "12-roll",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse },
+  { id: "11-after",    file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse, wants: "broll" },
+  { id: "12-roll",     file: null, kind: "video", durationInFrames: 24, accent: BRAND.pulse, wants: "broll" },
 
   // ── SOUNDBITE 4 — the invitation. Her closing line.
-  { id: "13-invite",  file: null, kind: "video", durationInFrames: 54, accent: BRAND.pulse, audible: true },
+  { id: "13-invite",   file: null, kind: "video", durationInFrames: 54, accent: BRAND.pulse, audible: true, wants: "interview" },
 
-  // ── THE PAYOFF — back to picture for the last beat.
-  { id: "14-payoff",  file: null, kind: "video", durationInFrames: 60, accent: BRAND.pulse },
-  { id: "15-hotel",   file: null, kind: "video", durationInFrames: 36, accent: BRAND.oxygen },
+  // ── THE PAYOFF — pull back out to the landscape to close.
+  { id: "14-payoff",   file: null, kind: "video", durationInFrames: 48, accent: BRAND.pulse, wants: "broll" },
+  { id: "15-away",     file: null, kind: "video", durationInFrames: 48, accent: BRAND.oxygen, wants: "aerial" },
 ];
 
 /** Words for one campaign. The timeline above never changes between them. */

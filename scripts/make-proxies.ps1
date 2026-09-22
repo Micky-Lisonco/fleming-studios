@@ -173,7 +173,9 @@ if ($LutMap) {
 } elseif ($LogFootage) {
     Write-Host "Grade: built-in log approximation (supply -Lut or -LutMap for the real conversion)"
 } else {
-    Write-Host "Grade: none (add -LogFootage, -Lut or -LutMap if the footage is flat)"
+    Write-Host "Grade: none - correct when the camera recorded a normal picture profile."
+    Write-Host "Only add -Lut or -LogFootage if the report shows the footage is flat;"
+    Write-Host "converting already-Rec.709 footage crushes it and cannot be undone."
 }
 
 # Works inside the repo or dropped anywhere on its own.
