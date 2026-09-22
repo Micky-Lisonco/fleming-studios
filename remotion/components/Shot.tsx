@@ -9,7 +9,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import type { Shot as ShotType } from "../edit";
-import { BRAND, resolveMedia } from "../edit";
+import { BRAND, CONFORMED, resolveMedia, shotSource, shotStartFrom } from "../edit";
 import { Caption } from "./Caption";
 import { LowerThird } from "./LowerThird";
 import { Subtitles } from "./Subtitles";
@@ -47,7 +47,7 @@ const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index 
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
         }}
       >
-        {resolveMedia(`${shot.id}.mp4`)}
+        {CONFORMED ? resolveMedia(`${shot.id}.mp4`) : resolveMedia(shot.file ?? `${shot.id}.mp4`)}
       </div>
     </AbsoluteFill>
   );
@@ -105,18 +105,18 @@ export const Shot: React.FC<{
 
   return (
     <AbsoluteFill style={{ opacity, backgroundColor: BRAND.black }}>
-      {shot.file === null ? (
+      {shotSource(shot) === null ? (
         <Placeholder shot={shot} index={index} />
       ) : shot.kind === "video" ? (
         <OffthreadVideo
-          src={staticFile(resolveMedia(shot.file))}
-          startFrom={shot.startFrom ?? 0}
+          src={staticFile(shotSource(shot)!)}
+          startFrom={shotStartFrom(shot)}
           muted={!shot.audible}
           volume={shot.audible ? 1 : 0}
           style={mediaStyle}
         />
       ) : (
-        <Img src={staticFile(resolveMedia(shot.file))} style={mediaStyle} />
+        <Img src={staticFile(shotSource(shot)!)} style={mediaStyle} />
       )}
 
       <Overlay accent={accent} />

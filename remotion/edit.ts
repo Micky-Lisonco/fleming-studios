@@ -96,8 +96,35 @@ const ENV_DIR =
 
 export const MEDIA_DIR: string = ENV_DIR || "media-proxy";
 
+/**
+ * "media" holds CONFORMED clips: each one is a single shot, already
+ * trimmed to its in and out points and already graded, produced by
+ * scripts/conform.ps1. That is what makes the final render correct -
+ * rendering straight from the ungraded masters would deliver the flat
+ * log picture the proxies were graded to avoid.
+ *
+ * Because a conformed clip is exactly its shot, it is named after the
+ * shot and starts at frame zero. The proxy path keeps the original
+ * filenames and trims.
+ */
+export const CONFORMED = MEDIA_DIR === "media";
+
 /** Resolves a bare filename against whichever media folder is active. */
 export const resolveMedia = (file: string): string => `${MEDIA_DIR}/${file}`;
+
+/** The file a shot plays, in whichever mode is active. */
+export const shotSource = (shot: Shot): string | null => {
+  if (CONFORMED) return `${MEDIA_DIR}/${shot.id}.mp4`;
+  return shot.file ? `${MEDIA_DIR}/${shot.file}` : null;
+};
+
+/**
+ * Where playback starts inside that file. A conformed clip has the trim
+ * already applied, so seeking into it again would skip past the moment
+ * the shot was chosen for.
+ */
+export const shotStartFrom = (shot: Shot): number =>
+  CONFORMED ? 0 : (shot.startFrom ?? 0);
 
 /**
  * Palette: clinical oxygen blues against the warm stone of the cobbles,
