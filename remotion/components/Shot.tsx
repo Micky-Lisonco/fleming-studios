@@ -13,6 +13,8 @@ import { BRAND, CONFORMED, resolveMedia, shotSource, shotStartFrom } from "../ed
 import { Caption } from "./Caption";
 import { LowerThird } from "./LowerThird";
 import { Subtitles } from "./Subtitles";
+import { TextCard } from "./TextCard";
+import type { Card } from "./TextCard";
 import { Overlay } from "./Overlay";
 
 /**
@@ -53,6 +55,9 @@ const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index 
   );
 };
 
+const NO_SPEED =
+  typeof process !== "undefined" && process.env?.REMOTION_NO_SPEED === "1";
+
 export const Shot: React.FC<{
   shot: ShotType;
   index: number;
@@ -62,8 +67,10 @@ export const Shot: React.FC<{
   /** Words for this shot, supplied by the active campaign variant. */
   caption?: string;
   sub?: string;
+  /** A full-frame text beat, for the explainer cut. */
+  card?: Card;
   punch: boolean;
-}> = ({ shot, index, crossfade, isFirst, caption, sub, punch: punchOn }) => {
+}> = ({ shot, index, crossfade, isFirst, caption, sub, card, punch: punchOn }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const accent = shot.accent ?? BRAND.oxygen;
@@ -139,7 +146,10 @@ export const Shot: React.FC<{
         <OffthreadVideo
           src={staticFile(shotSource(shot)!)}
           startFrom={shotStartFrom(shot)}
-          playbackRate={shot.speed ?? 1}
+          // Variable speed is the least-travelled path through the
+          // compositor. REMOTION_NO_SPEED=1 drops it, which isolates it
+          // in one run if a render crashes with an access violation.
+          playbackRate={NO_SPEED ? 1 : shot.speed ?? 1}
           muted={!shot.audible}
           volume={shot.audible ? 1 : 0}
           style={mediaStyle}
@@ -154,6 +164,10 @@ export const Shot: React.FC<{
 
       {shot.subtitles?.length ? (
         <Subtitles lines={shot.subtitles} accent={accent} />
+      ) : null}
+
+      {card ? (
+        <TextCard card={card} accent={accent} durationInFrames={shot.durationInFrames} />
       ) : null}
 
       {caption ? <Caption text={caption} sub={sub} accent={accent} /> : null}

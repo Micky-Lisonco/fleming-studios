@@ -11,10 +11,12 @@
     "video:still": "remotion still remotion/index.ts ad-nl out/thumbnail.png --frame=20",
     "video:render:all": "node scripts/render-all.mjs",
     "video:render:wide": "remotion render remotion/index.ts brand-wide out/brand-wide.mp4",
-    "cut:export": "node --experimental-strip-types --no-warnings scripts/export-cut.mjs"
+    "cut:export": "node --experimental-strip-types --no-warnings scripts/export-cut.mjs",
+    "video:render:safe": "remotion render remotion/index.ts brand-wide out/brand-wide.mp4 --concurrency=1"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.526",
+    "@remotion/layout-utils": "^4.0.526",
     "@remotion/player": "^4.0.526",
     "next": "14.2.3",
     "react": "18.3.1",

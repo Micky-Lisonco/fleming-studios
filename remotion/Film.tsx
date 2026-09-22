@@ -55,6 +55,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
         cursor += shot.durationInFrames;
         const isLast = i === film.shots.length - 1;
         const words = film.captions[shot.id];
+        const card = film.cards?.[shot.id];
 
         return (
           <Sequence
@@ -70,6 +71,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
               isFirst={i === 0}
               caption={words?.caption}
               sub={words?.sub}
+              card={card}
               punch={!calm}
             />
           </Sequence>

@@ -1,5 +1,6 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { BRAND, layoutFor } from "../edit";
+import { fitFontSize } from "./fitText";
 
 /**
  * Lower-third type. Sits clear of the bottom ~18% where TikTok and
@@ -41,13 +42,19 @@ export const Caption: React.FC<{
       <div
         style={{
           fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
-          fontSize: text.length > 14 ? layout.captionSizeLong : layout.captionSize,
+          fontSize: fitFontSize(
+            text,
+            width - layout.sidePad * 2,
+            text.length > 14 ? layout.captionSizeLong : layout.captionSize,
+            { fontWeight: 800, letterSpacing: "-0.04em" }
+          ),
           lineHeight: 0.92,
           fontWeight: 800,
           letterSpacing: "-0.04em",
           color: BRAND.white,
           textShadow: "0 8px 60px rgba(0,0,0,0.85)",
           textTransform: "uppercase",
+          overflowWrap: "anywhere",
         }}
       >
         {text}

@@ -318,6 +318,27 @@ export const SHOTS_AD: Shot[] = [
   { id: "a12-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 42, startFrom: 250, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
 ];
 
+/**
+ * ── THE EXPLAINER (vertical) ──────────────────────────────────
+ * For people who have never heard of any of this. It has to land what
+ * it is, why it exists and who it is for, in twenty seconds, with the
+ * sound off, and leave them wanting the landing page.
+ *
+ * Fien is in frame but never speaking: the text carries the argument,
+ * so nothing depends on how a sentence was delivered on the day.
+ *
+ * Beats run about three and a half seconds each - short enough to keep
+ * moving, long enough to actually read two lines.
+ */
+export const SHOTS_EXPLAINER: Shot[] = [
+  { id: "x1-hook",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 50, startFrom: 40,  move: "left", accent: BRAND.oxygen },
+  { id: "x2-what",   file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 88, startFrom: 75,  move: "pull", accent: BRAND.oxygen },
+  { id: "x3-why",    file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 88, startFrom: 50,  move: "push", accent: BRAND.oxygen },
+  { id: "x4-how",    file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 88, startFrom: 75,  move: "push", accent: BRAND.pulse },
+  { id: "x5-who",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 88, startFrom: 120, move: "pull", accent: BRAND.pulse },
+  { id: "x6-unique", file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 50, startFrom: 250, move: "pull", accent: BRAND.oxygen },
+];
+
 export type Film = {
   id: string;
   label: string;
@@ -326,6 +347,12 @@ export type Film = {
   energy: "high" | "calm";
   /** Keyed by shot id. A shot with no entry runs without type. */
   captions: Record<string, { caption: string; sub?: string }>;
+  /**
+   * Full-frame text beats, keyed by shot id. Where captions decorate a
+   * shot, a card IS the shot's content and the picture behind it is
+   * atmosphere. Used by the explainer cut.
+   */
+  cards?: Record<string, { kicker?: string; title: string; body?: string }>;
   /**
    * Null on a film with no end card. A website header loops, and a
    * call to action sailing past every twenty seconds under the site's
@@ -409,6 +436,46 @@ export const FILMS: Record<string, Film> = {
       venue: "De zuurstofkamer - de enige in de Benelux",
       cta: CTA,
     },
+  },
+};
+
+FILMS["ad-explainer-nl"] = {
+  id: "ad-explainer-nl",
+  label: "Zuurstofkamer - uitleg, tekst (9:16)",
+  format: "vertical",
+  shots: SHOTS_EXPLAINER,
+  energy: "high",
+  captions: {},
+  cards: {
+    "x1-hook": { title: "Wat is dit?" },
+    "x2-what": {
+      kicker: "Wat het is",
+      title: "Een zuurstofkamer",
+      body: "Je ademt er bijna twee keer zoveel zuurstof in als buiten.",
+    },
+    "x3-why": {
+      kicker: "Waarvoor",
+      title: "Om te herstellen",
+      body: "Na een zware rit. Of na een zware week.",
+    },
+    "x4-how": {
+      kicker: "Hoe het gaat",
+      title: "Twee uur. Een stoel.",
+      body: "Geen masker, niets aan. Je zit, je leest, je rust.",
+    },
+    "x5-who": {
+      kicker: "Voor wie",
+      title: "Renners, groepen, bedrijven",
+      body: "En voor wie gewoon eens iets voor zichzelf wil doen.",
+    },
+    "x6-unique": { title: "De enige in de Benelux" },
+  },
+  endCard: {
+    durationInFrames: 48,
+    wordmark: "FLANDERS",
+    line: "COBBLESTONE PARADISE",
+    venue: "Zegelsem, Brakel - Vlaamse Ardennen",
+    cta: CTA,
   },
 };
 
