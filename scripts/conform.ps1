@@ -160,6 +160,23 @@ if (-not $cut.shots -or $cut.shots.Count -eq 0) {
 
 New-Item -ItemType Directory -Force -Path $mediaDir | Out-Null
 
+# The cut names proxies, not masters - proxies carry an index prefix so
+# they sort in shooting order. manifest.json is what maps one to the
+# other, and it is written by make-proxies.ps1 at the same moment the
+# proxies are, so the two cannot drift.
+$toMaster = @{}
+foreach ($base in @((Join-Path $root 'out\lookbook\manifest.json'),
+                    (Join-Path $SourcePath 'footage-prep\lookbook\manifest.json'))) {
+    if (Test-Path -LiteralPath $base) {
+        foreach ($row in (Get-Content -LiteralPath $base -Raw | ConvertFrom-Json)) {
+            $toMaster["$($row.id).mp4"] = $row.masterPath
+            $toMaster[$row.id] = $row.masterPath
+        }
+        Write-Host "Manifest: $($toMaster.Count / 2) clips mapped to their masters"
+        break
+    }
+}
+
 if ($LutMap) {
     Write-Host "Grade: per camera"
     foreach ($pattern in $LutMap.Keys) { Write-Host ("  {0,-12} {1}" -f $pattern, $LutMap[$pattern]) }
@@ -197,16 +214,26 @@ $n = 0
 $failed = 0
 foreach ($shot in $cut.shots) {
     $n++
-    $master = Join-Path $SourcePath $shot.file
+    # Proxy name -> master path, via the manifest. Falls back to treating
+    # the name as a master filename, for a cut written by hand.
+    $master = $null
+    if ($toMaster.ContainsKey($shot.file)) { $master = $toMaster[$shot.file] }
+    if (-not $master -or -not (Test-Path -LiteralPath $master)) {
+        $master = Join-Path $SourcePath $shot.file
+    }
     if (-not (Test-Path -LiteralPath $master)) {
-        $found = Get-ChildItem -LiteralPath $SourcePath -Filter $shot.file -Recurse -ErrorAction SilentlyContinue |
+        # Try the same stem with any video extension, since the proxy is
+        # always .mp4 while the master may be .MP4 or .MOV.
+        $stem = [System.IO.Path]::GetFileNameWithoutExtension($shot.file) -replace '^\d+-', ''
+        $found = Get-ChildItem -LiteralPath $SourcePath -Recurse -File -ErrorAction SilentlyContinue |
+                 Where-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) -eq $stem } |
                  Select-Object -First 1
         if ($found) { $master = $found.FullName }
-        else {
-            Write-Host "[$n/$($cut.shots.Count)] $($shot.id) - master not found: $($shot.file)" -ForegroundColor Red
-            $failed++
-            continue
-        }
+    }
+    if (-not (Test-Path -LiteralPath $master)) {
+        Write-Host "[$n/$($cut.shots.Count)] $($shot.id) - master not found for: $($shot.file)" -ForegroundColor Red
+        $failed++
+        continue
     }
 
     $dest = Join-Path $mediaDir "$($shot.id).mp4"

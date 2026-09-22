@@ -248,45 +248,47 @@ export const SHOTS: Shot[] = [
    * in the .srt minus `startFrom` in seconds, times 30.
    */
 
-  // ── AERIAL OPEN (0.0s – 1.6s) — establish where this is before anyone
-  // speaks. The drone material earns its place here: the Flemish Ardennes
-  // are the reason the hotel exists, and no interior shot says that in a
-  // second and a half.
-  { id: "01-aerial",   file: null, kind: "video", durationInFrames: 35, accent: BRAND.cobble, wants: "aerial" },
+  // ── AERIAL OPEN (0.0s – 2.0s) — establish the Flemish Ardennes before
+  // a word is spoken. Drone clip, to be chosen from the filmstrips.
+  { id: "01-aerial",   file: null, kind: "video", durationInFrames: 50, accent: BRAND.cobble, wants: "aerial" },
 
-  // ── SOUNDBITE 1 — the hook, in her words.
-  { id: "02-hook",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.oxygen, audible: true, speaker: "fien", wants: "interview" },
+  // ── THE CLAIM (2.0s – 6.0s) — the reason the ad exists, and it comes
+  // from her rather than a title card. From the long interview take.
+  //
+  //   "De normobarische kamer is de enige in de Benelux.
+  //    Deze staat in Zegelsem, Brakel."
+  //
+  // The interviewer's question sits just before it, so startFrom trims
+  // into her answer. Worth checking in the Studio: whisper's segment
+  // boundaries are coarse and the exact word start may be a beat either
+  // side of this.
+  { id: "02-claim",    file: "08-6E8A6399.mp4", kind: "video", durationInFrames: 100, startFrom: 2463, accent: BRAND.oxygen, audible: true, speaker: "fien", wants: "interview",
+    subtitles: [
+      { from: 0,  to: 52,  text: "De zuurstofkamer is de enige" },
+      { from: 52, to: 100, text: "in de Benelux." },
+    ] },
 
-  // ── B-ROLL — the ride.
-  { id: "03-pave",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.cobble, wants: "broll" },
-  { id: "04-turn",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.oxygen, wants: "broll" },
+  // ── THE ROOM (6.0s – 7.6s)
+  { id: "03-room",     file: null, kind: "video", durationInFrames: 40, accent: BRAND.oxygen, wants: "broll" },
 
-  // ── ARRIVING — the aerial returns, to place the hotel itself.
-  { id: "05-approach", file: null, kind: "video", durationInFrames: 25, accent: BRAND.oxygen, wants: "aerial" },
-  { id: "06-reveal",   file: null, kind: "video", durationInFrames: 23, accent: BRAND.oxygen, wants: "broll" },
+  // ── THE EXPERIENCE (7.6s – 11.6s) — what it is actually like. This is
+  // the line the whole brief asks for: no promise, no condition, just
+  // the hour itself.
+  //
+  //   "U kan gewoon zitten, praten, lezen, rusten,
+  //    zonder dat u er iets van merkt."
+  { id: "04-feel",     file: "09-6E8A6400.mp4", kind: "video", durationInFrames: 100, startFrom: 575, accent: BRAND.oxygen, audible: true, wants: "interview",
+    subtitles: [
+      { from: 0,  to: 55,  text: "U kan gewoon zitten, lezen, rusten" },
+      { from: 55, to: 100, text: "zonder dat u er iets van merkt." },
+    ] },
 
-  // ── SOUNDBITE 2 — what the room actually is. Stronger from her than
-  // the same claim as a caption.
-  { id: "07-what",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.oxygen, audible: true, wants: "interview" },
+  // ── INSIDE (11.6s – 14.8s) — the chairs, the detail.
+  { id: "05-chairs",   file: null, kind: "video", durationInFrames: 40, accent: BRAND.pulse, wants: "broll" },
+  { id: "06-detail",   file: null, kind: "video", durationInFrames: 40, accent: BRAND.pulse, wants: "broll" },
 
-  // ── B-ROLL — inside, the hour passing.
-  { id: "08-hour",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.oxygen, wants: "broll" },
-  { id: "09-breathe",  file: null, kind: "video", durationInFrames: 20, accent: BRAND.pulse, wants: "broll" },
-
-  // ── SOUNDBITE 3 — the only one in the Benelux. The reason the ad
-  // exists, so it has to come from her, not a title card.
-  { id: "10-only",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.pulse, audible: true, wants: "interview" },
-
-  // ── B-ROLL — after.
-  { id: "11-after",    file: null, kind: "video", durationInFrames: 20, accent: BRAND.pulse, wants: "broll" },
-  { id: "12-roll",     file: null, kind: "video", durationInFrames: 20, accent: BRAND.pulse, wants: "broll" },
-
-  // ── SOUNDBITE 4 — the invitation. Her closing line.
-  { id: "13-invite",   file: null, kind: "video", durationInFrames: 45, accent: BRAND.pulse, audible: true, wants: "interview" },
-
-  // ── THE PAYOFF — pull back out to the landscape to close.
-  { id: "14-payoff",   file: null, kind: "video", durationInFrames: 40, accent: BRAND.pulse, wants: "broll" },
-  { id: "15-away",     file: null, kind: "video", durationInFrames: 40, accent: BRAND.oxygen, wants: "aerial" },
+  // ── AWAY (14.8s – 16.6s) — back to the air to close.
+  { id: "07-away",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.oxygen, wants: "aerial" },
 ];
 
 /** Words for one campaign. The timeline above never changes between them. */
@@ -312,14 +314,11 @@ export const VARIANTS: Record<string, Variant> = {
     label: "Sporter (NL)",
     energy: "high",
     captions: {
-      // The hook and the Benelux line now come from Fien herself, so they
-      // are deliberately absent here — a caption over a soundbite is two
-      // things competing for the same second.
-      "03-turn":   { caption: "HERSTEL HARDER" },
-      "05-reveal": { caption: "DE ZUURSTOFKAMER" },
-      "07-hour":   { caption: "ÉÉN UUR" },
-      "11-after":  { caption: "BENEN TERUG" },
-      "14-payoff": { caption: "MORGEN RIJD JE WEER" },
+      // No caption over a soundbite - her words and a headline in the
+      // same second fight each other.
+      "03-room":   { caption: "DE ZUURSTOFKAMER" },
+      "05-chairs": { caption: "TWEE UUR", sub: "In een stoel, meer niet" },
+      "07-away":   { caption: "MORGEN RIJD JE WEER" },
     },
     endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_NL, cta: END_CTA },
   },
@@ -334,11 +333,9 @@ export const VARIANTS: Record<string, Variant> = {
     label: "Particulier (NL)",
     energy: "calm",
     captions: {
-      "03-turn":   { caption: "GEWOON ADEMEN" },
-      "05-reveal": { caption: "DE ZUURSTOFKAMER" },
-      "07-hour":   { caption: "ÉÉN UUR", sub: "In een relaxstoel, meer niet" },
-      "11-after":  { caption: "RUSTIGER" },
-      "14-payoff": { caption: "MORGEN STA JE FITTER OP" },
+      "03-room":   { caption: "DE ZUURSTOFKAMER" },
+      "05-chairs": { caption: "TWEE UUR", sub: "Voor jezelf" },
+      "07-away":   { caption: "MORGEN STA JE FITTER OP" },
     },
     endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_NL, cta: END_CTA },
   },
@@ -349,11 +346,9 @@ export const VARIANTS: Record<string, Variant> = {
     label: "Sporter (EN)",
     energy: "high",
     captions: {
-      "03-turn":   { caption: "RECOVER HARDER" },
-      "05-reveal": { caption: "THE OXYGEN ROOM" },
-      "07-hour":   { caption: "ONE HOUR" },
-      "11-after":  { caption: "LEGS BACK" },
-      "14-payoff": { caption: "TOMORROW YOU RIDE AGAIN" },
+      "03-room":   { caption: "THE OXYGEN ROOM" },
+      "05-chairs": { caption: "TWO HOURS", sub: "In a chair. That is all." },
+      "07-away":   { caption: "TOMORROW YOU RIDE AGAIN" },
     },
     endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_EN, cta: END_CTA },
   },
@@ -379,7 +374,7 @@ export const SPEAKERS: Record<string, { name: string; role: string }> = {
  * whether or not the brand assets have landed.
  */
 export const END_CARD = {
-  durationInFrames: 37,
+  durationInFrames: 85,
   /** Filename in `public/`. Null renders the wordmark as type instead. */
   logo: null as string | null, // e.g. "flanders-logo.png"
   accent: BRAND.oxygen,
