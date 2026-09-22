@@ -26,9 +26,11 @@ fi
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROXY_DIR="$ROOT/public/media-proxy"
 LOOK_DIR="$ROOT/out/lookbook"
+AUDIO_DIR="$ROOT/out/audio"
+SRT_DIR="$ROOT/out/transcripts"
 MANIFEST="$LOOK_DIR/manifest.json"
 
-mkdir -p "$PROXY_DIR" "$LOOK_DIR"
+mkdir -p "$PROXY_DIR" "$LOOK_DIR" "$AUDIO_DIR" "$SRT_DIR"
 
 # QUALITY=low halves the bitrate if a clip lands over the 30 MB upload ceiling.
 case "${QUALITY:-normal}" in
@@ -86,6 +88,14 @@ find "$SRC" -maxdepth 1 -type f \
     OVERSIZE=$((OVERSIZE + 1))
   fi
 
+  # ── audio: needed because this is interview footage ──────────────
+  # The edit is driven by what Fien says, not by pretty pictures, so the
+  # words have to be readable before a single cut is chosen. Mono 64k is
+  # plenty for transcription and keeps the files tiny.
+  ffmpeg -nostdin -y -loglevel error -i "$FILE" \
+    -vn -c:a libmp3lame -b:a 64k -ac 1 -ar 16000 \
+    "$AUDIO_DIR/$STEM.mp3" 2>/dev/null || true
+
   # ── filmstrip: six frames across the clip, one small jpeg ─────────
   ffmpeg -nostdin -y -loglevel error -i "$FILE" \
     -vf "select='not(mod(n\,floor(n_frames/6)))',scale=-2:240,tile=6x1" \
@@ -103,9 +113,18 @@ done
 echo "]" >> "$MANIFEST"
 
 echo
-echo "Proxies:    $PROXY_DIR"
-echo "Filmstrips: $LOOK_DIR"
-echo "Manifest:   $MANIFEST"
+echo "Proxies:     $PROXY_DIR"
+echo "Filmstrips:  $LOOK_DIR"
+echo "Audio:       $AUDIO_DIR"
+echo "Manifest:    $MANIFEST"
 echo
-echo "Next: send the filmstrips and manifest.json first — they are tiny and"
-echo "enough to design the cut from. Proxies follow only if we need them."
+echo "─────────────────────────────────────────────────────────────"
+echo "NEXT: transcribe. This is interview footage, so the words decide"
+echo "the cut — filmstrips alone cannot show what Fien actually says."
+echo
+echo "  ./scripts/transcribe.sh"
+echo
+echo "Then send out/transcripts/ and out/lookbook/ — both are text and"
+echo "small images, a few MB in total. That is everything needed to"
+echo "choose the soundbites and build the edit."
+echo "─────────────────────────────────────────────────────────────"

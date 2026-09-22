@@ -1,9 +1,21 @@
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
-import { BRAND, DEFAULT_VARIANT, END_CARD, MUSIC, SHOTS, VARIANTS, resolveMedia } from "./edit";
+import {
+  BRAND,
+  DEFAULT_VARIANT,
+  END_CARD,
+  MUSIC,
+  SHOTS,
+  VARIANTS,
+  resolveMedia,
+  speechRanges,
+} from "./edit";
 import type { Variant } from "./edit";
 import { EndCard } from "./components/EndCard";
 import { ProgressBar } from "./components/ProgressBar";
 import { Shot } from "./components/Shot";
+
+/** Frames of lead-in and tail on the music duck, so it breathes. */
+const DUCK_FADE = 6;
 
 export type VerticalAdProps = {
   /** Which campaign's words to lay over the cut. See VARIANTS in edit.ts. */
@@ -27,6 +39,8 @@ export const VerticalAd: React.FC<VerticalAdProps> = ({ variantId }) => {
   // different nervous system.
   const calm = variant.energy === "calm";
   const crossfade = calm ? 8 : 3;
+
+  const speech = speechRanges();
 
   let cursor = 0;
 
@@ -68,7 +82,14 @@ export const VerticalAd: React.FC<VerticalAdProps> = ({ variantId }) => {
         <Audio
           src={staticFile(resolveMedia(MUSIC.file))}
           startFrom={MUSIC.startFrom}
-          volume={MUSIC.volume}
+          // Ducks under every shot carrying a soundbite. Derived from the
+          // shots, so moving a clip moves its ducking with it — the bed can
+          // never end up fighting Fien halfway through an answer.
+          volume={(f) =>
+            speech.some(([a, b]) => f >= a - DUCK_FADE && f < b + DUCK_FADE)
+              ? MUSIC.duckedVolume
+              : MUSIC.volume
+          }
         />
       ) : null}
     </AbsoluteFill>

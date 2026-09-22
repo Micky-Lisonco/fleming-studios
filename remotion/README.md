@@ -50,10 +50,41 @@ npm run video:render:wide  # the website cut
 npm run video:render:all   # every campaign in both formats
 ```
 
-## The 14 GB problem
+## The footage never moves
 
-The masters never need to be uploaded anywhere. This is a standard
-offline/online workflow:
+The masters stay on whatever drive they live on. Nothing is uploaded and
+nothing is copied. Three scripts run where the footage is and emit a
+megabyte of text between them, which is all the edit actually needs.
+
+```bash
+./scripts/analyse-footage.sh /Volumes/YourDrive/oxygen-shoot   # what is it
+./scripts/make-proxies.sh    /Volumes/YourDrive/oxygen-shoot   # stand-ins
+./scripts/transcribe.sh                                        # what is said
+```
+
+`analyse-footage.sh` reads the files in place and reports codec, resolution,
+frame rate, colour handling, rotation, exposure and audio loudness, flagging
+what needs treatment — HDR that will render washed out, a log profile waiting
+on a LUT, dialogue too quiet for social. It writes `out/analysis/report.txt`
+and `footage.json`, both plain text.
+
+## Interview footage
+
+This is not b-roll. The cameraman asks, Fien Merckx answers, and the cut is
+decided by what she says and exactly when — so the transcripts are not
+optional and neither are burned-in subtitles. Most of Meta and TikTok plays
+muted; an unsubtitled answer is a silent shot of someone'"'"'s face.
+
+A soundbite shot carries `audible: true`, a `subtitles` array and a
+`startFrom` pointing at the moment the sentence begins in the master. The
+music bed ducks under every audible shot automatically, derived from the
+shots themselves, so moving a clip moves its ducking with it. The
+cameraman'"'"'s questions stay out of the cut.
+
+Subtitle frames are relative to the shot, not the timeline: the time in the
+`.srt` minus `startFrom` in seconds, times 30.
+
+## Proxies, when you want to judge motion
 
 1. **Proxy.** On the machine holding the footage:
    ```bash

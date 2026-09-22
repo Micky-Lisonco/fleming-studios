@@ -11,6 +11,8 @@ import {
 import type { Shot as ShotType } from "../edit";
 import { BRAND, resolveMedia } from "../edit";
 import { Caption } from "./Caption";
+import { LowerThird } from "./LowerThird";
+import { Subtitles } from "./Subtitles";
 import { Overlay } from "./Overlay";
 
 /**
@@ -118,6 +120,12 @@ export const Shot: React.FC<{
       )}
 
       <Overlay accent={accent} />
+
+      {shot.speaker ? <LowerThird speaker={shot.speaker} accent={accent} /> : null}
+
+      {shot.subtitles?.length ? (
+        <Subtitles lines={shot.subtitles} accent={accent} />
+      ) : null}
 
       {caption ? <Caption text={caption} sub={sub} accent={accent} /> : null}
     </AbsoluteFill>
