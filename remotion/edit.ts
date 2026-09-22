@@ -344,17 +344,14 @@ export const SHOTS_AD: Shot[] = [
  */
 export const SHOTS_EXPLAINER: Shot[] = [
   /**
-   * Seventeen shots, seven beats. The subject is the chamber.
-   *
-   * The generated stills all sit INSIDE it. That is the shot nobody
-   * filmed - the camera never rolled on anyone actually using the room -
-   * and it is the one the whole argument depends on. An earlier attempt
-   * put a woman resting in an anonymous beige room against "iets voor
-   * zichzelf", which said nothing about the product: a chair in a room
-   * is not a reason to drive an hour.
+   * Generated stills only where no footage exists. Everything the
+   * camera actually captured is used in preference to an invented
+   * version of it - the chairs especially, which are heated massage
+   * recliners and look it, and which a generated interior made to look
+   * like a waiting room.
    */
 
-  // ── 1. WHAT IT IS (0.0s – 2.8s) — three cuts of the object.
+  // ── 1. WHAT IT IS (0.0s – 2.8s)
   { id: "e01-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 22, startFrom: 40,  move: "left",  accent: BRAND.oxygen },
   { id: "e02-slow",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 24, startFrom: 200, move: "right", speed: 0.55, accent: BRAND.oxygen },
   { id: "e03-brand",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 24, startFrom: 75,  move: "pull",  accent: BRAND.oxygen },
@@ -363,21 +360,27 @@ export const SHOTS_EXPLAINER: Shot[] = [
   { id: "e04-whole",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 900, move: "pull", speed: 1.1, accent: BRAND.oxygen },
   { id: "e05-inside", file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 35, startFrom: 40,  move: "push", accent: BRAND.oxygen },
 
-  // ── 3. WHAT IT IS LIKE (5.6s – 8.4s) — inside, in use.
-  { id: "e06-rest",   file: "inside-rest.png",                  kind: "image", durationInFrames: 35, move: "push", accent: BRAND.pulse },
-  { id: "e07-arm",    file: "inside-armrest.png",               kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.pulse },
+  // ── 3. THE CHAIR (5.6s – 8.4s) — the real one. It is a heated
+  // massage recliner with a reading lamp and a USB socket, and the
+  // footage shows that far better than any generated interior did.
+  { id: "e06-chair1", file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 35, startFrom: 60,  move: "push", accent: BRAND.pulse },
+  { id: "e07-chair2", file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 35, startFrom: 700, move: "pull", accent: BRAND.pulse },
 
-  // ── 4. FOR RIDERS (8.4s – 11.2s)
-  { id: "e08-tired",  file: "riders-outside.png",               kind: "image", durationInFrames: 35, move: "push", accent: BRAND.cobble },
-  { id: "e09-riders", file: "inside-cyclists.png",              kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.cobble },
+  // ── 4. FOR RIDERS (8.4s – 11.2s) — a cyclist riding, plainly. The
+  // previous still had riders standing against the tank at a distance,
+  // where they read as bystanders rather than as the audience.
+  { id: "e08-ride",   file: "cyclist-road.png",                 kind: "image", durationInFrames: 35, move: "push", accent: BRAND.cobble },
+  { id: "e09-climb",  file: "cyclist-climb.png",                kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.cobble },
 
-  // ── 5. FOR GROUPS AND COMPANIES (11.2s – 14.0s)
-  { id: "e10-group",  file: "inside-group.png",                 kind: "image", durationInFrames: 35, move: "push", accent: BRAND.oxygen },
+  // ── 5. GROUPS AND COMPANIES (11.2s – 14.0s) — real footage. The row
+  // of chairs down the length of the tube says seventeen places on its
+  // own; a staged group of colleagues did not.
+  { id: "e10-row",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 35, startFrom: 300, move: "pull", accent: BRAND.oxygen },
   { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 35, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
 
-  // ── 6. AND FOR ANYONE ELSE (14.0s – 16.4s)
-  { id: "e12-read",   file: "inside-reading.png",               kind: "image", durationInFrames: 30, move: "push", accent: BRAND.pulse },
-  { id: "e13-chair",  file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 30, startFrom: 75,  move: "pull", accent: BRAND.pulse },
+  // ── 6. EVERYONE ELSE (14.0s – 16.4s)
+  { id: "e12-rest",   file: "inside-rest.png",                  kind: "image", durationInFrames: 30, move: "push", accent: BRAND.pulse },
+  { id: "e13-chair3", file: "14-6E8A6405.mp4",                  kind: "video", durationInFrames: 30, startFrom: 50,  move: "pull", accent: BRAND.pulse },
 
   // ── 7. THE ONLY ONE (16.4s – 18.4s)
   { id: "e14-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 25, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
@@ -502,20 +505,25 @@ FILMS["ad-explainer-nl"] = {
   energy: "high",
   captions: {},
   overlays: [
-    // Short lines, because the type is large. At 196px a headline gets
-    // two or three words per line and a supporting line gets five or
-    // six - so the copy has to be written to that, not trimmed to fit
-    // afterwards. Every body line below is one breath.
+    // "ZUURSTOFKAMER" is thirteen characters of one unbreakable word,
+    // so as part of a longer headline it dragged the whole line down to
+    // about 150px while shorter beats ran at 196. Making the word
+    // itself the headline lets it run edge to edge at full size, and
+    // the rest of the sentence becomes the kicker above it.
     { from: 0,   durationInFrames: 70, card: {
-      title: "Dit is een zuurstofkamer",
+      kicker: "Dit is een",
+      title: "Zuurstofkamer",
     } },
     { from: 70,  durationInFrames: 70, card: {
       title: "Twee keer zoveel zuurstof",
       body: "Als in de lucht buiten.",
     } },
+    // Was "Twee uur in een stoel", which undersells a heated massage
+    // recliner with a reading lamp next to it. Say how it feels, and
+    // show the real chair while saying it.
     { from: 140, durationInFrames: 70, card: {
-      title: "Twee uur in een stoel",
-      body: "Geen masker. Niets aan.",
+      title: "Wegzakken in een massagestoel",
+      body: "Twee uur. Koffie erbij.",
     } },
     { from: 210, durationInFrames: 70, card: {
       kicker: "Voor wie",
@@ -529,7 +537,7 @@ FILMS["ad-explainer-nl"] = {
     } },
     { from: 350, durationInFrames: 60, card: {
       kicker: "Voor wie",
-      title: "En iedereen daartussen",
+      title: "Iedereen die toe is aan rust",
       body: "Twee uur voor jezelf.",
     } },
     { from: 410, durationInFrames: 50, card: {

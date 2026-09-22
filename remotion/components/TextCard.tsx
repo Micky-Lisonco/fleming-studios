@@ -8,6 +8,13 @@ import {
 import { BRAND, layoutFor } from "../edit";
 import { FONT_FAMILY, fitFontSize } from "./fitText";
 
+/**
+ * Where the text band begins, as a percentage of frame height. Below
+ * the midline so a face in the upper half stays clear, high enough that
+ * a two-line card is not sitting on the floor of the screen.
+ */
+const BAND_TOP_PERCENT = 46;
+
 export type Card = {
   /** Small line above the headline. */
   kicker?: string;
@@ -22,10 +29,17 @@ export type Card = {
  * Different job from Caption: a caption decorates a shot, this one IS
  * the shot's content and the picture behind it is atmosphere.
  *
- * Anchored to the LOWER part of the frame, not the centre. Centred text
- * lands squarely on the face of whoever is on camera, and the face is
- * the most valuable thing in the shot. Sitting it low also matches
- * where people already expect burned-in text in a feed.
+ * Sits in a fixed band across the lower half of the frame, with its
+ * content centred INSIDE that band.
+ *
+ * Bottom-anchoring it looked wrong: a short card with two lines fell to
+ * the very bottom of the screen while a tall card with a kicker and a
+ * body line reached up past the middle, so the type appeared to jump
+ * around between beats. Centring within a fixed band keeps every beat
+ * in the same place regardless of how much it has to say - and lifts
+ * the short ones off the floor.
+ *
+ * The band starts below the midline so it still clears a face.
  *
  * The scrim is a gradient rising from the bottom rather than a flat
  * wash, so the picture stays bright where nothing is written.
@@ -88,9 +102,11 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
 
       <AbsoluteFill
         style={{
+          top: `${BAND_TOP_PERCENT}%`,
+          bottom: layout.captionBottom * 0.62,
           alignItems: "center",
-          justifyContent: "flex-end",
-          padding: `0 ${layout.sidePad}px ${layout.captionBottom}px`,
+          justifyContent: "center",
+          padding: `0 ${layout.sidePad}px`,
           textAlign: "center",
           opacity,
           transform: `translateY(${y}px)`,

@@ -21,22 +21,22 @@ New-Item -ItemType Directory -Force -Path $dest | Out-Null
 
 $base = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GRcGkXwo3j5Yynu7p0ad1XyOhc'
 
-# The six the edit uses. All but one are set INSIDE the chamber, which
-# is the shot nobody filmed - the camera never rolled on the room in
-# use, and that is exactly the thing the film has to show.
+# The three the edit still uses. Everything else went back to real
+# footage - the chairs especially, which are heated massage recliners
+# and which a generated interior turned into a waiting room.
 $wanted = @{
-  'inside-cyclists.png' = "$base/hf_20260922_123220_e8bd113d-d07e-4eb2-9c33-98812d99153b.png"
-  'inside-group.png'    = "$base/hf_20260922_123220_d7d7b9c2-3734-4678-8e44-8c80044ff987.png"
-  'inside-rest.png'     = "$base/hf_20260922_123222_9605ce83-279b-4d5c-8d35-be992328becd.png"
-  'inside-reading.png'  = "$base/hf_20260922_123221_019702a1-94f7-41cc-9226-75637aeb0180.png"
-  'inside-armrest.png'  = "$base/hf_20260922_123220_b055bc7c-02ca-4e8f-8605-6bcc492d1300.png"
-  'riders-outside.png'  = "$base/hf_20260922_123221_4bcd4e1b-1e2f-4777-8ec7-76a99d020550.png"
+  'cyclist-road.png'  = "$base/hf_20260922_125045_6ae4c3c3-fd6d-415a-ac94-049041475bd2.png"
+  'cyclist-climb.png' = "$base/hf_20260922_125044_0183844f-b520-4aae-90fa-1fdeddf41bf1.png"
+  'inside-rest.png'   = "$base/hf_20260922_123222_9605ce83-279b-4d5c-8d35-be992328becd.png"
 }
 
-# Earlier attempts, kept only so they can be compared against.
+# Retired: the group shot read as a dated interior, and the riders by
+# the tank read as bystanders rather than as the audience. Kept only so
+# they can be looked at before being written off.
 $alternates = @{
-  'old-tired-cyclist.png' = "$base/hf_20260922_121907_eca8cb6d-8ea2-4618-b2fb-f5ab486895ea.png"
-  'old-resting.png'       = "$base/hf_20260922_121917_ba158e47-2c4c-4900-8897-956b3f46f55f.png"
+  'retired-inside-group.png'  = "$base/hf_20260922_123220_d7d7b9c2-3734-4678-8e44-8c80044ff987.png"
+  'retired-riders-tank.png'   = "$base/hf_20260922_123221_4bcd4e1b-1e2f-4777-8ec7-76a99d020550.png"
+  'retired-inside-reading.png'= "$base/hf_20260922_123221_019702a1-94f7-41cc-9226-75637aeb0180.png"
 }
 
 foreach ($set in @($wanted, $alternates)) {

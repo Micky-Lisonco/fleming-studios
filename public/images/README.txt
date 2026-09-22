@@ -1,20 +1,13 @@
-Generated stills, for what the camera never shot.
+Generated stills, used only where no footage exists.
 
-The shoot has no footage of anyone using the room: the chamber is only
-ever seen empty or from the air. That is the single most important
-thing the explainer has to show, so six of its fifteen shots are
-generated - five of them inside the chamber.
+Three of fifteen shots. Everything else is the real shoot, on purpose:
+generated interiors made the chamber look like a waiting room, and the
+chairs are heated massage recliners that photograph better than
+anything invented.
 
-  inside-cyclists.png   two riders in kit, reclined, shoes off
-  inside-group.png      five colleagues along a row of chairs
-  inside-rest.png       a man alone, head back, eyes closed
-  inside-reading.png    a woman reading, light from a porthole
-  inside-armrest.png    close detail, a hand on an armrest
-  riders-outside.png    riders leaning bikes against the chamber
+  cyclist-road.png    a rider head-on on a country road
+  cyclist-climb.png   a rider from behind up a cobbled climb
+  inside-rest.png     a man alone in a recliner, eyes closed
 
-Each was written to match the real interior in the footage: curved pale
-walls, oval portholes, grey-brown recliners, pale green botanical wall
-panels, small round side tables.
-
-Fetch them with scripts\fetch-images.ps1. They are gitignored - binary
-and regenerable - so that script is how they arrive on a new checkout.
+Fetch with scripts\fetch-images.ps1. Gitignored - binary and
+regenerable.
