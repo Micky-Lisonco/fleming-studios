@@ -248,9 +248,11 @@ export const SHOTS: Shot[] = [
    * in the .srt minus `startFrom` in seconds, times 30.
    */
 
-  // ── AERIAL OPEN (0.0s – 2.0s) — establish the Flemish Ardennes before
-  // a word is spoken. Drone clip, to be chosen from the filmstrips.
-  { id: "01-aerial",   file: null, kind: "video", durationInFrames: 50, accent: BRAND.cobble, wants: "aerial" },
+  // ── THE HOOK (0.0s – 2.0s) — the chamber from the air. A forty-foot
+  // silver tube parked beside a hotel is genuinely strange, and strange
+  // is what stops a thumb. It also poses the question the next four
+  // seconds answer, which an establishing shot of countryside does not.
+  { id: "01-aerial",   file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 50, startFrom: 250, accent: BRAND.cobble, wants: "aerial" },
 
   // ── THE CLAIM (2.0s – 6.0s) — the reason the ad exists, and it comes
   // from her rather than a title card. From the long interview take.
@@ -268,8 +270,9 @@ export const SHOTS: Shot[] = [
       { from: 52, to: 100, text: "in de Benelux." },
     ] },
 
-  // ── THE ROOM (6.0s – 7.6s)
-  { id: "03-room",     file: null, kind: "video", durationInFrames: 40, accent: BRAND.oxygen, wants: "broll" },
+  // ── THE ROOM (6.0s – 7.6s) — inside the tube: the curved walls, the
+  // portholes, the rows of seats. This is the answer to the hook.
+  { id: "03-room",     file: "11-6E8A6402.mp4", kind: "video", durationInFrames: 40, startFrom: 50, accent: BRAND.oxygen, wants: "broll" },
 
   // ── THE EXPERIENCE (7.6s – 11.6s) — what it is actually like. This is
   // the line the whole brief asks for: no promise, no condition, just
@@ -283,12 +286,16 @@ export const SHOTS: Shot[] = [
       { from: 55, to: 100, text: "zonder dat u er iets van merkt." },
     ] },
 
-  // ── INSIDE (11.6s – 14.8s) — the chairs, the detail.
-  { id: "05-chairs",   file: null, kind: "video", durationInFrames: 40, accent: BRAND.pulse, wants: "broll" },
-  { id: "06-detail",   file: null, kind: "video", durationInFrames: 40, accent: BRAND.pulse, wants: "broll" },
+  // ── INSIDE (11.6s – 14.8s) — someone sitting in one of the chairs,
+  // which is the whole proposition: two hours, a recliner, nothing to
+  // wear and nothing to do.
+  { id: "05-chairs",   file: "17-6E8A6408.mp4", kind: "video", durationInFrames: 40, startFrom: 75, accent: BRAND.pulse, wants: "broll" },
+  { id: "06-detail",   file: "12-6E8A6403.mp4", kind: "video", durationInFrames: 40, startFrom: 700, accent: BRAND.pulse, wants: "broll" },
 
-  // ── AWAY (14.8s – 16.6s) — back to the air to close.
-  { id: "07-away",     file: null, kind: "video", durationInFrames: 45, accent: BRAND.oxygen, wants: "aerial" },
+  // ── AWAY (14.8s – 16.6s) — the drone rises off the hotel and the
+  // Flemish Ardennes open up behind it. Place, last, once the thing
+  // itself has been explained.
+  { id: "07-away",     file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 45, startFrom: 300, accent: BRAND.oxygen, wants: "aerial" },
 ];
 
 /** Words for one campaign. The timeline above never changes between them. */
