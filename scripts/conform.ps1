@@ -51,7 +51,20 @@ param(
 
     # Lower is better quality and a bigger file. 18 is visually lossless
     # for this purpose; the delivery encode happens later in Remotion.
-    [int] $Crf = 18
+    [int] $Crf = 18,
+
+    # Social platforms play at about -14 LUFS. The Canon clips arrive at
+    # -15 to -18 and peaking just above 0 dBTP, so they are both too quiet
+    # and clipping - which sounds like distortion on a phone speaker.
+    [double] $TargetLufs = -14.0,
+
+    # Ceiling for the limiter, in dB below full scale. -1.4 leaves room for
+    # the encoder, which can push peaks slightly higher than the samples
+    # it was given.
+    [double] $PeakCeilingDb = -1.4,
+
+    # Skip the audio treatment and pass the original through untouched.
+    [switch] $NoAudioFix
 )
 
 $ErrorActionPreference = 'Stop'
@@ -161,6 +174,20 @@ if ($LutMap) {
     Write-Host "delivered film will not match the cut that was approved." -ForegroundColor Yellow
 }
 
+# Loudness measured per clip by analyse-footage.ps1. Using the real
+# figure means a fixed, predictable gain rather than letting a normaliser
+# guess from two seconds of speech - which on short clips it does badly.
+$measured = @{}
+$analysisPath = Join-Path $root 'out\analysis\footage.json'
+if (Test-Path -LiteralPath $analysisPath) {
+    foreach ($row in (Get-Content -LiteralPath $analysisPath -Raw | ConvertFrom-Json)) {
+        if ($row.lufs) { $measured[$row.file] = [double]$row.lufs }
+    }
+    Write-Host "Loudness: measured figures for $($measured.Count) clips"
+} elseif (-not $NoAudioFix) {
+    Write-Host "Loudness: no analysis found - levels left alone, peaks still limited" -ForegroundColor Yellow
+}
+
 $total = ($cut.shots | Measure-Object -Property durationSec -Sum).Sum
 Write-Host ""
 Write-Host "Conforming $($cut.shots.Count) shots - $([math]::Round($total,1))s of footage"
@@ -207,7 +234,22 @@ foreach ($shot in $cut.shots) {
         '-pix_fmt','yuv420p','-movflags','+faststart'
     )
     # Silent shots lose their audio track here rather than at render time.
-    if ($shot.audible) { $args += @('-c:a','aac','-b:a','192k') } else { $args += @('-an') }
+    if ($shot.audible) {
+        $args += @('-c:a','aac','-b:a','192k')
+        if (-not $NoAudioFix) {
+            # A fixed gain from the measured loudness, then a limiter to
+            # catch the peaks. Order matters: gain first, limit second, so
+            # the limiter only touches what actually exceeds the ceiling.
+            $chain = @()
+            if ($measured.ContainsKey($shot.file)) {
+                $gain = [math]::Round($TargetLufs - $measured[$shot.file], 2)
+                if ([math]::Abs($gain) -gt 0.1) { $chain += "volume=${gain}dB" }
+            }
+            $ceiling = [math]::Round([math]::Pow(10, $PeakCeilingDb / 20.0), 4)
+            $chain += "alimiter=limit=${ceiling}:attack=5:release=50:level=false"
+            $args += @('-af', ($chain -join ','))
+        }
+    } else { $args += @('-an') }
     $args += $dest
 
     $log = Invoke-Native $ffmpeg $args
