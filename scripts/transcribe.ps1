@@ -61,16 +61,26 @@ if (-not (Test-Path -LiteralPath $audioDir)) {
 $engine = $null
 $exe = $null
 
-$xxl = Get-Command faster-whisper-xxl -ErrorAction SilentlyContinue
+# Preferred on a machine with no GPU. Same models, same arguments, but
+# the CTranslate2 runtime underneath - several times quicker than the
+# reference implementation on CPU, and int8 makes it quicker again at no
+# meaningful cost to the timestamps, which is what the cut is chosen on.
+$ct2 = Get-Command whisper-ctranslate2 -ErrorAction SilentlyContinue
+if ($ct2) {
+    $engine = 'ct2'
+    $exe = $ct2.Source
+}
+
+$xxl = if ($engine) { $null } else { Get-Command faster-whisper-xxl -ErrorAction SilentlyContinue }
 if (-not $xxl) {
     $found = Get-ChildItem "$env:USERPROFILE\Downloads","C:\","D:\" -Filter 'faster-whisper-xxl.exe' -Recurse -Depth 3 -ErrorAction SilentlyContinue |
              Select-Object -First 1
     if ($found) { $xxl = $found }
 }
-if ($xxl) {
+if (-not $engine -and $xxl) {
     $engine = 'xxl'
     $exe = if ($xxl.Source) { $xxl.Source } else { $xxl.FullName }
-} else {
+} elseif (-not $engine) {
     $py = Get-Command whisper -ErrorAction SilentlyContinue
     if ($py) { $engine = 'python'; $exe = $py.Source }
 }
@@ -79,11 +89,15 @@ if (-not $engine) {
     Write-Host ""
     Write-Host "No transcription engine found. Either works:" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  1. Faster-Whisper-XXL - a standalone exe, no Python needed."
+    Write-Host "  1. pip install whisper-ctranslate2   (best on a CPU-only"
+    Write-Host "     machine - same models, several times quicker)"
+    Write-Host ""
+    Write-Host "  2. Faster-Whisper-XXL - a standalone exe, no Python needed."
     Write-Host "     Download the Windows build, unzip it anywhere, and run"
     Write-Host "     this script again. It will find the exe by itself."
     Write-Host ""
-    Write-Host "  2. pip install -U openai-whisper   (needs Python)"
+    Write-Host "  3. pip install -U openai-whisper   (the reference build,"
+    Write-Host "     slowest on CPU)"
     Write-Host ""
     Write-Host "Or use any service that exports .srt - drop the files in"
     Write-Host "the transcripts folder named to match the clips, and"
@@ -124,7 +138,10 @@ foreach ($file in $audio) {
     }
 
     Write-Host ("[{0}/{1}] {2}" -f $n, $audio.Count, $file.BaseName)
-    if ($engine -eq 'xxl') {
+    if ($engine -eq 'ct2') {
+        & $exe $file.FullName --model $Model --language $Language `
+            --output_format srt --output_dir $srtDir --compute_type int8
+    } elseif ($engine -eq 'xxl') {
         & $exe $file.FullName --model $Model --language $Language `
             --output_format srt --output_dir $srtDir
     } else {
