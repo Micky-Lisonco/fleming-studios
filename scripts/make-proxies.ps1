@@ -38,7 +38,19 @@ param(
 
     # Path to a .cube LUT, e.g. a Canon C-Log to Rec.709 conversion. This is
     # the correct way to handle log footage - use it whenever one exists.
+    # One LUT for everything, when the whole shoot is one camera.
     [string] $Lut,
+
+    # Per-camera LUTs, keyed by filename pattern. A shoot with a Canon
+    # body and a drone needs two different conversions - their log
+    # encodings are not the same, and using one for both looks wrong in a
+    # way that is hard to pin down later.
+    #
+    #   -LutMap @{ "6E8A*" = "D:\luts\canon.cube"; "DJI_*" = "D:\luts\dlog.cube" }
+    #
+    # First matching pattern wins. A file matching nothing is left
+    # ungraded and reported, rather than silently taking the wrong look.
+    [hashtable] $LutMap,
 
     # Fallback when the footage is log but no .cube is to hand. Approximate,
     # not a substitute for the real conversion, but far better than leaving
@@ -74,6 +86,38 @@ function Invoke-Native {
 if (-not (Test-Path -LiteralPath $SourcePath)) {
     Write-Error "Folder not found: $SourcePath"
     exit 1
+}
+
+function Get-GradeFor {
+    <#
+      Picks the grade for one file: its pattern match from -LutMap, else
+      the single -Lut, else the approximation, else nothing.
+    #>
+    param(
+        [string] $FileName,
+        [hashtable] $Map,
+        [string] $SingleLut,
+        [bool] $Approximate
+    )
+    if ($Map) {
+        foreach ($pattern in $Map.Keys) {
+            if ($FileName -like $pattern) {
+                $path = $Map[$pattern]
+                if (-not (Test-Path -LiteralPath $path)) {
+                    throw "LUT not found for pattern '$pattern': $path"
+                }
+                return "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $path).Path)'"
+            }
+        }
+        return ''
+    }
+    if ($SingleLut) {
+        return "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $SingleLut).Path)'"
+    }
+    if ($Approximate) {
+        return "curves=all='0/0 0.2/0.06 0.5/0.45 0.8/0.88 1/1',eq=saturation=1.5"
+    }
+    return ''
 }
 
 function ConvertTo-FilterPath {
@@ -120,19 +164,16 @@ else                    { $height = 640; $vbr = '900k'; $maxrate = '1200k' }
 # The grade has to be baked into the proxies. Cutting log footage ungraded
 # means judging every shot through flat grey, and the choices that come out
 # of that do not survive contact with the finished grade.
-$grade = ''
-if ($Lut) {
-    if (-not (Test-Path -LiteralPath $Lut)) {
-        Write-Error "LUT not found: $Lut"
-        exit 1
-    }
-    $grade = "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $Lut).Path)'"
-    Write-Host "Grade: $Lut"
+if ($LutMap) {
+    Write-Host "Grade: per camera"
+    foreach ($pattern in $LutMap.Keys) { Write-Host ("  {0,-12} {1}" -f $pattern, $LutMap[$pattern]) }
+} elseif ($Lut) {
+    if (-not (Test-Path -LiteralPath $Lut)) { Write-Error "LUT not found: $Lut"; exit 1 }
+    Write-Host "Grade: $Lut (applied to every clip)"
 } elseif ($LogFootage) {
-    $grade = "curves=all='0/0 0.2/0.06 0.5/0.45 0.8/0.88 1/1',eq=saturation=1.5"
-    Write-Host "Grade: built-in log approximation (supply -Lut for the real conversion)"
+    Write-Host "Grade: built-in log approximation (supply -Lut or -LutMap for the real conversion)"
 } else {
-    Write-Host "Grade: none (add -LogFootage or -Lut if the footage is flat)"
+    Write-Host "Grade: none (add -LogFootage, -Lut or -LutMap if the footage is flat)"
 }
 
 # Works inside the repo or dropped anywhere on its own.
@@ -170,6 +211,7 @@ $manifest = New-Object System.Collections.Generic.List[object]
 $n = 0
 $oversize = 0
 $failed = 0
+$ungraded = 0
 
 foreach ($file in $files) {
     $n++
@@ -179,6 +221,12 @@ foreach ($file in $files) {
     $stem  = '{0:D2}-{1}' -f $n, $clean
 
     Write-Host ("[{0}/{1}] {2}" -f $n, $files.Count, $file.Name)
+
+    $grade = Get-GradeFor -FileName $file.Name -Map $LutMap -SingleLut $Lut -Approximate:$LogFootage
+    if ($LutMap -and -not $grade) {
+        Write-Host "    no LUT pattern matches this file - leaving it ungraded" -ForegroundColor Yellow
+        $ungraded++
+    }
 
     $probeRaw = Invoke-Native $ffprobe @('-v','error','-print_format','json','-show_format','-show_streams',$file.FullName)
     try {
@@ -265,6 +313,10 @@ Write-Host ""
 Write-Host "Proxies:    $proxyDir"    -ForegroundColor Green
 Write-Host "Audio:      $audioDir"    -ForegroundColor Green
 Write-Host "Filmstrips: $lookDir"     -ForegroundColor Green
+if ($ungraded -gt 0) {
+    Write-Host ""
+    Write-Host "$ungraded clips matched no LUT pattern and are ungraded" -ForegroundColor Yellow
+}
 if ($failed -gt 0) {
     Write-Host ""
     Write-Host "$failed clips produced no proxy - see the messages above" -ForegroundColor Red

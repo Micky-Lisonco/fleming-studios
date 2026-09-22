@@ -34,7 +34,19 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string] $SourcePath,
 
+    # One LUT for everything, when the whole shoot is one camera.
     [string] $Lut,
+
+    # Per-camera LUTs, keyed by filename pattern. A shoot with a Canon
+    # body and a drone needs two different conversions - their log
+    # encodings are not the same, and using one for both looks wrong in a
+    # way that is hard to pin down later.
+    #
+    #   -LutMap @{ "6E8A*" = "D:\luts\canon.cube"; "DJI_*" = "D:\luts\dlog.cube" }
+    #
+    # First matching pattern wins. A file matching nothing is left
+    # ungraded and reported, rather than silently taking the wrong look.
+    [hashtable] $LutMap,
     [switch] $LogFootage,
 
     # Lower is better quality and a bigger file. 18 is visually lossless
@@ -52,6 +64,38 @@ function Invoke-Native {
     $previous = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try { & $Exe @Arguments 2>&1 | Out-String } finally { $ErrorActionPreference = $previous }
+}
+
+function Get-GradeFor {
+    <#
+      Picks the grade for one file: its pattern match from -LutMap, else
+      the single -Lut, else the approximation, else nothing.
+    #>
+    param(
+        [string] $FileName,
+        [hashtable] $Map,
+        [string] $SingleLut,
+        [bool] $Approximate
+    )
+    if ($Map) {
+        foreach ($pattern in $Map.Keys) {
+            if ($FileName -like $pattern) {
+                $path = $Map[$pattern]
+                if (-not (Test-Path -LiteralPath $path)) {
+                    throw "LUT not found for pattern '$pattern': $path"
+                }
+                return "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $path).Path)'"
+            }
+        }
+        return ''
+    }
+    if ($SingleLut) {
+        return "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $SingleLut).Path)'"
+    }
+    if ($Approximate) {
+        return "curves=all='0/0 0.2/0.06 0.5/0.45 0.8/0.88 1/1',eq=saturation=1.5"
+    }
+    return ''
 }
 
 function ConvertTo-FilterPath {
@@ -103,13 +147,13 @@ if (-not $cut.shots -or $cut.shots.Count -eq 0) {
 
 New-Item -ItemType Directory -Force -Path $mediaDir | Out-Null
 
-$grade = ''
-if ($Lut) {
+if ($LutMap) {
+    Write-Host "Grade: per camera"
+    foreach ($pattern in $LutMap.Keys) { Write-Host ("  {0,-12} {1}" -f $pattern, $LutMap[$pattern]) }
+} elseif ($Lut) {
     if (-not (Test-Path -LiteralPath $Lut)) { Write-Error "LUT not found: $Lut"; exit 1 }
-    $grade = "lut3d=file='$(ConvertTo-FilterPath (Resolve-Path -LiteralPath $Lut).Path)'"
-    Write-Host "Grade: $Lut"
+    Write-Host "Grade: $Lut (applied to every clip)"
 } elseif ($LogFootage) {
-    $grade = "curves=all='0/0 0.2/0.06 0.5/0.45 0.8/0.88 1/1',eq=saturation=1.5"
     Write-Host "Grade: built-in log approximation"
 } else {
     Write-Host "Grade: none" -ForegroundColor Yellow
@@ -145,6 +189,11 @@ foreach ($shot in $cut.shots) {
     # frame count here and the frame count Remotion asks for, so the last
     # frame never comes up short.
     $grab = [math]::Round($shot.durationSec + 0.5, 3)
+
+    # The grade must match what the proxies got, per camera. A shot graded
+    # differently here than in the cut that was approved is the whole point
+    # of conforming, undone.
+    $grade = Get-GradeFor -FileName $shot.file -Map $LutMap -SingleLut $Lut -Approximate:$LogFootage
 
     $args = @(
         '-nostdin','-y','-loglevel','error',
