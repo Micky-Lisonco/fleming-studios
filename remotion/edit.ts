@@ -371,17 +371,17 @@ export const SHOTS_EXPLAINER: Shot[] = [
   { id: "e08-ride",   file: "cyclist-road.png",                 kind: "image", durationInFrames: 35, move: "push", accent: BRAND.cobble },
   { id: "e09-climb",  file: "cyclist-climb.png",                kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.cobble },
 
-  // ── 5. GROUPS AND COMPANIES (11.2s – 14.0s) — real footage. The row
+  // ── 5. GROUPS AND COMPANIES (11.2s – 13.6s) — real footage. The row
   // of chairs down the length of the tube says seventeen places on its
   // own; a staged group of colleagues did not.
-  { id: "e10-row",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 35, startFrom: 300, move: "pull", accent: BRAND.oxygen },
-  { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 35, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
+  { id: "e10-row",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 30, startFrom: 300, move: "pull", accent: BRAND.oxygen },
+  { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 30, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
 
-  // ── 6. EVERYONE ELSE (14.0s – 16.4s) — real footage here too. The
+  // ── 6. EVERYONE ELSE (13.6s – 16.4s) — real footage here too. The
   // generated interior kept reading as a waiting room, and there is no
   // version of an invented chamber that beats the one that exists.
-  { id: "e12-vip1",   file: "15-6E8A6406.mp4",                  kind: "video", durationInFrames: 30, startFrom: 25,  move: "push", accent: BRAND.pulse },
-  { id: "e13-vip2",   file: "16-6E8A6407.mp4",                  kind: "video", durationInFrames: 30, startFrom: 400, move: "pull", accent: BRAND.pulse },
+  { id: "e12-vip1",   file: "15-6E8A6406.mp4",                  kind: "video", durationInFrames: 35, startFrom: 25,  move: "push", accent: BRAND.pulse },
+  { id: "e13-vip2",   file: "16-6E8A6407.mp4",                  kind: "video", durationInFrames: 35, startFrom: 395, move: "pull", accent: BRAND.pulse },
 
   // ── 7. THE ONLY ONE (16.4s – 18.4s)
   { id: "e14-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 25, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
@@ -531,15 +531,24 @@ FILMS["ad-explainer-nl"] = {
       title: "Renners",
       body: "Na een zware rit.",
     } },
-    { from: 280, durationInFrames: 70, card: {
+    { from: 280, durationInFrames: 60, card: {
       kicker: "Voor wie",
       title: "Groepen en bedrijven",
       body: "Zeventien plaatsen.",
     } },
-    { from: 350, durationInFrames: 60, card: {
+    // The broadening beat, and the longest line in the film, so it is
+    // given ten frames back off the short beat before it.
+    //
+    // Was "Iedereen die toe is aan rust", which framed the room as a
+    // nap. It is not - the pitch is physical: twice the oxygen, and
+    // what that does for a body. "Rust" also narrows the audience to
+    // people who are tired, where "lichamelijk beter voelen" is
+    // very nearly everybody. Still inside the client's language:
+    // herstel, energie, prestatie, and no condition named.
+    { from: 340, durationInFrames: 70, card: {
       kicker: "Voor wie",
-      title: "Iedereen die toe is aan rust",
-      body: "Twee uur voor jezelf.",
+      title: "Iedereen die zich lichamelijk beter wil voelen",
+      body: "Herstel en energie.",
     } },
     { from: 410, durationInFrames: 50, card: {
       title: "De enige in de Benelux",
