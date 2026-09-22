@@ -139,7 +139,12 @@ export const Shot: React.FC<{
   };
 
   return (
-    <AbsoluteFill style={{ opacity, backgroundColor: BRAND.black }}>
+    // Deliberately no background colour. A shot that painted its own
+    // black meant any frame where the incoming video had not decoded yet
+    // composited as black over the outgoing shot - a flash at every cut.
+    // Transparent instead, so a frame that is not ready shows the
+    // previous shot rather than a hole.
+    <AbsoluteFill style={{ opacity }}>
       {shotSource(shot) === null ? (
         <Placeholder shot={shot} index={index} />
       ) : shot.kind === "video" ? (

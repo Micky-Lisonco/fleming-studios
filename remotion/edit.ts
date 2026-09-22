@@ -549,8 +549,15 @@ export const filmFrames = (film: Film): number =>
   film.shots.reduce((n, s) => n + s.durationInFrames, 0) +
   (film.endCard?.durationInFrames ?? 0);
 
-/** Frames of crossfade. Short on the ad, longer on the brand film. */
-export const crossfadeFor = (film: Film): number => (film.energy === "calm" ? 8 : 3);
+/**
+ * Frames of crossfade between shots.
+ *
+ * Three frames at 25fps is 0.12s - too short to read as a dissolve, so
+ * it lands as a hard cut with a hint of judder rather than a join. Six
+ * is still fast enough to feel like cutting rather than fading, but
+ * long enough that consecutive shots connect instead of snapping.
+ */
+export const crossfadeFor = (film: Film): number => (film.energy === "calm" ? 10 : 6);
 
 /**
  * ── MUSIC ─────────────────────────────────────────────────────

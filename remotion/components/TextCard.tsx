@@ -55,7 +55,15 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  const scrim = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
+  // Fades out as well as in. Holding it flat to the last frame meant it
+  // vanished instantly when the beat ended, which reads as a flicker
+  // between beats even though the picture underneath never cut.
+  const scrim = interpolate(
+    frame,
+    [0, 8, durationInFrames - 8, durationInFrames - 1],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
 
   const available = width - layout.sidePad * 2;
   const titleSize = fitFontSize(card.title, available, layout.captionSize, {

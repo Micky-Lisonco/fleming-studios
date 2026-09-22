@@ -24,6 +24,13 @@ import { Shot } from "./components/Shot";
 /** Frames of lead-in and tail on the music duck, so it breathes. */
 const DUCK_FADE = 6;
 
+/**
+ * How far ahead of its own start each shot is mounted. Half a second is
+ * plenty for a decoder to have the first frame ready, and premounted
+ * sequences are invisible until their real start.
+ */
+const PREMOUNT = 12;
+
 export type FilmProps = {
   /** Which film to lay out. See FILMS in edit.ts. */
   filmId: string;
@@ -63,6 +70,11 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
             key={shot.id}
             from={from}
             durationInFrames={shot.durationInFrames + (isLast ? 0 : crossfade)}
+            // Mount the shot early so its video is decoded before it has
+            // to be shown. Without this the first frames of a cut can
+            // arrive empty, which is what a "black flash" between scenes
+            // actually is.
+            premountFor={PREMOUNT}
             name={`${String(i + 1).padStart(2, "0")} ${shot.id}`}
           >
             <Shot
