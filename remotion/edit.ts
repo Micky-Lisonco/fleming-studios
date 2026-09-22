@@ -21,11 +21,24 @@
  *  What we promise is the experience: an hour in a quiet room, in a
  *  relax chair, and waking up fitter the next day.
  *
- *  ── VARIANTS ─────────────────────────────────────────────────
- *  The proposal splits the audience into four markets and recommends
- *  starting with two: de particulier and de sporter. Same cut, same
- *  footage, different words — so each campaign gets its own video
- *  without a second edit. Pick the composition in the Studio sidebar.
+ *  ── TWO FILMS, NOT ONE IN TWO SHAPES ─────────────────────────
+ *  They were one timeline in two crops. They are not the same film:
+ *
+ *    brand  1920x1080, for the website. Flanders Cobblestone itself -
+ *           the village, the building, the setting. The oxygen room
+ *           appears as one of the things on offer, briefly, not as
+ *           the subject.
+ *
+ *    ad     1080x1920, for Meta and TikTok. The oxygen room is the
+ *           whole point, and the first three seconds have to earn the
+ *           next seventeen.
+ *
+ *  ── NO INTERVIEW AUDIO ───────────────────────────────────────
+ *  The takes are full of restarts, direction and hesitation - "nee,
+ *  dat is niet goed", "opnieuw" - and four seconds of that reads worse
+ *  than silence. Both films are picture, type and music. A voiceover
+ *  can be laid over either later: MUSIC already ducks, so adding a
+ *  voice track is a small change, not a rebuild.
  *
  *  25 frames = 1 second. The ad is 500 frames = 20 seconds.
  */
@@ -216,215 +229,166 @@ export type Shot = {
 };
 
 /**
- * ── THE 15 SHOTS ──────────────────────────────────────────────
- * Two halves. The first is the damage: cobbles, effort, legs gone.
- * The second is the repair: the chamber, the hour, the morning after.
- * The palette turns from stone to oxygen blue at shot 06 — that colour
- * flip is the story beat, so keep it there even if clips move around.
+ * ── THE BRAND FILM (wide, for the website) ────────────────────
+ * Flanders Cobblestone, shown at its best. The drone does the work:
+ * up off the cobbles that give the place its name, out over the
+ * village, down onto the building, then away across the Ardennes.
+ * The oxygen room appears once, briefly, as one of the things on
+ * offer - it is not the subject here.
+ *
+ * No speech. Music and a few words.
  */
-export const SHOTS: Shot[] = [
-  /**
-   * ── INTERVIEW STRUCTURE ────────────────────────────────────
-   * The cameraman asks, Fien answers. Only her answers are in the cut,
-   * so it plays as someone telling you about the room rather than as an
-   * interview you are eavesdropping on.
-   *
-   * Shots alternate: a SOUNDBITE carries the argument, then B-ROLL over
-   * the top of it or between. A soundbite shot needs `audible: true`,
-   * `subtitles`, and `startFrom` pointing at the moment the sentence
-   * begins in the master — take that number straight from the .srt.
-   *
-   * Filling one in, once the transcripts land:
-   *
-   *   { id: "01-hook", file: "03-fien-interview.mp4", kind: "video",
-   *     durationInFrames: 75, startFrom: 1290, audible: true,
-   *     speaker: "fien", accent: BRAND.oxygen,
-   *     subtitles: [
-   *       { from: 0,  to: 40, text: "Wij zijn de enige in de Benelux" },
-   *       { from: 42, to: 75, text: "met zo'n zuurstofkamer." },
-   *     ] },
-   *
-   * Subtitle frames are relative to the shot, not the timeline: seconds
-   * in the .srt minus `startFrom` in seconds, times 30.
-   */
-
-  // ── THE HOOK (0.0s – 2.0s) — the chamber from the air. A forty-foot
-  // silver tube parked beside a hotel is genuinely strange, and strange
-  // is what stops a thumb. It also poses the question the next four
-  // seconds answer, which an establishing shot of countryside does not.
-  { id: "01-aerial",   file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 50, startFrom: 250, accent: BRAND.cobble, wants: "aerial" },
-
-  // ── THE CLAIM (2.0s – 6.0s) — the reason the ad exists, and it comes
-  // from her rather than a title card. From the long interview take.
-  //
-  //   "De normobarische kamer is de enige in de Benelux.
-  //    Deze staat in Zegelsem, Brakel."
-  //
-  // The interviewer's question sits just before it, so startFrom trims
-  // into her answer. Worth checking in the Studio: whisper's segment
-  // boundaries are coarse and the exact word start may be a beat either
-  // side of this.
-  { id: "02-claim",    file: "08-6E8A6399.mp4", kind: "video", durationInFrames: 100, startFrom: 2463, accent: BRAND.oxygen, audible: true, speaker: "fien", wants: "interview",
-    subtitles: [
-      { from: 0,  to: 52,  text: "De zuurstofkamer is de enige" },
-      { from: 52, to: 100, text: "in de Benelux." },
-    ] },
-
-  // ── THE ROOM (6.0s – 7.6s) — inside the tube: the curved walls, the
-  // portholes, the rows of seats. This is the answer to the hook.
-  { id: "03-room",     file: "11-6E8A6402.mp4", kind: "video", durationInFrames: 40, startFrom: 50, accent: BRAND.oxygen, wants: "broll" },
-
-  // ── THE EXPERIENCE (7.6s – 11.6s) — what it is actually like. This is
-  // the line the whole brief asks for: no promise, no condition, just
-  // the hour itself.
-  //
-  //   "U kan gewoon zitten, praten, lezen, rusten,
-  //    zonder dat u er iets van merkt."
-  { id: "04-feel",     file: "09-6E8A6400.mp4", kind: "video", durationInFrames: 100, startFrom: 575, accent: BRAND.oxygen, audible: true, wants: "interview",
-    subtitles: [
-      { from: 0,  to: 55,  text: "U kan gewoon zitten, lezen, rusten" },
-      { from: 55, to: 100, text: "zonder dat u er iets van merkt." },
-    ] },
-
-  // ── INSIDE (11.6s – 14.8s) — someone sitting in one of the chairs,
-  // which is the whole proposition: two hours, a recliner, nothing to
-  // wear and nothing to do.
-  { id: "05-chairs",   file: "17-6E8A6408.mp4", kind: "video", durationInFrames: 40, startFrom: 75, accent: BRAND.pulse, wants: "broll" },
-  { id: "06-detail",   file: "12-6E8A6403.mp4", kind: "video", durationInFrames: 40, startFrom: 700, accent: BRAND.pulse, wants: "broll" },
-
-  // ── AWAY (14.8s – 16.6s) — the drone rises off the hotel and the
-  // Flemish Ardennes open up behind it. Place, last, once the thing
-  // itself has been explained.
-  { id: "07-away",     file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 45, startFrom: 300, accent: BRAND.oxygen, wants: "aerial" },
+export const SHOTS_BRAND: Shot[] = [
+  // Starts on the cobbles themselves. The brand is named after them,
+  // and the drone rising off them into the village is the single best
+  // move in the whole shoot.
+  { id: "b1-cobbles",  file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 60, startFrom: 25,  accent: BRAND.cobble },
+  { id: "b2-village",  file: "21-DJI_20260905112207_0020_D.mp4", kind: "video", durationInFrames: 50, startFrom: 75,  accent: BRAND.cobble },
+  { id: "b3-arrive",   file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 55, startFrom: 150, accent: BRAND.oxygen },
+  { id: "b4-hotel",    file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 50, startFrom: 250, accent: BRAND.oxygen },
+  // The oxygen room, in passing. Long enough to notice, short enough
+  // that the film is still about the hotel.
+  { id: "b5-tank",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 45, startFrom: 100, accent: BRAND.pulse },
+  { id: "b6-inside",   file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 40, startFrom: 50,  accent: BRAND.pulse },
+  { id: "b7-chair",    file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 40, startFrom: 75,  accent: BRAND.pulse },
+  // Pull away. The last thing you see is where it is.
+  { id: "b8-away",     file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 60, startFrom: 250, accent: BRAND.oxygen },
 ];
 
-/** Words for one campaign. The timeline above never changes between them. */
-export type Variant = {
+/**
+ * ── THE AD (vertical, for Meta and TikTok) ────────────────────
+ * The first three seconds decide whether the rest is watched, so the
+ * cut opens on the thing nobody can identify: a forty-foot silver tube
+ * on a cobbled forecourt with cyclists walking past it. One second is
+ * enough to provoke the question - two is long enough to answer it
+ * yourself and scroll on.
+ *
+ * Fast throughout. Twelve shots in seventeen seconds.
+ */
+export const SHOTS_AD: Shot[] = [
+  { id: "a1-tank",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 28, startFrom: 120, accent: BRAND.oxygen },
+  { id: "a2-tank2",    file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 30, startFrom: 300, accent: BRAND.oxygen },
+  { id: "a3-inside",   file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 35, startFrom: 50,  accent: BRAND.oxygen },
+  { id: "a4-seats",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 32, startFrom: 300, accent: BRAND.oxygen },
+  { id: "a5-chair",    file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 38, startFrom: 75,  accent: BRAND.pulse },
+  { id: "a6-detail",   file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 32, startFrom: 700, accent: BRAND.pulse },
+  { id: "a7-chair2",   file: "14-6E8A6405.mp4",                  kind: "video", durationInFrames: 35, startFrom: 50,  accent: BRAND.pulse },
+  { id: "a8-cobbles",  file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 35, startFrom: 25,  accent: BRAND.cobble },
+  { id: "a9-hotel",    file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 38, startFrom: 250, accent: BRAND.oxygen },
+  { id: "a10-village", file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 30, startFrom: 200, accent: BRAND.cobble },
+  { id: "a11-arrive",  file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 32, startFrom: 150, accent: BRAND.oxygen },
+  { id: "a12-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 45, startFrom: 250, accent: BRAND.oxygen },
+];
+
+export type Film = {
   id: string;
-  /** Shown in the Studio sidebar and used for the output filename. */
   label: string;
-  /** "high" punches on every cut; "calm" softens it for the non-athlete cut. */
+  format: "vertical" | "wide";
+  shots: Shot[];
   energy: "high" | "calm";
-  /** Keyed by shot id. A shot with no entry simply runs without type. */
+  /** Keyed by shot id. A shot with no entry runs without type. */
   captions: Record<string, { caption: string; sub?: string }>;
-  endCard: { wordmark: string; line: string; venue: string; cta: string };
+  endCard: {
+    durationInFrames: number;
+    wordmark: string;
+    line: string;
+    venue: string;
+    cta: string;
+  };
 };
 
-const END_VENUE_NL = "De zuurstofkamer — de enige in de Benelux";
-const END_VENUE_EN = "The oxygen room — the only one in the Benelux";
-const END_CTA = "flanderscobblestoneparadise.be";
+const CTA = "flanderscobblestoneparadise.be";
 
-export const VARIANTS: Record<string, Variant> = {
-  /** Campaign 2 in the proposal: the athlete who takes recovery seriously. */
-  "sporter-nl": {
-    id: "sporter-nl",
-    label: "Sporter (NL)",
-    energy: "high",
-    captions: {
-      // No caption over a soundbite - her words and a headline in the
-      // same second fight each other.
-      "03-room":   { caption: "DE ZUURSTOFKAMER" },
-      "05-chairs": { caption: "TWEE UUR", sub: "In een stoel, meer niet" },
-      "07-away":   { caption: "MORGEN RIJD JE WEER" },
-    },
-    endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_NL, cta: END_CTA },
-  },
-
-  /**
-   * Campaign 1 in the proposal, and the one it recommends starting with:
-   * someone who is simply ready for some rest. Not a sportsperson, not a
-   * group — so the language drops every trace of performance.
-   */
-  "particulier-nl": {
-    id: "particulier-nl",
-    label: "Particulier (NL)",
+export const FILMS: Record<string, Film> = {
+  /** The website film. Calm, wide, about the place. */
+  "brand-wide": {
+    id: "brand-wide",
+    label: "Flanders Cobblestone (website, 16:9)",
+    format: "wide",
+    shots: SHOTS_BRAND,
     energy: "calm",
     captions: {
-      "03-room":   { caption: "DE ZUURSTOFKAMER" },
-      "05-chairs": { caption: "TWEE UUR", sub: "Voor jezelf" },
-      "07-away":   { caption: "MORGEN STA JE FITTER OP" },
+      "b1-cobbles": { caption: "DE VLAAMSE ARDENNEN" },
+      "b4-hotel":   { caption: "FLANDERS COBBLESTONE", sub: "Verblijf, bistro en vergaderruimte" },
+      "b5-tank":    { caption: "DE ZUURSTOFKAMER", sub: "De enige in de Benelux" },
+      "b8-away":    { caption: "RIJD HARD. RUST HARDER." },
     },
-    endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_NL, cta: END_CTA },
+    endCard: {
+      durationInFrames: 100,
+      wordmark: "FLANDERS",
+      line: "COBBLESTONE PARADISE",
+      venue: "Brakel - Vlaamse Ardennen",
+      cta: CTA,
+    },
   },
 
-  /** Campaign 4: the British and international sport tourist. */
-  "sporter-en": {
-    id: "sporter-en",
-    label: "Sporter (EN)",
+  /** The campaign film. Fast, vertical, about the room. */
+  "ad-nl": {
+    id: "ad-nl",
+    label: "Zuurstofkamer (Meta/TikTok, 9:16)",
+    format: "vertical",
+    shots: SHOTS_AD,
     energy: "high",
     captions: {
-      "03-room":   { caption: "THE OXYGEN ROOM" },
-      "05-chairs": { caption: "TWO HOURS", sub: "In a chair. That is all." },
-      "07-away":   { caption: "TOMORROW YOU RIDE AGAIN" },
+      "a1-tank":    { caption: "WAT IS DIT?" },
+      "a2-tank2":   { caption: "EEN ZUURSTOFKAMER" },
+      "a4-seats":   { caption: "DE ENIGE", sub: "in de Benelux" },
+      "a5-chair":   { caption: "TWEE UUR" },
+      "a7-chair2":  { caption: "EEN STOEL. MEER NIET." },
+      "a9-hotel":   { caption: "VLAAMSE ARDENNEN" },
+      "a12-away":   { caption: "BRAKEL", sub: "Zegelsem" },
     },
-    endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_EN, cta: END_CTA },
+    endCard: {
+      durationInFrames: 90,
+      wordmark: "FLANDERS",
+      line: "COBBLESTONE PARADISE",
+      venue: "De zuurstofkamer - de enige in de Benelux",
+      cta: CTA,
+    },
   },
 };
 
-export const DEFAULT_VARIANT = "sporter-nl";
+export const DEFAULT_FILM = "ad-nl";
 
-
-/**
- * ── WHO IS TALKING ────────────────────────────────────────────
- * The cameraman's questions are not in the cut — only the answers are,
- * so the ad never sounds like an interview being overheard. Fien gets a
- * name super the first time she speaks and never again.
- */
+/** Who is on camera, if a name super is ever wanted. */
 export const SPEAKERS: Record<string, { name: string; role: string }> = {
   fien: { name: "Fien Merckx", role: "Flanders Cobblestone Paradise" },
 };
 
-/**
- * ── END CARD ──────────────────────────────────────────────────
- * `logo` and `venueLogo` are filenames in `public/`. Either can be null,
- * and the wordmark renders as type instead — so the card is finished
- * whether or not the brand assets have landed.
- */
+/** Logo for the end card. Null renders the wordmark as type. */
 export const END_CARD = {
-  durationInFrames: 85,
-  /** Filename in `public/`. Null renders the wordmark as type instead. */
-  logo: null as string | null, // e.g. "flanders-logo.png"
+  logo: null as string | null,
   accent: BRAND.oxygen,
 };
 
-export const TOTAL_FRAMES =
-  SHOTS.reduce((n, s) => n + s.durationInFrames, 0) + END_CARD.durationInFrames;
+export const filmFrames = (film: Film): number =>
+  film.shots.reduce((n, s) => n + s.durationInFrames, 0) + film.endCard.durationInFrames;
 
-/**
- * Frames of crossfade between shots. Kept short on purpose: energy comes
- * from cuts landing cleanly, not from footage dissolving into footage.
- * 0 = hard cuts throughout.
- */
-export const CROSSFADE = 3;
+/** Frames of crossfade. Short on the ad, longer on the brand film. */
+export const crossfadeFor = (film: Film): number => (film.energy === "calm" ? 8 : 3);
 
 /**
  * ── MUSIC ─────────────────────────────────────────────────────
- * Drop a track in the media folder and name it here. Clips are muted by
- * default; set `audible: true` on a shot to let its own sound through
- * (worth doing on one cobble shot — the rattle sells the first half).
+ * Both films are music-led now that the interview audio is out. Drop a
+ * track in the media folder and name it here.
  */
 export const MUSIC: {
   file: string | null;
   startFrom: number;
   volume: number;
-  /** Level the bed drops to while someone is speaking. */
   duckedVolume: number;
 } = {
-  file: null, // e.g. "track.mp3"
+  file: null,
   startFrom: 0,
   volume: 0.85,
   duckedVolume: 0.16,
 };
 
-/**
- * Frame ranges where a clip's own audio is playing, so the music bed can
- * duck out from under it. Derived from the shots rather than written by
- * hand — move a shot and the ducking moves with it.
- */
-export const speechRanges = (): Array<[number, number]> => {
+/** Frame ranges where a shot's own audio plays, so music can duck. */
+export const speechRanges = (film: Film): Array<[number, number]> => {
   const ranges: Array<[number, number]> = [];
   let cursor = 0;
-  for (const shot of SHOTS) {
+  for (const shot of film.shots) {
     if (shot.audible) ranges.push([cursor, cursor + shot.durationInFrames]);
     cursor += shot.durationInFrames;
   }

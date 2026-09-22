@@ -1,15 +1,14 @@
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import {
   BRAND,
-  DEFAULT_VARIANT,
-  END_CARD,
+  DEFAULT_FILM,
+  FILMS,
   MUSIC,
-  SHOTS,
-  VARIANTS,
+  crossfadeFor,
   resolveMedia,
   speechRanges,
 } from "./edit";
-import type { Variant } from "./edit";
+import type { Film as FilmDef } from "./edit";
 import { EndCard } from "./components/EndCard";
 import { ProgressBar } from "./components/ProgressBar";
 import { Shot } from "./components/Shot";
@@ -17,40 +16,35 @@ import { Shot } from "./components/Shot";
 /** Frames of lead-in and tail on the music duck, so it breathes. */
 const DUCK_FADE = 6;
 
-export type VerticalAdProps = {
-  /** Which campaign's words to lay over the cut. See VARIANTS in edit.ts. */
-  variantId: string;
+export type FilmProps = {
+  /** Which film to lay out. See FILMS in edit.ts. */
+  filmId: string;
 };
 
 /**
- * Walks the SHOTS list and lays each shot on the timeline back to back.
- * Every shot runs `crossfade` frames long and the next fades in over that
- * tail, so cuts stay soft without the maths shifting when a duration
- * changes in edit.ts.
+ * Lays one film's shots on the timeline back to back. Every shot runs
+ * `crossfade` frames long and the next fades in over that tail, so cuts
+ * stay soft without the maths shifting when a duration changes.
  *
- * The timeline is identical for every campaign — only the words and the
- * cutting energy change — so the athlete and the non-athlete versions can
- * never drift out of sync with each other.
+ * The brand film and the ad are different cuts, not one cut in two
+ * crops, so each one brings its own shot list, its own words and its
+ * own cutting energy.
  */
-export const VerticalAd: React.FC<VerticalAdProps> = ({ variantId }) => {
-  const variant: Variant = VARIANTS[variantId] ?? VARIANTS[DEFAULT_VARIANT];
-
-  // The calm cut trades the punch-in for a longer dissolve. Same footage,
-  // different nervous system.
-  const calm = variant.energy === "calm";
-  const crossfade = calm ? 8 : 3;
-
-  const speech = speechRanges();
+export const Film: React.FC<FilmProps> = ({ filmId }) => {
+  const film: FilmDef = FILMS[filmId] ?? FILMS[DEFAULT_FILM];
+  const crossfade = crossfadeFor(film);
+  const calm = film.energy === "calm";
+  const speech = speechRanges(film);
 
   let cursor = 0;
 
   return (
     <AbsoluteFill style={{ backgroundColor: BRAND.black }}>
-      {SHOTS.map((shot, i) => {
+      {film.shots.map((shot, i) => {
         const from = cursor;
         cursor += shot.durationInFrames;
-        const isLast = i === SHOTS.length - 1;
-        const words = variant.captions[shot.id];
+        const isLast = i === film.shots.length - 1;
+        const words = film.captions[shot.id];
 
         return (
           <Sequence
@@ -72,8 +66,12 @@ export const VerticalAd: React.FC<VerticalAdProps> = ({ variantId }) => {
         );
       })}
 
-      <Sequence from={cursor} durationInFrames={END_CARD.durationInFrames} name="End card">
-        <EndCard endCard={variant.endCard} />
+      <Sequence
+        from={cursor}
+        durationInFrames={film.endCard.durationInFrames}
+        name="End card"
+      >
+        <EndCard endCard={film.endCard} />
       </Sequence>
 
       <ProgressBar accent={BRAND.oxygen} />
@@ -82,9 +80,8 @@ export const VerticalAd: React.FC<VerticalAdProps> = ({ variantId }) => {
         <Audio
           src={staticFile(resolveMedia(MUSIC.file))}
           startFrom={MUSIC.startFrom}
-          // Ducks under every shot carrying a soundbite. Derived from the
-          // shots, so moving a clip moves its ducking with it — the bed can
-          // never end up fighting Fien halfway through an answer.
+          // Ducks under any shot carrying its own sound. Nothing does
+          // today, but a voiceover laid in later gets this for free.
           volume={(f) =>
             speech.some(([a, b]) => f >= a - DUCK_FADE && f < b + DUCK_FADE)
               ? MUSIC.duckedVolume

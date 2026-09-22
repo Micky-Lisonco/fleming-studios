@@ -1,35 +1,44 @@
 /**
- * Writes out/cut.json: what the locked edit actually uses from the
- * masters. That is the shopping list conform.ps1 works from.
+ * Writes out/cut.json: every piece of master footage both films use.
  *
  *   npm run cut:export
  *
- * Deliberately derived from edit.ts rather than maintained by hand, so
- * the conform can never fall out of step with the cut.
+ * Derived from edit.ts rather than maintained by hand, so the conform
+ * cannot fall out of step with the cut. Shot ids are unique across the
+ * films, so the same source clip used at two different moments becomes
+ * two conformed files, each trimmed to its own moment.
  */
 import { writeFileSync, mkdirSync } from "node:fs";
-import { SHOTS, FPS, TOTAL_FRAMES } from "../remotion/edit.ts";
+import { FILMS, FPS, filmFrames } from "../remotion/edit.ts";
 
-const used = SHOTS.filter((s) => s.file).map((s) => ({
-  id: s.id,
-  file: s.file,
-  // Seconds, because that is what ffmpeg wants.
-  startSec: +((s.startFrom ?? 0) / FPS).toFixed(3),
-  durationSec: +(s.durationInFrames / FPS).toFixed(3),
-  durationInFrames: s.durationInFrames,
-  audible: Boolean(s.audible),
-}));
+const shots = [];
+for (const film of Object.values(FILMS)) {
+  for (const shot of film.shots) {
+    if (!shot.file) continue;
+    shots.push({
+      id: shot.id,
+      film: film.id,
+      file: shot.file,
+      startSec: +((shot.startFrom ?? 0) / FPS).toFixed(3),
+      durationSec: +(shot.durationInFrames / FPS).toFixed(3),
+      durationInFrames: shot.durationInFrames,
+      audible: Boolean(shot.audible),
+    });
+  }
+}
 
-const missing = SHOTS.filter((s) => !s.file).map((s) => s.id);
-
-mkdirSync("out", { recursive: true });
-writeFileSync(
-  "out/cut.json",
-  JSON.stringify({ fps: FPS, totalFrames: TOTAL_FRAMES, shots: used }, null, 2)
+const missing = Object.values(FILMS).flatMap((f) =>
+  f.shots.filter((s) => !s.file).map((s) => `${f.id}/${s.id}`)
 );
 
-const seconds = used.reduce((n, s) => n + s.durationSec, 0);
-console.log(`Wrote out/cut.json — ${used.length} shots, ${seconds.toFixed(1)}s of footage.`);
+mkdirSync("out", { recursive: true });
+writeFileSync("out/cut.json", JSON.stringify({ fps: FPS, shots }, null, 2));
+
+const seconds = shots.reduce((n, s) => n + s.durationSec, 0);
+console.log(`Wrote out/cut.json — ${shots.length} shots, ${seconds.toFixed(1)}s of footage.`);
+for (const film of Object.values(FILMS)) {
+  console.log(`  ${film.id.padEnd(12)} ${(filmFrames(film) / FPS).toFixed(2)}s`);
+}
 if (missing.length) {
-  console.log(`Still unassigned (${missing.length}): ${missing.join(", ")}`);
+  console.log(`Still unassigned: ${missing.join(", ")}`);
 }

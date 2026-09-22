@@ -8,9 +8,9 @@ import {
   useVideoConfig,
 } from "remotion";
 import { BRAND, END_CARD, layoutFor } from "../edit";
-import type { Variant } from "../edit";
+import type { Film } from "../edit";
 
-export const EndCard: React.FC<{ endCard: Variant["endCard"] }> = ({ endCard }) => {
+export const EndCard: React.FC<{ endCard: Film["endCard"] }> = ({ endCard }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const layout = layoutFor(width, height);

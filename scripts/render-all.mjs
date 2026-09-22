@@ -1,5 +1,5 @@
 /**
- * Renders every campaign in both formats, one after another.
+ * Renders both films, one after another.
  *
  *   npm run video:render:all
  *   REMOTION_MEDIA_DIR=media npm run video:render:all   # final, from masters
@@ -10,21 +10,15 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 
-const VARIANTS = ["sporter-nl", "particulier-nl", "sporter-en"];
-const FORMATS = ["", "-wide"];
+const FILMS = ["brand-wide", "ad-nl"];
 
 mkdirSync("out", { recursive: true });
 
-for (const variant of VARIANTS) {
-  for (const format of FORMATS) {
-    const id = `${variant}${format}`;
-    process.stdout.write(`\n── ${id} ──\n`);
-    execFileSync(
-      "npx",
-      ["remotion", "render", "remotion/index.ts", id, `out/${id}.mp4`],
-      { stdio: "inherit" }
-    );
-  }
+for (const id of FILMS) {
+  process.stdout.write(`\n── ${id} ──\n`);
+  execFileSync("npx", ["remotion", "render", "remotion/index.ts", id, `out/${id}.mp4`], {
+    stdio: "inherit",
+  });
 }
 
-process.stdout.write(`\nDone. ${VARIANTS.length * FORMATS.length} files in out/\n`);
+process.stdout.write(`\nDone. ${FILMS.length} files in out/\n`);
