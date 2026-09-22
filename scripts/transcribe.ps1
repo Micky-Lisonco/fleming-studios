@@ -33,7 +33,19 @@
 [CmdletBinding()]
 param(
     [string] $Model = 'medium',
-    [string] $Language = 'nl'
+    [string] $Language = 'nl',
+
+    # cpu by default, and deliberately so. The ctranslate2 build defaults
+    # to "auto", which picks a GPU whenever a driver is present and then
+    # fails with "Library cublas64_12.dll is not found" if the CUDA
+    # runtime is not also installed - a failure that looks like a bug in
+    # the transcription rather than a missing dependency.
+    #
+    # With an NVIDIA card, this makes it several times faster again:
+    #     pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
+    #     .\transcribe.ps1 -Device cuda
+    [ValidateSet('cpu', 'cuda', 'auto')]
+    [string] $Device = 'cpu'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -139,8 +151,10 @@ foreach ($file in $audio) {
 
     Write-Host ("[{0}/{1}] {2}" -f $n, $audio.Count, $file.BaseName)
     if ($engine -eq 'ct2') {
+        $computeType = if ($Device -eq 'cpu') { 'int8' } else { 'float16' }
         & $exe $file.FullName --model $Model --language $Language `
-            --output_format srt --output_dir $srtDir --compute_type int8
+            --output_format srt --output_dir $srtDir `
+            --device $Device --compute_type $computeType
     } elseif ($engine -eq 'xxl') {
         & $exe $file.FullName --model $Model --language $Language `
             --output_format srt --output_dir $srtDir
@@ -150,8 +164,23 @@ foreach ($file in $audio) {
     }
 }
 
+# The engines print "results written" even when every file failed, so
+# check for the transcript rather than believing the exit message.
+$written = @(Get-ChildItem -LiteralPath $srtDir -Filter '*.srt' -ErrorAction SilentlyContinue |
+             Where-Object { $_.Length -gt 0 })
+
 Write-Host ""
-Write-Host "Transcripts: $srtDir" -ForegroundColor Green
+if ($written.Count -eq 0) {
+    Write-Host "NOTHING WAS TRANSCRIBED - every clip failed." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "If the error mentions cublas or cudnn, it tried to use the GPU"
+    Write-Host "without the CUDA runtime present. Either:"
+    Write-Host "    .\transcribe.ps1 -Device cpu          (always works)"
+    Write-Host "    pip install nvidia-cublas-cu12 nvidia-cudnn-cu12"
+    Write-Host "    .\transcribe.ps1 -Device cuda         (much faster)"
+    exit 1
+}
+Write-Host "Transcripts: $srtDir  ($($written.Count) written)" -ForegroundColor Green
 Write-Host ""
 Write-Host "Send out\transcripts\ and out\lookbook\ - text and small images."
 Write-Host "That is enough to pick the soundbites and build the edit."
