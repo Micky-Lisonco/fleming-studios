@@ -1,5 +1,5 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { BRAND } from "../edit";
+import { BRAND, layoutFor } from "../edit";
 
 /**
  * Lower-third type. Sits clear of the bottom ~18% where TikTok and
@@ -11,7 +11,8 @@ export const Caption: React.FC<{
   accent: string;
 }> = ({ text, sub, accent }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const layout = layoutFor(width, height);
 
   const enter = spring({ frame, fps, config: { damping: 200, mass: 0.6 } });
   const y = interpolate(enter, [0, 1], [40, 0]);
@@ -21,9 +22,9 @@ export const Caption: React.FC<{
     <div
       style={{
         position: "absolute",
-        left: 72,
-        right: 72,
-        bottom: 360,
+        left: layout.sidePad,
+        right: layout.sidePad,
+        bottom: layout.captionBottom,
         transform: `translateY(${y}px)`,
         opacity,
       }}
@@ -40,7 +41,7 @@ export const Caption: React.FC<{
       <div
         style={{
           fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
-          fontSize: text.length > 14 ? 104 : 128,
+          fontSize: text.length > 14 ? layout.captionSizeLong : layout.captionSize,
           lineHeight: 0.92,
           fontWeight: 800,
           letterSpacing: "-0.04em",
@@ -56,7 +57,7 @@ export const Caption: React.FC<{
           style={{
             marginTop: 24,
             fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
-            fontSize: 40,
+            fontSize: layout.subSize,
             fontWeight: 500,
             letterSpacing: "0.01em",
             color: "rgba(255,255,255,0.78)",

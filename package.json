@@ -7,8 +7,10 @@
     "build": "next build",
     "start": "next start",
     "video": "remotion studio remotion/index.ts",
-    "video:render": "remotion render remotion/index.ts VerticalAd out/fleming-ad.mp4",
-    "video:still": "remotion still remotion/index.ts VerticalAd out/thumbnail.png --frame=40"
+    "video:render": "remotion render remotion/index.ts sporter-nl out/sporter-nl.mp4",
+    "video:still": "remotion still remotion/index.ts sporter-nl out/thumbnail.png --frame=40",
+    "video:render:all": "node scripts/render-all.mjs",
+    "video:render:wide": "remotion render remotion/index.ts sporter-nl-wide out/sporter-nl-wide.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.526",

@@ -2,22 +2,82 @@
  * ─────────────────────────────────────────────────────────────
  *  THE EDIT — this is the only file you need to touch.
  * ─────────────────────────────────────────────────────────────
- *  Client:  Normocare — the oxygen room (normobaric therapy)
- *  Venue:   Flanders Cobblestone Paradise, Brakel, Flemish Ardennes
- *  Output:  20s, 1080x1920, for Reels / TikTok / Shorts
+ *  Voice:    Flanders Cobblestone Paradise (the ad comes from the hotel)
+ *  Subject:  their oxygen room — the only one in the Benelux
+ *  Output:   20s, 1080x1920, for Meta / TikTok / Shorts
  *
- *  To swap a clip:   change `file`
- *  To hold a shot:   change `durationInFrames`
- *  To reorder:       move the object up or down the list
- *  To trim a clip:   set `startFrom` (skips N frames into the source)
+ *  ── LANGUAGE POLICY, from the client proposal ────────────────
+ *  Non-negotiable, and it is a legal position as much as a creative one:
+ *
+ *    "Wel herstel, ontspanning, energie en prestatie.
+ *     Geen aandoeningen, geen genezing, geen medische claims."
+ *
+ *  So: recovery, relaxation, energy, performance — yes.
+ *  Conditions, cures, medical promises — never. And no technical
+ *  language either: it is a "zuurstofkamer", never a normobaric
+ *  chamber. Anything that reads as treating an ailment does not go
+ *  in, however good it sounds.
+ *
+ *  What we promise is the experience: an hour in a quiet room, in a
+ *  relax chair, and waking up fitter the next day.
+ *
+ *  ── VARIANTS ─────────────────────────────────────────────────
+ *  The proposal splits the audience into four markets and recommends
+ *  starting with two: de particulier and de sporter. Same cut, same
+ *  footage, different words — so each campaign gets its own video
+ *  without a second edit. Pick the composition in the Studio sidebar.
  *
  *  30 frames = 1 second. The ad is 600 frames = 20 seconds.
  */
 
 export const FPS = 30;
-export const WIDTH = 1080;
-export const HEIGHT = 1920;
 export const TARGET_FRAMES = 20 * FPS; // 600
+
+/**
+ * ── TWO FORMATS ───────────────────────────────────────────────
+ * The footage is horizontal, so `wide` uses it as shot and `vertical`
+ * crops into it. Both are cut from the same timeline — change a
+ * duration once and both formats follow.
+ *
+ *   wide      1920x1080  the website hero
+ *   vertical  1080x1920  Meta and TikTok
+ *
+ * Type sizes are per-format rather than scaled from one design: a line
+ * that reads well full-bleed on a phone is overbearing across a desktop
+ * hero, and the safe areas are completely different — a website has no
+ * platform UI eating the bottom fifth.
+ */
+export type Layout = {
+  width: number;
+  height: number;
+  captionSize: number;
+  captionSizeLong: number;
+  subSize: number;
+  captionBottom: number;
+  sidePad: number;
+  logoWidth: number;
+  wordmarkSize: number;
+};
+
+export const FORMATS: Record<"vertical" | "wide", Layout> = {
+  vertical: {
+    width: 1080, height: 1920,
+    captionSize: 128, captionSizeLong: 104, subSize: 40,
+    // Clear of the bottom fifth, where Reels and TikTok put their own UI.
+    captionBottom: 360, sidePad: 72,
+    logoWidth: 560, wordmarkSize: 118,
+  },
+  wide: {
+    width: 1920, height: 1080,
+    captionSize: 96, captionSizeLong: 76, subSize: 34,
+    captionBottom: 120, sidePad: 104,
+    logoWidth: 520, wordmarkSize: 104,
+  },
+};
+
+/** Picks the layout from the composition's own shape. */
+export const layoutFor = (width: number, height: number): Layout =>
+  height > width ? FORMATS.vertical : FORMATS.wide;
 
 /**
  * ── OFFLINE / ONLINE ──────────────────────────────────────────
@@ -67,18 +127,23 @@ export type Shot = {
   durationInFrames: number;
   /** Trim: start this many frames into the source. Video only. */
   startFrom?: number;
-  /** Big on-screen line. ~4 words — a thumb-stopper, not a paragraph. */
-  caption?: string;
-  /** Small line under the caption. */
-  sub?: string;
   /** Accent colour for this shot. */
   accent?: string;
   /** Let this clip's own sound through. Off by default so the bed stays clean. */
   audible?: boolean;
-  /** How the file fills the 9:16 frame. "cover" crops, "contain" letterboxes. */
+  /** How the file fills the frame. "cover" crops, "contain" letterboxes. */
   fit?: "cover" | "contain";
+  /**
+   * Where the crop holds when horizontal footage is squeezed into 9:16.
+   * A CSS object-position: "50% 50%" centres, "30% 50%" favours the left
+   * of frame. Only bites on the vertical cut — the wide cut uses the
+   * footage as shot. Set this whenever the subject is off-centre.
+   */
+  focus?: string;
   /** Slow push-in. On by default for stills. */
   kenBurns?: boolean;
+  /** Punch-in on the cut — a fast settle from slightly oversized. On by default. */
+  punch?: boolean;
 };
 
 /**
@@ -89,29 +154,110 @@ export type Shot = {
  * flip is the story beat, so keep it there even if clips move around.
  */
 export const SHOTS: Shot[] = [
-  // ── THE RIDE (0.0s – 8.2s) ──
-  { id: "01-hook",    file: null, kind: "video", durationInFrames: 75, caption: "COBBLES DON'T FORGIVE", sub: "The Flemish Ardennes take everything you have", accent: BRAND.cobble },
+  // ── THE RIDE (0.0s – 4.9s) — earn the recovery before you sell it ──
+  { id: "01-hook",    file: null, kind: "video", durationInFrames: 75, accent: BRAND.cobble },
   { id: "02-pave",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.cobble },
-  { id: "03-climb",   file: null, kind: "video", durationInFrames: 33, caption: "RIDE HARD", accent: BRAND.cobble },
-  { id: "04-effort",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.cobble },
-  { id: "05-empty",   file: null, kind: "video", durationInFrames: 33, caption: "THEN THE LEGS GO", accent: BRAND.cobble },
+  { id: "03-turn",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
 
-  // ── THE TURN (8.2s – 12.6s) — palette flips to oxygen here ──
-  { id: "06-arrive",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
-  { id: "07-door",    file: null, kind: "video", durationInFrames: 33, caption: "STEP INSIDE", accent: BRAND.oxygen },
-  { id: "08-chamber", file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
-  { id: "09-reveal",  file: null, kind: "video", durationInFrames: 33, caption: "THE OXYGEN ROOM", sub: "Normobaric therapy — no pressure chamber, no mask", accent: BRAND.oxygen },
+  // ── THE ROOM (4.9s – 9.8s) — palette has flipped, keep it flipped ──
+  { id: "04-arrive",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
+  { id: "05-reveal",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
+  { id: "06-inside",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
+  { id: "07-hour",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
 
-  // ── THE REPAIR (12.6s – 17.7s) ──
-  { id: "10-settle",  file: null, kind: "video", durationInFrames: 33, accent: BRAND.oxygen },
-  { id: "11-session", file: null, kind: "video", durationInFrames: 33, caption: "SIXTY MINUTES", accent: BRAND.oxygen },
-  { id: "12-breathe", file: null, kind: "video", durationInFrames: 33, caption: "LACTATE CLEARED", accent: BRAND.pulse },
-  { id: "13-rest",    file: null, kind: "video", durationInFrames: 33, caption: "SORENESS EASED", accent: BRAND.pulse },
+  // ── THE CLAIM (9.8s – 13.1s) — the reason this ad exists ──
+  { id: "08-breathe", file: null, kind: "video", durationInFrames: 33, accent: BRAND.pulse },
+  { id: "09-only",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.pulse },
+  { id: "10-hold",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.pulse },
+
+  // ── AFTER (13.1s – 17.7s) ──
+  { id: "11-after",   file: null, kind: "video", durationInFrames: 33, accent: BRAND.pulse },
+  { id: "12-roll",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.pulse },
+  { id: "13-lift",    file: null, kind: "video", durationInFrames: 33, accent: BRAND.pulse },
 
   // ── THE PAYOFF (17.7s – 18.5s) ──
-  { id: "14-morning", file: null, kind: "video", durationInFrames: 45, caption: "TOMORROW YOU RIDE AGAIN", accent: BRAND.pulse },
-  { id: "15-depart",  file: null, kind: "video", durationInFrames: 39, accent: BRAND.pulse },
+  { id: "14-payoff",  file: null, kind: "video", durationInFrames: 45, accent: BRAND.pulse },
+  { id: "15-hotel",   file: null, kind: "video", durationInFrames: 39, accent: BRAND.oxygen },
 ];
+
+/** Words for one campaign. The timeline above never changes between them. */
+export type Variant = {
+  id: string;
+  /** Shown in the Studio sidebar and used for the output filename. */
+  label: string;
+  /** "high" punches on every cut; "calm" softens it for the non-athlete cut. */
+  energy: "high" | "calm";
+  /** Keyed by shot id. A shot with no entry simply runs without type. */
+  captions: Record<string, { caption: string; sub?: string }>;
+  endCard: { wordmark: string; line: string; venue: string; cta: string };
+};
+
+const END_VENUE_NL = "De zuurstofkamer — de enige in de Benelux";
+const END_VENUE_EN = "The oxygen room — the only one in the Benelux";
+const END_CTA = "flanderscobblestoneparadise.be";
+
+export const VARIANTS: Record<string, Variant> = {
+  /** Campaign 2 in the proposal: the athlete who takes recovery seriously. */
+  "sporter-nl": {
+    id: "sporter-nl",
+    label: "Sporter (NL)",
+    energy: "high",
+    captions: {
+      "01-hook":   { caption: "RIJD HARD", sub: "De Vlaamse Ardennen geven niets cadeau" },
+      "03-turn":   { caption: "HERSTEL HARDER" },
+      "05-reveal": { caption: "DE ZUURSTOFKAMER" },
+      "07-hour":   { caption: "ÉÉN UUR" },
+      "09-only":   { caption: "DE ENIGE", sub: "in de Benelux" },
+      "11-after":  { caption: "BENEN TERUG" },
+      "13-lift":   { caption: "STERKER" },
+      "14-payoff": { caption: "MORGEN RIJD JE WEER" },
+    },
+    endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_NL, cta: END_CTA },
+  },
+
+  /**
+   * Campaign 1 in the proposal, and the one it recommends starting with:
+   * someone who is simply ready for some rest. Not a sportsperson, not a
+   * group — so the language drops every trace of performance.
+   */
+  "particulier-nl": {
+    id: "particulier-nl",
+    label: "Particulier (NL)",
+    energy: "calm",
+    captions: {
+      "01-hook":   { caption: "EEN UUR VOOR JEZELF", sub: "Meer heb je niet nodig" },
+      "03-turn":   { caption: "GEWOON ADEMEN" },
+      "05-reveal": { caption: "DE ZUURSTOFKAMER" },
+      "07-hour":   { caption: "ÉÉN UUR", sub: "In een relaxstoel, meer niet" },
+      "09-only":   { caption: "DE ENIGE", sub: "in de Benelux" },
+      "11-after":  { caption: "RUSTIGER" },
+      "13-lift":   { caption: "LICHTER" },
+      "14-payoff": { caption: "MORGEN STA JE FITTER OP" },
+    },
+    endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_NL, cta: END_CTA },
+  },
+
+  /** Campaign 4: the British and international sport tourist. */
+  "sporter-en": {
+    id: "sporter-en",
+    label: "Sporter (EN)",
+    energy: "high",
+    captions: {
+      "01-hook":   { caption: "RIDE HARD", sub: "The Flemish Ardennes give nothing away" },
+      "03-turn":   { caption: "RECOVER HARDER" },
+      "05-reveal": { caption: "THE OXYGEN ROOM" },
+      "07-hour":   { caption: "ONE HOUR" },
+      "09-only":   { caption: "THE ONLY ONE", sub: "in the Benelux" },
+      "11-after":  { caption: "LEGS BACK" },
+      "13-lift":   { caption: "STRONGER" },
+      "14-payoff": { caption: "TOMORROW YOU RIDE AGAIN" },
+    },
+    endCard: { wordmark: "FLANDERS", line: "COBBLESTONE PARADISE", venue: END_VENUE_EN, cta: END_CTA },
+  },
+};
+
+export const DEFAULT_VARIANT = "sporter-nl";
+
 
 /**
  * ── END CARD ──────────────────────────────────────────────────
@@ -121,19 +267,20 @@ export const SHOTS: Shot[] = [
  */
 export const END_CARD = {
   durationInFrames: 45,
-  logo: null as string | null, // e.g. "normocare-logo.png"
-  wordmark: "NORMOCARE",
-  line: "THE OXYGEN ROOM",
-  venue: "at Flanders Cobblestone Paradise",
-  cta: "normocare.net",
+  /** Filename in `public/`. Null renders the wordmark as type instead. */
+  logo: null as string | null, // e.g. "flanders-logo.png"
   accent: BRAND.oxygen,
 };
 
 export const TOTAL_FRAMES =
   SHOTS.reduce((n, s) => n + s.durationInFrames, 0) + END_CARD.durationInFrames;
 
-/** Frames of crossfade between shots. 0 = hard cuts. */
-export const CROSSFADE = 6;
+/**
+ * Frames of crossfade between shots. Kept short on purpose: energy comes
+ * from cuts landing cleanly, not from footage dissolving into footage.
+ * 0 = hard cuts throughout.
+ */
+export const CROSSFADE = 3;
 
 /**
  * ── MUSIC ─────────────────────────────────────────────────────

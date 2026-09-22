@@ -3,8 +3,10 @@ import {
   Img,
   OffthreadVideo,
   interpolate,
+  spring,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
 import type { Shot as ShotType } from "../edit";
 import { BRAND, resolveMedia } from "../edit";
@@ -55,8 +57,13 @@ export const Shot: React.FC<{
   /** Frames of fade-in at the head of this shot. */
   crossfade: number;
   isFirst: boolean;
-}> = ({ shot, index, crossfade, isFirst }) => {
+  /** Words for this shot, supplied by the active campaign variant. */
+  caption?: string;
+  sub?: string;
+  punch: boolean;
+}> = ({ shot, index, crossfade, isFirst, caption, sub, punch: punchOn }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const accent = shot.accent ?? BRAND.oxygen;
 
   const opacity = isFirst
@@ -68,17 +75,29 @@ export const Shot: React.FC<{
 
   // Slow push-in. On by default for stills so they never feel frozen.
   const kenBurns = shot.kenBurns ?? shot.kind === "image";
-  const scale = kenBurns
+  const drift = kenBurns
     ? interpolate(frame, [0, shot.durationInFrames], [1, 1.12], {
         extrapolateRight: "clamp",
       })
     : 1;
+
+  // Punch-in: the shot lands slightly oversized and settles in a third of a
+  // second. Small enough that you read it as energy rather than as an effect,
+  // and it is what stops a fast cut sequence feeling like a slideshow.
+  const punch = punchOn
+    ? interpolate(spring({ frame, fps, config: { damping: 200, mass: 0.35 } }), [0, 1], [1.06, 1])
+    : 1;
+
+  const scale = drift * punch;
 
   const fit = shot.fit ?? "cover";
   const mediaStyle: React.CSSProperties = {
     width: "100%",
     height: "100%",
     objectFit: fit,
+    // Only matters when the frame is a different shape to the footage,
+    // i.e. horizontal source squeezed into the 9:16 cut.
+    objectPosition: shot.focus ?? "50% 50%",
     transform: `scale(${scale})`,
   };
 
@@ -100,9 +119,7 @@ export const Shot: React.FC<{
 
       <Overlay accent={accent} />
 
-      {shot.caption ? (
-        <Caption text={shot.caption} sub={shot.sub} accent={accent} />
-      ) : null}
+      {caption ? <Caption text={caption} sub={sub} accent={accent} /> : null}
     </AbsoluteFill>
   );
 };

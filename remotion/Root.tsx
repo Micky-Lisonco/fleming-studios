@@ -1,5 +1,5 @@
 import { Composition } from "remotion";
-import { FPS, HEIGHT, TARGET_FRAMES, TOTAL_FRAMES, WIDTH } from "./edit";
+import { FORMATS, FPS, TARGET_FRAMES, TOTAL_FRAMES, VARIANTS } from "./edit";
 import { VerticalAd } from "./VerticalAd";
 
 if (TOTAL_FRAMES !== TARGET_FRAMES) {
@@ -12,13 +12,32 @@ if (TOTAL_FRAMES !== TARGET_FRAMES) {
   );
 }
 
+/**
+ * One composition per campaign per format. They all share a single
+ * timeline, so a change to the cut lands everywhere at once and the
+ * versions cannot drift apart.
+ *
+ * Ids read as `<variant>` for vertical and `<variant>-wide` for the
+ * website cut, e.g. `sporter-nl` and `sporter-nl-wide`.
+ */
 export const RemotionRoot: React.FC = () => (
-  <Composition
-    id="VerticalAd"
-    component={VerticalAd}
-    durationInFrames={TOTAL_FRAMES}
-    fps={FPS}
-    width={WIDTH}
-    height={HEIGHT}
-  />
+  <>
+    {Object.values(VARIANTS).flatMap((variant) =>
+      (["vertical", "wide"] as const).map((format) => {
+        const layout = FORMATS[format];
+        return (
+          <Composition
+            key={`${variant.id}-${format}`}
+            id={format === "wide" ? `${variant.id}-wide` : variant.id}
+            component={VerticalAd}
+            defaultProps={{ variantId: variant.id }}
+            durationInFrames={TOTAL_FRAMES}
+            fps={FPS}
+            width={layout.width}
+            height={layout.height}
+          />
+        );
+      })
+    )}
+  </>
 );

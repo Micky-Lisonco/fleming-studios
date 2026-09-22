@@ -1,17 +1,53 @@
-# Normocare — 20s vertical ad (Remotion)
+# Flanders Cobblestone Paradise — the oxygen room (Remotion)
 
-**Client:** Normocare, the oxygen room (normobaric therapy)
-**Venue:** Flanders Cobblestone Paradise, Brakel — Flemish Ardennes
-**Deliverable:** 20s, 1080×1920, H.264 — Reels / TikTok / Shorts
+**Voice:** Flanders Cobblestone Paradise — the ad comes from the hotel
+**Subject:** their oxygen room, the only one in the Benelux
+**Deliverables:** 20s in two formats, H.264
+
+| Format | Size | Where it goes |
+| --- | --- | --- |
+| `<variant>` | 1080×1920 | Meta and TikTok |
+| `<variant>-wide` | 1920×1080 | the website hero |
+
+Both are cut from one timeline, so a change to the edit lands in both.
+
+## Language policy — read before touching the copy
+
+From the client proposal, and it is a legal position as much as a
+creative one:
+
+> Wel herstel, ontspanning, energie en prestatie.
+> Geen aandoeningen, geen genezing, geen medische claims.
+
+Recovery, relaxation, energy and performance are in. Conditions, cures
+and medical promises are out, and so is technical language — it is a
+**zuurstofkamer**, never a "normobaric chamber". What the ad promises is
+the experience: an hour in a quiet room, in a relax chair, waking up
+fitter the next day.
+
+## Campaigns
+
+The proposal splits the audience into four markets and recommends
+starting with two. Each is a composition; they share the timeline, so
+they cannot drift apart:
+
+| Composition | Market |
+| --- | --- |
+| `sporter-nl` | the athlete who takes recovery seriously |
+| `particulier-nl` | the individual, no sport — the proposal's first pick |
+| `sporter-en` | the British and international sport tourist |
+
+Add `-wide` to any of them for the 1920×1080 cut.
 
 Built from the raw camera files. Nothing is pre-edited: each clip is
 described in `remotion/edit.ts` and composed at render time, so a recut
 is a data change, not a re-export.
 
 ```bash
-npm run video          # Remotion Studio — scrub and tweak live
-npm run video:render   # out/fleming-ad.mp4
-npm run video:still    # thumbnail for the feed
+npm run video              # Remotion Studio — scrub and tweak live
+npm run video:render       # the vertical cut
+npm run video:render:wide  # the website cut
+npm run video:render:all   # every campaign in both formats
 ```
 
 ## The 14 GB problem
@@ -49,50 +85,53 @@ matter when it's time to judge motion.
 | `scripts/make-proxies.sh` | Masters → proxies + filmstrips + manifest. |
 | `public/media-proxy/` | Light stand-ins. Safe to commit if small. |
 | `public/media/` | The camera masters. Keep out of git. |
+| `scripts/render-all.mjs` | Every campaign in both formats, one after another. |
 | `remotion/components/` | Caption type, end card, vignette, progress hairline. |
 | `out/` | Renders and lookbook. Gitignored. |
 
 ## Pointing a shot at a file
 
+Shots carry footage and timing; the words live in `VARIANTS`, keyed by
+shot id. That split is what lets three campaigns share one cut.
+
 ```ts
-{ id: "03-climb", file: "03-koppenberg.mp4", kind: "video",
-  durationInFrames: 33, startFrom: 48, caption: "RIDE HARD",
-  accent: BRAND.cobble },
+{ id: "05-reveal", file: "05-kamer.mp4", kind: "video",
+  durationInFrames: 33, startFrom: 48, focus: "38% 50%",
+  accent: BRAND.oxygen },
 ```
 
 `startFrom: 48` starts 1.6 seconds into the clip. A shot left as
 `file: null` renders a labelled placeholder, so the edit always plays end
 to end while footage is still arriving.
 
+**`focus` matters here.** The footage is horizontal and the vertical cut
+crops into it, so anything off-centre gets sliced. `focus: "38% 50%"`
+holds the crop left of centre. It has no effect on the wide cut.
+
 ## Structure
 
-30 frames = 1 second. Two halves, and the palette turn at shot 06 is the
-story beat — the ride is warm stone, the recovery is oxygen blue. Keep
-that flip where it is even if clips move around it.
+30 frames = 1 second. The palette turn at shot 03 is the story beat — the
+ride is warm stone, the room is oxygen blue. Keep that flip where it is
+even if clips move around it.
 
-- **0.0–8.2s** the ride: cobbles, effort, legs gone
-- **8.2–12.6s** the turn: arrival, the chamber
-- **12.6–17.7s** the repair: the session
-- **17.7–18.5s** the payoff: the morning after
+- **0.0–4.9s** the ride
+- **4.9–9.8s** the room
+- **9.8–13.1s** the claim: the only one in the Benelux
+- **13.1–17.7s** after
+- **17.7–18.5s** the payoff
 - **18.5–20.0s** end card
 
 The composition's length is whatever the shots add up to, so changing one
 duration never breaks the render — but the console warns when the cut has
 drifted off the 20-second brief.
 
-## Claims
-
-Copy in `edit.ts` is deliberately kept to what the client's own materials
-support ("lactate cleared", "soreness eased"). Specific numeric claims —
-stem-cell multiples, recovery percentages — are not in the cut and should
-not go in without Normocare signing them off; health claims in Belgium
-and the EU are regulated.
-
 ## Safe areas
 
 Captions sit 360px clear of the bottom, out of the caption and CTA
 furniture TikTok, Reels and Shorts overlay on the lower fifth. If a
-platform still clips something, raise `bottom` in `components/Caption.tsx`.
+platform still clips something, raise `captionBottom` for `vertical` in
+`FORMATS`. The wide cut has its own, lower, safe area — a website has no
+platform UI eating the frame.
 
 ## Rendering where Chromium already exists
 

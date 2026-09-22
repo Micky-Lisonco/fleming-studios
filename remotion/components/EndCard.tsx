@@ -7,11 +7,13 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BRAND, END_CARD } from "../edit";
+import { BRAND, END_CARD, layoutFor } from "../edit";
+import type { Variant } from "../edit";
 
-export const EndCard: React.FC = () => {
+export const EndCard: React.FC<{ endCard: Variant["endCard"] }> = ({ endCard }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const layout = layoutFor(width, height);
 
   const enter = spring({ frame, fps, config: { damping: 200, mass: 0.7 } });
   const scale = interpolate(enter, [0, 1], [0.88, 1]);
@@ -47,7 +49,7 @@ export const EndCard: React.FC = () => {
         <Img
           src={staticFile(END_CARD.logo)}
           style={{
-            width: 560,
+            width: layout.logoWidth,
             objectFit: "contain",
             transform: `scale(${scale})`,
             mixBlendMode: "screen",
@@ -57,17 +59,17 @@ export const EndCard: React.FC = () => {
         <div
           style={{
             transform: `scale(${scale})`,
-            fontSize: 118,
+            fontSize: layout.wordmarkSize,
             fontWeight: 800,
             letterSpacing: "-0.03em",
             color: BRAND.white,
           }}
         >
-          {END_CARD.wordmark}
+          {endCard.wordmark}
         </div>
       )}
 
-      {END_CARD.line ? (
+      {endCard.line ? (
         <div
           style={{
             marginTop: 20,
@@ -79,11 +81,11 @@ export const EndCard: React.FC = () => {
             textTransform: "uppercase",
           }}
         >
-          {END_CARD.line}
+          {endCard.line}
         </div>
       ) : null}
 
-      {END_CARD.venue ? (
+      {endCard.venue ? (
         <div
           style={{
             marginTop: 40,
@@ -94,14 +96,14 @@ export const EndCard: React.FC = () => {
             color: "rgba(255,255,255,0.62)",
           }}
         >
-          {END_CARD.venue}
+          {endCard.venue}
         </div>
       ) : null}
 
       <div
         style={{
           position: "absolute",
-          bottom: 420,
+          bottom: layout.captionBottom + 60,
           opacity: ctaIn,
           transform: `translateY(${interpolate(ctaIn, [0, 1], [20, 0])}px)`,
           textAlign: "center",
@@ -120,7 +122,7 @@ export const EndCard: React.FC = () => {
             boxShadow: `0 0 50px ${END_CARD.accent}55`,
           }}
         >
-          {END_CARD.cta}
+          {endCard.cta}
         </div>
       </div>
     </AbsoluteFill>
