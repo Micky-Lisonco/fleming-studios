@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Nothing is copied, uploaded or transcoded. This reads the files on
-  whatever drive they live on — internal, external, NAS — and writes a few
+  whatever drive they live on - internal, external, NAS - and writes a few
   hundred KB of text describing them: codec, resolution, frame rate, colour
   handling, rotation, exposure and audio loudness, with a note on anything
   that needs treatment before it goes in an ad.
@@ -131,11 +131,11 @@ foreach ($file in $files) {
     $n++
     Write-Host ("[{0}/{1}] {2}" -f $n, $files.Count, $file.Name)
 
-    # ── container and stream metadata: instant, whole file, exact ──
+    # -- container and stream metadata: instant, whole file, exact --
     $probeRaw = & $ffprobe -v error -print_format json -show_format -show_streams $file.FullName 2>$null
     if (-not $probeRaw) {
-        $report.Add("── [$n] $($file.Name)")
-        $report.Add("   UNREADABLE — ffprobe could not open this file")
+        $report.Add("-- [$n] $($file.Name)")
+        $report.Add("   UNREADABLE - ffprobe could not open this file")
         $report.Add("")
         continue
     }
@@ -162,7 +162,7 @@ foreach ($file in $files) {
     $bitrateMbps = 0.0
     if ($meta.format.bit_rate) { $bitrateMbps = [math]::Round([double]$meta.format.bit_rate / 1e6, 1) }
 
-    # ── measured: audio loudness, so the interview can be levelled ──
+    # -- measured: audio loudness, so the interview can be levelled --
     $lufs = ''; $lra = ''; $peak = ''
     if ($a) {
         $loudRaw = & $ffmpeg -nostdin -hide_banner -t $SampleSeconds -i $file.FullName `
@@ -172,7 +172,7 @@ foreach ($file in $files) {
         if ($loudRaw -match '"input_tp"\s*:\s*"([^"]+)"')  { $peak = $Matches[1] }
     }
 
-    # ── measured: picture, to spot flat/log or crushed footage ──
+    # -- measured: picture, to spot flat/log or crushed footage --
     $statsRaw = & $ffmpeg -nostdin -hide_banner -t $SampleSeconds -i $file.FullName `
                     -vf 'signalstats,metadata=print' -f null - 2>&1 | Out-String
 
@@ -183,7 +183,7 @@ foreach ($file in $files) {
     if ($lumaValues.Count -gt 0) { $lumaAvg = [math]::Round(($lumaValues | Measure-Object -Average).Average, 1) }
     if ($satValues.Count  -gt 0) { $satAvg  = [math]::Round(($satValues  | Measure-Object -Average).Average, 1) }
 
-    # ── the notes that actually decide how we treat the clip ──
+    # -- the notes that actually decide how we treat the clip --
     $notes = New-Object System.Collections.Generic.List[string]
 
     $transfer = if ($v -and $v.color_transfer) { $v.color_transfer } else { 'unset' }
@@ -192,28 +192,28 @@ foreach ($file in $files) {
     $pixFmt = if ($v -and $v.pix_fmt) { $v.pix_fmt } else { '?' }
 
     if ($transfer -in @('arib-std-b67', 'smpte2084')) {
-        $notes.Add("HDR ($transfer) — needs tone-mapping to Rec.709 or it renders washed out and dull")
+        $notes.Add("HDR ($transfer) - needs tone-mapping to Rec.709 or it renders washed out and dull")
     }
     if ($pixFmt -match '10(le|be)$') {
-        $notes.Add("10-bit — fine, but the delivery is 8-bit yuv420p")
+        $notes.Add("10-bit - fine, but the delivery is 8-bit yuv420p")
     }
     if ($rotation -ne 0) {
-        $notes.Add("rotation ${rotation} deg in metadata — check orientation before cropping")
+        $notes.Add("rotation ${rotation} deg in metadata - check orientation before cropping")
     }
     if ($lumaAvg -gt 0 -and $lumaAvg -lt 70) {
-        $notes.Add("low average luma ($lumaAvg) — underexposed or log, will need a lift")
+        $notes.Add("low average luma ($lumaAvg) - underexposed or log, will need a lift")
     }
     if ($satAvg -gt 0 -and $satAvg -lt 45) {
-        $notes.Add("low saturation ($satAvg) — looks like a flat/log profile awaiting a LUT")
+        $notes.Add("low saturation ($satAvg) - looks like a flat/log profile awaiting a LUT")
     }
     if ($lufs -ne '' -and [double]$lufs -lt -26) {
-        $notes.Add("quiet dialogue ($lufs LUFS) — needs bringing up to about -14 for social")
+        $notes.Add("quiet dialogue ($lufs LUFS) - needs bringing up to about -14 for social")
     }
     if ($peak -ne '' -and [double]$peak -gt -1) {
-        $notes.Add("peaks at $peak dBTP — risk of clipping")
+        $notes.Add("peaks at $peak dBTP - risk of clipping")
     }
     if (-not $a) {
-        $notes.Add("NO AUDIO — cannot carry a soundbite")
+        $notes.Add("NO AUDIO - cannot carry a soundbite")
     }
     if ($notes.Count -eq 0) { $notes.Add("nothing flagged") }
 
@@ -221,11 +221,11 @@ foreach ($file in $files) {
         "$($a.codec_name), $($a.channels) ch @ $($a.sample_rate) Hz"
     } else { "none" }
 
-    $report.Add("── [$n] $($file.Name)")
+    $report.Add("-- [$n] $($file.Name)")
     $report.Add(("   video    {0} {1}x{2} @ {3} fps, {4}, {5} Mb/s" -f $v.codec_name, $v.width, $v.height, $fps, $pixFmt, $bitrateMbps))
     $report.Add(("   colour   primaries={0} transfer={1} space={2}" -f $primaries, $transfer, $space))
     $report.Add(("   length   {0}s, {1} MB" -f [math]::Round($durationSec), [math]::Round($file.Length / 1MB)))
-    $report.Add(("   audio    {0} — {1} LUFS, range {2} LU, peak {3} dBTP" -f $audioDesc, $(if($lufs){$lufs}else{'?'}), $(if($lra){$lra}else{'?'}), $(if($peak){$peak}else{'?'})))
+    $report.Add(("   audio    {0} - {1} LUFS, range {2} LU, peak {3} dBTP" -f $audioDesc, $(if($lufs){$lufs}else{'?'}), $(if($lra){$lra}else{'?'}), $(if($peak){$peak}else{'?'})))
     $report.Add(("   picture  luma avg {0}, saturation avg {1}" -f $lumaAvg, $satAvg))
     $report.Add(("   notes    {0}" -f ($notes -join '; ')))
     $report.Add("")
@@ -257,7 +257,7 @@ foreach ($file in $files) {
     })
 }
 
-$report.Add("── $n clips analysed ──")
+$report.Add("-- $n clips analysed --")
 
 # ASCII keeps the file readable wherever it ends up.
 $report -join "`r`n" | Out-File -FilePath $reportPath -Encoding utf8
@@ -267,5 +267,5 @@ Write-Host ""
 Write-Host "Report: $reportPath" -ForegroundColor Green
 Write-Host "JSON:   $jsonPath"   -ForegroundColor Green
 Write-Host ""
-Write-Host "Both are plain text and small. Send those two files — nothing"
+Write-Host "Both are plain text and small. Send those two files - nothing"
 Write-Host "else needs to move, and the footage stays where it is."

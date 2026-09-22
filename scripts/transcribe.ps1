@@ -43,7 +43,7 @@ $audioDir = Join-Path $root 'out\audio'
 $srtDir   = Join-Path $root 'out\transcripts'
 
 if (-not (Test-Path -LiteralPath $audioDir)) {
-    Write-Error "No audio yet — run .\scripts\make-proxies.ps1 first."
+    Write-Error "No audio yet - run .\scripts\make-proxies.ps1 first."
     exit 1
 }
 
@@ -54,7 +54,7 @@ if (-not $whisper) {
     Write-Host "    pip install -U openai-whisper"
     Write-Host ""
     Write-Host "No Python? Any transcription service that exports .srt works"
-    Write-Host "just as well — drop the files in out\transcripts\ named to"
+    Write-Host "just as well - drop the files in out\transcripts\ named to"
     Write-Host "match the clips and everything downstream is identical."
     exit 1
 }
@@ -63,12 +63,12 @@ New-Item -ItemType Directory -Force -Path $srtDir | Out-Null
 
 $audio = Get-ChildItem -LiteralPath $audioDir -Filter '*.mp3' | Sort-Object Name
 if ($audio.Count -eq 0) {
-    Write-Error "No audio files in $audioDir — run make-proxies.ps1 first."
+    Write-Error "No audio files in $audioDir - run make-proxies.ps1 first."
     exit 1
 }
 
 Write-Host ""
-Write-Host "Transcribing $($audio.Count) clips — model $Model, language $Language"
+Write-Host "Transcribing $($audio.Count) clips - model $Model, language $Language"
 Write-Host "The first run downloads the model, so it takes a while."
 Write-Host ""
 
@@ -77,7 +77,7 @@ foreach ($file in $audio) {
     $n++
     $srtPath = Join-Path $srtDir "$($file.BaseName).srt"
     if (Test-Path -LiteralPath $srtPath) {
-        Write-Host ("[{0}/{1}] {2} — already done" -f $n, $audio.Count, $file.BaseName)
+        Write-Host ("[{0}/{1}] {2} - already done" -f $n, $audio.Count, $file.BaseName)
         continue
     }
 
@@ -89,5 +89,5 @@ foreach ($file in $audio) {
 Write-Host ""
 Write-Host "Transcripts: $srtDir" -ForegroundColor Green
 Write-Host ""
-Write-Host "Send out\transcripts\ and out\lookbook\ — text and small images."
+Write-Host "Send out\transcripts\ and out\lookbook\ - text and small images."
 Write-Host "That is enough to pick the soundbites and build the edit."

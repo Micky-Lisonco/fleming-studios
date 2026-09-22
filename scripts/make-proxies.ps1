@@ -13,7 +13,7 @@
   The proxies keep the masters' framing and duration, so every frame
   number in remotion\edit.ts maps straight onto the full-resolution file.
   When the cut is locked you render against the masters by setting one
-  environment variable — no relinking, no recutting.
+  environment variable - no relinking, no recutting.
 
 .PARAMETER SourcePath
   Folder holding the footage, e.g. E:\oxygen-shoot
@@ -115,7 +115,7 @@ foreach ($file in $files) {
     $durationSec = 0.0
     if ($meta.format.duration) { $durationSec = [double]$meta.format.duration }
 
-    # ── the proxy: same framing, same length, just small ──
+    # -- the proxy: same framing, same length, just small --
     $proxyPath = Join-Path $proxyDir "$stem.mp4"
     & $ffmpeg -nostdin -y -loglevel error -i $file.FullName `
         -vf "scale=-2:$height" `
@@ -127,17 +127,17 @@ foreach ($file in $files) {
     if (Test-Path -LiteralPath $proxyPath) {
         $proxyMB = [math]::Round((Get-Item -LiteralPath $proxyPath).Length / 1MB, 1)
         if ($proxyMB -gt 30) {
-            Write-Host ("    proxy is {0} MB — re-run with -Quality low" -f $proxyMB) -ForegroundColor Yellow
+            Write-Host ("    proxy is {0} MB - re-run with -Quality low" -f $proxyMB) -ForegroundColor Yellow
             $oversize++
         }
     }
 
-    # ── audio, because this is interview footage and the words decide the cut ──
+    # -- audio, because this is interview footage and the words decide the cut --
     & $ffmpeg -nostdin -y -loglevel error -i $file.FullName `
         -vn -c:a libmp3lame -b:a 64k -ac 1 -ar 16000 `
         (Join-Path $audioDir "$stem.mp3") 2>$null
 
-    # ── filmstrip: six frames across the clip, one small jpeg ──
+    # -- filmstrip: six frames across the clip, one small jpeg --
     # Sampled by time rather than by frame index: ffmpeg's select filter
     # has no n_frames variable, so the obvious mod(n, n_frames/6) silently
     # matches nothing and writes no file.
@@ -170,10 +170,10 @@ Write-Host "Audio:      $audioDir"    -ForegroundColor Green
 Write-Host "Filmstrips: $lookDir"     -ForegroundColor Green
 if ($oversize -gt 0) {
     Write-Host ""
-    Write-Host "$oversize proxies are over 30 MB — re-run with -Quality low" -ForegroundColor Yellow
+    Write-Host "$oversize proxies are over 30 MB - re-run with -Quality low" -ForegroundColor Yellow
 }
 Write-Host ""
 Write-Host "NEXT: transcribe. This is interview footage, so the words decide"
-Write-Host "the cut — filmstrips alone cannot show what Fien actually says."
+Write-Host "the cut - filmstrips alone cannot show what Fien actually says."
 Write-Host ""
 Write-Host "    .\scripts\transcribe.ps1"
