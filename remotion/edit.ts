@@ -224,6 +224,19 @@ export type Shot = {
   focus?: string;
   /** Slow push-in. On by default for stills. */
   kenBurns?: boolean;
+  /**
+   * Continuous camera move across the whole shot. This is what stops a
+   * cut sequence reading as a slideshow: even a locked-off frame feels
+   * alive if it is slowly travelling somewhere.
+   *
+   *   push   scales in
+   *   pull   scales out
+   *   left   drifts left
+   *   right  drifts right
+   */
+  move?: "push" | "pull" | "left" | "right";
+  /** Playback rate. 1.2 on a drone shot buys energy for free. */
+  speed?: number;
   /** Punch-in on the cut — a fast settle from slightly oversized. On by default. */
   punch?: boolean;
 };
@@ -239,20 +252,28 @@ export type Shot = {
  * No speech. Music and a few words.
  */
 export const SHOTS_BRAND: Shot[] = [
-  // Starts on the cobbles themselves. The brand is named after them,
-  // and the drone rising off them into the village is the single best
-  // move in the whole shoot.
-  { id: "b1-cobbles",  file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 60, startFrom: 25,  accent: BRAND.cobble },
-  { id: "b2-village",  file: "21-DJI_20260905112207_0020_D.mp4", kind: "video", durationInFrames: 50, startFrom: 75,  accent: BRAND.cobble },
-  { id: "b3-arrive",   file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 55, startFrom: 150, accent: BRAND.oxygen },
-  { id: "b4-hotel",    file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 50, startFrom: 250, accent: BRAND.oxygen },
-  // The oxygen room, in passing. Long enough to notice, short enough
-  // that the film is still about the hotel.
-  { id: "b5-tank",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 45, startFrom: 100, accent: BRAND.pulse },
-  { id: "b6-inside",   file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 40, startFrom: 50,  accent: BRAND.pulse },
-  { id: "b7-chair",    file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 40, startFrom: 75,  accent: BRAND.pulse },
-  // Pull away. The last thing you see is where it is.
-  { id: "b8-away",     file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 60, startFrom: 250, accent: BRAND.oxygen },
+  // Fourteen shots in twenty seconds, averaging a second and a half,
+  // and every one of them moving. The previous cut ran eight shots at
+  // two and a half seconds each with the camera parked, which on a
+  // website header reads as a slideshow rather than a place.
+  { id: "b01-cobbles", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 50, startFrom: 25,  move: "push", speed: 1.15, accent: BRAND.cobble },
+  { id: "b02-village", file: "21-DJI_20260905112207_0020_D.mp4", kind: "video", durationInFrames: 35, startFrom: 75,  move: "pull", speed: 1.2,  accent: BRAND.cobble },
+  { id: "b03-church",  file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 32, startFrom: 200, move: "push", speed: 1.2,  accent: BRAND.cobble },
+  { id: "b04-arrive",  file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 36, startFrom: 150, move: "push", speed: 1.15, accent: BRAND.oxygen },
+  { id: "b05-hotel",   file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 44, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
+  // Sliding along the balconies - the most architectural shot of the
+  // set, and the one that sells the building rather than the plot.
+  { id: "b06-balcony", file: "28-DJI_20260905124519_0033_D.mp4", kind: "video", durationInFrames: 30, startFrom: 50,  move: "left", speed: 1.1,  accent: BRAND.oxygen },
+  { id: "b07-tank",    file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 30, startFrom: 75,  move: "push", speed: 1.15, accent: BRAND.pulse },
+  { id: "b08-ports",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 30, startFrom: 40,  move: "left", speed: 1.1,  accent: BRAND.pulse },
+  { id: "b09-inside",  file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 28, startFrom: 50,  move: "push", accent: BRAND.pulse },
+  { id: "b10-chair",   file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 28, startFrom: 75,  move: "push", accent: BRAND.pulse },
+  { id: "b11-detail",  file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 26, startFrom: 700, move: "pull", accent: BRAND.pulse },
+  { id: "b12-top",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 30, startFrom: 120, move: "pull", speed: 1.2,  accent: BRAND.oxygen },
+  { id: "b13-fields",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 32, startFrom: 900, move: "push", speed: 1.2,  accent: BRAND.oxygen },
+  // Ends wide and rising, which is also where it can loop back to the
+  // cobbles without the join reading as a jump.
+  { id: "b14-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 69, startFrom: 250, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
 ];
 
 /**
@@ -266,18 +287,35 @@ export const SHOTS_BRAND: Shot[] = [
  * Fast throughout. Twelve shots in seventeen seconds.
  */
 export const SHOTS_AD: Shot[] = [
-  { id: "a1-tank",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 28, startFrom: 120, accent: BRAND.oxygen },
-  { id: "a2-tank2",    file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 30, startFrom: 300, accent: BRAND.oxygen },
-  { id: "a3-inside",   file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 35, startFrom: 50,  accent: BRAND.oxygen },
-  { id: "a4-seats",    file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 32, startFrom: 300, accent: BRAND.oxygen },
-  { id: "a5-chair",    file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 38, startFrom: 75,  accent: BRAND.pulse },
-  { id: "a6-detail",   file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 32, startFrom: 700, accent: BRAND.pulse },
-  { id: "a7-chair2",   file: "14-6E8A6405.mp4",                  kind: "video", durationInFrames: 35, startFrom: 50,  accent: BRAND.pulse },
-  { id: "a8-cobbles",  file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 35, startFrom: 25,  accent: BRAND.cobble },
-  { id: "a9-hotel",    file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 38, startFrom: 250, accent: BRAND.oxygen },
-  { id: "a10-village", file: "22-DJI_20260905112604_0021_D.mp4", kind: "video", durationInFrames: 30, startFrom: 200, accent: BRAND.cobble },
-  { id: "a11-arrive",  file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 32, startFrom: 150, accent: BRAND.oxygen },
-  { id: "a12-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 45, startFrom: 250, accent: BRAND.oxygen },
+  // Opens on metal and portholes, close enough that it could be a
+  // submarine or a fuel tanker. That is the point: the question has to
+  // outlast the first second.
+  { id: "a01-ports",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 28, startFrom: 40,  move: "left", accent: BRAND.oxygen },
+  // The pull-out answers it - and the Normocare branding and the
+  // cyclists arrive in the same frame.
+  { id: "a02-reveal",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 32, startFrom: 75,  move: "pull", speed: 1.15, accent: BRAND.oxygen },
+  { id: "a03-top",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 28, startFrom: 120, move: "push", speed: 1.15, accent: BRAND.oxygen },
+  { id: "a04-inside",  file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 30, startFrom: 50,  move: "push", accent: BRAND.oxygen },
+  { id: "a05-seats",   file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 30, startFrom: 300, move: "pull", accent: BRAND.oxygen },
+  { id: "a06-chair",   file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 32, startFrom: 75,  move: "push", accent: BRAND.pulse },
+
+  // ── 7.2s — THE TURN ──────────────────────────────────────────
+  // Music drops away and she speaks. One clean sentence, the only
+  // genuinely unique fact in the whole brief, and it lands better in
+  // her voice than as another caption. Everything before this is
+  // wordless, which is what makes the cut to a voice register.
+  { id: "a07-voice",   file: "08-6E8A6399.mp4", kind: "video", durationInFrames: 88, startFrom: 2455, audible: true, accent: BRAND.oxygen,
+    subtitles: [
+      { from: 0,  to: 44, text: "De zuurstofkamer is de enige" },
+      { from: 44, to: 88, text: "in de Benelux." },
+    ] },
+
+  // ── 10.7s — back to music ────────────────────────────────────
+  { id: "a08-detail",  file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 26, startFrom: 700, move: "pull", accent: BRAND.pulse },
+  { id: "a09-cobbles", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 30, startFrom: 25,  move: "push", speed: 1.2, accent: BRAND.cobble },
+  { id: "a10-hotel",   file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 32, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
+  { id: "a11-arrive",  file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 30, startFrom: 150, move: "push", speed: 1.15, accent: BRAND.oxygen },
+  { id: "a12-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 42, startFrom: 250, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
 ];
 
 export type Film = {
@@ -288,58 +326,84 @@ export type Film = {
   energy: "high" | "calm";
   /** Keyed by shot id. A shot with no entry runs without type. */
   captions: Record<string, { caption: string; sub?: string }>;
+  /**
+   * Null on a film with no end card. A website header loops, and a
+   * call to action sailing past every twenty seconds under the site's
+   * own headline is noise.
+   */
   endCard: {
     durationInFrames: number;
     wordmark: string;
     line: string;
     venue: string;
     cta: string;
-  };
+  } | null;
+  /**
+   * Frames of fade from and to black at the two ends. A header video
+   * loops, and a hard cut from the last frame back to the first reads
+   * as a glitch; fading both ends makes the join invisible.
+   */
+  loopFade?: number;
 };
 
 const CTA = "flanderscobblestoneparadise.be";
 
 export const FILMS: Record<string, Film> = {
-  /** The website film. Calm, wide, about the place. */
+  /**
+   * The header loop. No type and no end card on purpose: this plays
+   * behind the site's own headline, so anything we put on it collides
+   * with the words the page already has. Both ends fade to black so
+   * the loop join is invisible.
+   */
   "brand-wide": {
     id: "brand-wide",
-    label: "Flanders Cobblestone (website, 16:9)",
+    label: "Flanders Cobblestone - website header loop (16:9)",
     format: "wide",
     shots: SHOTS_BRAND,
-    energy: "calm",
-    captions: {
-      "b1-cobbles": { caption: "DE VLAAMSE ARDENNEN" },
-      "b4-hotel":   { caption: "FLANDERS COBBLESTONE", sub: "Verblijf, bistro en vergaderruimte" },
-      "b5-tank":    { caption: "DE ZUURSTOFKAMER", sub: "De enige in de Benelux" },
-      "b8-away":    { caption: "RIJD HARD. RUST HARDER." },
-    },
-    endCard: {
-      durationInFrames: 100,
-      wordmark: "FLANDERS",
-      line: "COBBLESTONE PARADISE",
-      venue: "Brakel - Vlaamse Ardennen",
-      cta: CTA,
-    },
+    energy: "high",
+    loopFade: 12,
+    captions: {},
+    endCard: null,
   },
 
-  /** The campaign film. Fast, vertical, about the room. */
+  /**
+   * The same cut with words on it, for anywhere that is not sitting
+   * under a headline - YouTube, a pitch, a social post.
+   */
+  "brand-wide-titled": {
+    id: "brand-wide-titled",
+    label: "Flanders Cobblestone - titled (16:9)",
+    format: "wide",
+    shots: SHOTS_BRAND,
+    energy: "high",
+    captions: {
+      "b01-cobbles": { caption: "DE VLAAMSE ARDENNEN" },
+      "b05-hotel":   { caption: "FLANDERS COBBLESTONE" },
+      "b07-tank":    { caption: "DE ZUURSTOFKAMER", sub: "De enige in de Benelux" },
+      "b14-away":    { caption: "RIJD HARD. RUST HARDER." },
+    },
+    // No extra frames: the shots already add to twenty seconds, and the
+    // words ride over them rather than after them.
+    endCard: null,
+  },
+
+  /** The campaign film. Music, then her voice at 7.2s, then music. */
   "ad-nl": {
     id: "ad-nl",
-    label: "Zuurstofkamer (Meta/TikTok, 9:16)",
+    label: "Zuurstofkamer - Meta/TikTok (9:16)",
     format: "vertical",
     shots: SHOTS_AD,
     energy: "high",
     captions: {
-      "a1-tank":    { caption: "WAT IS DIT?" },
-      "a2-tank2":   { caption: "EEN ZUURSTOFKAMER" },
-      "a4-seats":   { caption: "DE ENIGE", sub: "in de Benelux" },
-      "a5-chair":   { caption: "TWEE UUR" },
-      "a7-chair2":  { caption: "EEN STOEL. MEER NIET." },
-      "a9-hotel":   { caption: "VLAAMSE ARDENNEN" },
-      "a12-away":   { caption: "BRAKEL", sub: "Zegelsem" },
+      "a01-ports":   { caption: "WAT IS DIT?" },
+      "a02-reveal":  { caption: "EEN ZUURSTOFKAMER" },
+      "a06-chair":   { caption: "TWEE UUR", sub: "Een stoel. Meer niet." },
+      // Nothing over a07: she is speaking, and her words are already
+      // on screen as subtitles.
+      "a10-hotel":   { caption: "VLAAMSE ARDENNEN" },
     },
     endCard: {
-      durationInFrames: 90,
+      durationInFrames: 72,
       wordmark: "FLANDERS",
       line: "COBBLESTONE PARADISE",
       venue: "De zuurstofkamer - de enige in de Benelux",
@@ -362,7 +426,8 @@ export const END_CARD = {
 };
 
 export const filmFrames = (film: Film): number =>
-  film.shots.reduce((n, s) => n + s.durationInFrames, 0) + film.endCard.durationInFrames;
+  film.shots.reduce((n, s) => n + s.durationInFrames, 0) +
+  (film.endCard?.durationInFrames ?? 0);
 
 /** Frames of crossfade. Short on the ad, longer on the brand film. */
 export const crossfadeFor = (film: Film): number => (film.energy === "calm" ? 8 : 3);

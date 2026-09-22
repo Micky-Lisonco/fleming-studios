@@ -1,4 +1,11 @@
-import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  Sequence,
+  interpolate,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
 import {
   BRAND,
   DEFAULT_FILM,
@@ -35,6 +42,9 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
   const crossfade = crossfadeFor(film);
   const calm = film.energy === "calm";
   const speech = speechRanges(film);
+  const frame = useCurrentFrame();
+  const total = film.shots.reduce((n, sh) => n + sh.durationInFrames, 0) +
+    (film.endCard?.durationInFrames ?? 0);
 
   let cursor = 0;
 
@@ -66,15 +76,33 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
         );
       })}
 
-      <Sequence
-        from={cursor}
-        durationInFrames={film.endCard.durationInFrames}
-        name="End card"
-      >
-        <EndCard endCard={film.endCard} />
-      </Sequence>
+      {film.endCard ? (
+        <Sequence
+          from={cursor}
+          durationInFrames={film.endCard.durationInFrames}
+          name="End card"
+        >
+          <EndCard endCard={film.endCard} />
+        </Sequence>
+      ) : null}
 
-      <ProgressBar accent={BRAND.oxygen} />
+      {film.endCard ? <ProgressBar accent={BRAND.oxygen} /> : null}
+
+      {/* Fades both ends to black so a looping header joins invisibly. */}
+      {film.loopFade ? (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "#000",
+            pointerEvents: "none",
+            opacity: interpolate(
+              frame,
+              [0, film.loopFade, total - film.loopFade, total],
+              [1, 0, 0, 1],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            ),
+          }}
+        />
+      ) : null}
 
       {MUSIC.file ? (
         <Audio

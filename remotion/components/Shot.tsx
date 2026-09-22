@@ -83,6 +83,34 @@ export const Shot: React.FC<{
       })
     : 1;
 
+  // Continuous move across the shot. A locked-off frame held for a
+  // second and a half reads as a slide; the same frame slowly
+  // travelling reads as a place. Runs over the shot's whole length so
+  // it never arrives anywhere and never stops.
+  const progress = interpolate(frame, [0, shot.durationInFrames], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
+  let moveScale = 1;
+  let moveX = 0;
+  switch (shot.move) {
+    case "push":
+      moveScale = interpolate(progress, [0, 1], [1, 1.1]);
+      break;
+    case "pull":
+      moveScale = interpolate(progress, [0, 1], [1.1, 1]);
+      break;
+    case "left":
+      // Scaled up first, so there is something to travel into.
+      moveScale = 1.12;
+      moveX = interpolate(progress, [0, 1], [3, -3]);
+      break;
+    case "right":
+      moveScale = 1.12;
+      moveX = interpolate(progress, [0, 1], [-3, 3]);
+      break;
+  }
+
   // Punch-in: the shot lands slightly oversized and settles in a third of a
   // second. Small enough that you read it as energy rather than as an effect,
   // and it is what stops a fast cut sequence feeling like a slideshow.
@@ -90,7 +118,7 @@ export const Shot: React.FC<{
     ? interpolate(spring({ frame, fps, config: { damping: 200, mass: 0.35 } }), [0, 1], [1.06, 1])
     : 1;
 
-  const scale = drift * punch;
+  const scale = drift * punch * moveScale;
 
   const fit = shot.fit ?? "cover";
   const mediaStyle: React.CSSProperties = {
@@ -100,7 +128,7 @@ export const Shot: React.FC<{
     // Only matters when the frame is a different shape to the footage,
     // i.e. horizontal source squeezed into the 9:16 cut.
     objectPosition: shot.focus ?? "50% 50%",
-    transform: `scale(${scale})`,
+    transform: `translateX(${moveX}%) scale(${scale})`,
   };
 
   return (
@@ -111,6 +139,7 @@ export const Shot: React.FC<{
         <OffthreadVideo
           src={staticFile(shotSource(shot)!)}
           startFrom={shotStartFrom(shot)}
+          playbackRate={shot.speed ?? 1}
           muted={!shot.audible}
           volume={shot.audible ? 1 : 0}
           style={mediaStyle}
