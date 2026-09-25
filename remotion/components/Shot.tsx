@@ -177,19 +177,25 @@ export const Shot: React.FC<{
     // Transparent instead, so a frame that is not ready shows the
     // previous shot rather than a hole.
     <AbsoluteFill style={{ opacity }}>
+      {/* Its own AbsoluteFill, out of the flow. As a bare sibling it sat
+          in the parent's flex column next to the real picture, the two
+          split the frame in half, and the sharp shot was pushed into the
+          bottom half - under the caption instead of above it. */}
       {letterboxed && shotSource(shot) !== null ? (
-        shot.kind === "video" ? (
-          <FootageVideo
-            src={staticFile(shotSource(shot)!)}
-            startFrom={shotStartFrom(shot)}
-            playbackRate={NO_SPEED ? 1 : shot.speed ?? 1}
-            muted
-            volume={0}
-            style={backdropStyle}
-          />
-        ) : (
-          <Img src={staticFile(shotSource(shot)!)} style={backdropStyle} />
-        )
+        <AbsoluteFill>
+          {shot.kind === "video" ? (
+            <FootageVideo
+              src={staticFile(shotSource(shot)!)}
+              startFrom={shotStartFrom(shot)}
+              playbackRate={NO_SPEED ? 1 : shot.speed ?? 1}
+              muted
+              volume={0}
+              style={backdropStyle}
+            />
+          ) : (
+            <Img src={staticFile(shotSource(shot)!)} style={backdropStyle} />
+          )}
+        </AbsoluteFill>
       ) : null}
 
       {shotSource(shot) === null ? (

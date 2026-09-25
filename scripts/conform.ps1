@@ -64,7 +64,11 @@ param(
     [double] $PeakCeilingDb = -1.4,
 
     # Skip the audio treatment and pass the original through untouched.
-    [switch] $NoAudioFix
+    [switch] $NoAudioFix,
+
+    # Re-encode every shot, even ones already conformed with identical
+    # settings. Normally they are kept.
+    [switch] $Force
 )
 
 $ErrorActionPreference = 'Stop'
@@ -212,6 +216,7 @@ Write-Host ""
 
 $n = 0
 $failed = 0
+$skipped = 0
 foreach ($shot in $cut.shots) {
     $n++
     # Proxy name -> master path, via the manifest. Falls back to treating
@@ -286,6 +291,25 @@ foreach ($shot in $cut.shots) {
             $args += @('-af', ($chain -join ','))
         }
     } else { $args += @('-an') }
+
+    # Same master, same range, same grade and settings as last time: the
+    # file on disk is already right, so keep it. Re-encoding 4K for
+    # nothing is the slowest part of every edit change - a new caption
+    # would otherwise mean conforming all forty shots again.
+    $key = (@($master) + $args) -join ' '
+    $keyFile = "$dest.key"
+    if (-not $Force -and (Test-Path -LiteralPath $dest) -and
+        (Get-Item -LiteralPath $dest).Length -gt 0 -and
+        (Test-Path -LiteralPath $keyFile) -and
+        ("$(Get-Content -LiteralPath $keyFile -Raw)".Trim() -eq $key)) {
+        Write-Host "    unchanged - kept" -ForegroundColor DarkGray
+        $skipped++
+        continue
+    }
+    # Drop the old key first, so an encode that dies half way can never
+    # leave a broken file next to a key that says it is fine.
+    Remove-Item -LiteralPath $keyFile -ErrorAction SilentlyContinue
+
     $args += $dest
 
     $log = Invoke-Native $ffmpeg $args
@@ -296,7 +320,13 @@ foreach ($shot in $cut.shots) {
             Write-Host ("    ffmpeg said: " + (($log.Trim() -split "`n" | Select-Object -First 3) -join ' ')) -ForegroundColor Red
         }
         $failed++
+    } else {
+        Set-Content -LiteralPath $keyFile -Value $key -Encoding UTF8
     }
+}
+
+if ($skipped -gt 0) {
+    Write-Host "$skipped shots unchanged since the last conform - kept as they were." -ForegroundColor DarkGray
 }
 
 Write-Host ""

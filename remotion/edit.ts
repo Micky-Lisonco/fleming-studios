@@ -299,35 +299,43 @@ export const SHOTS_BRAND: Shot[] = [
  * Fast throughout. Twelve shots in seventeen seconds.
  */
 export const SHOTS_AD: Shot[] = [
-  // Opens on metal and portholes, close enough that it could be a
-  // submarine or a fuel tanker. That is the point: the question has to
-  // outlast the first second.
-  { id: "a01-ports",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 28, startFrom: 40,  move: "left", accent: BRAND.oxygen },
-  // The pull-out answers it - and the Normocare branding and the
-  // cyclists arrive in the same frame.
-  { id: "a02-reveal",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 32, startFrom: 75,  move: "pull", speed: 1.15, accent: BRAND.oxygen },
-  { id: "a03-top",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 28, startFrom: 120, move: "push", speed: 1.15, accent: BRAND.oxygen },
-  { id: "a04-inside",  file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 30, startFrom: 50,  move: "push", accent: BRAND.oxygen },
-  { id: "a05-seats",   file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 30, startFrom: 300, move: "pull", accent: BRAND.oxygen },
-  { id: "a06-chair",   file: "17-6E8A6408.mp4",                  kind: "video", durationInFrames: 32, startFrom: 75,  move: "push", accent: BRAND.pulse },
+  /**
+   * Rebuilt against the contact sheets and the rulings the explainer
+   * already went through. The first cut of this ad predated all of them:
+   * it asked "wat is dit?", called the recliner "een stoel", opened on
+   * the tightest porthole shot, put Fien in five of twelve shots and
+   * played 3.5s of her interview - audio that was ruled out, and that
+   * the safe render mutes anyway, which left a silent talking head.
+   *
+   * Music-led: four lines of type across seventeen seconds, and the
+   * pictures carry the rest. Fien is in one shot.
+   */
 
-  // ── 7.2s — THE TURN ──────────────────────────────────────────
-  // Music drops away and she speaks. One clean sentence, the only
-  // genuinely unique fact in the whole brief, and it lands better in
-  // her voice than as another caption. Everything before this is
-  // wordless, which is what makes the cut to a voice register.
-  { id: "a07-voice",   file: "08-6E8A6399.mp4", kind: "video", durationInFrames: 88, startFrom: 2455, audible: true, accent: BRAND.oxygen,
-    subtitles: [
-      { from: 0,  to: 44, text: "De zuurstofkamer is de enige" },
-      { from: 44, to: 88, text: "in de Benelux." },
-    ] },
+  // ── WHAT IT IS (0.0s - 3.5s) - far, overhead, close. The two wides
+  // letterbox so the whole length of the chamber is in frame.
+  { id: "a01-far",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 30, startFrom: 150, fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
+  { id: "a02-scale",   file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 30, startFrom: 60,  fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
+  { id: "a03-ports",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 28, startFrom: 40,  move: "left", accent: BRAND.oxygen },
 
-  // ── 10.7s — back to music ────────────────────────────────────
-  { id: "a08-detail",  file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 26, startFrom: 700, move: "pull", accent: BRAND.pulse },
-  { id: "a09-cobbles", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 30, startFrom: 25,  move: "push", speed: 1.2, accent: BRAND.cobble },
-  { id: "a10-hotel",   file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 32, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
-  { id: "a11-arrive",  file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 30, startFrom: 150, move: "push", speed: 1.15, accent: BRAND.oxygen },
-  { id: "a12-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 42, startFrom: 250, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
+  // ── INSIDE (3.5s - 7.2s) - the empty room, then the row of chairs
+  // down the length of the tube.
+  { id: "a04-inside",  file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 30, startFrom: 120, move: "push", accent: BRAND.oxygen },
+  { id: "a05-row",     file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 30, startFrom: 120, move: "pull", accent: BRAND.oxygen },
+
+  // ── THE CHAIR (7.2s - 11.8s) - the recliner on its own, then Fien
+  // sinking into one: the only shot of her, and the one where she is
+  // doing what the words say.
+  { id: "a06-chair",   file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 32, startFrom: 40,  move: "push", accent: BRAND.pulse },
+  { id: "a07-sit",     file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 30, startFrom: 700, move: "pull", accent: BRAND.pulse },
+  { id: "a08-panel",   file: "04-6E8A6395.mp4",                  kind: "video", durationInFrames: 30, startFrom: 60,  move: "push", accent: BRAND.pulse },
+  { id: "a09-window",  file: "19-6E8A6410.mp4",                  kind: "video", durationInFrames: 28, startFrom: 20,  move: "push", accent: BRAND.pulse },
+  { id: "a10-detail",  file: "18-6E8A6409.mp4",                  kind: "video", durationInFrames: 26, startFrom: 120, move: "pull", accent: BRAND.pulse },
+
+  // ── WHERE (11.8s - 17.1s) - the cobbles, the hotel, the way in, away.
+  { id: "a11-cobbles", file: "20-DJI_20260905112103_0014_D.mp4", kind: "video", durationInFrames: 30, startFrom: 25,  move: "push", speed: 1.2, accent: BRAND.cobble },
+  { id: "a12-hotel",   file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 32, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
+  { id: "a13-arrive",  file: "27-DJI_20260905124432_0031_D.mp4", kind: "video", durationInFrames: 30, startFrom: 150, move: "push", speed: 1.15, accent: BRAND.oxygen },
+  { id: "a14-away",    file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 42, startFrom: 250, move: "pull", speed: 1.1,  accent: BRAND.oxygen },
 ];
 
 /**
@@ -503,20 +511,21 @@ export const FILMS: Record<string, Film> = {
     endCard: null,
   },
 
-  /** The campaign film. Music, then her voice at 7.2s, then music. */
+  /** The campaign film. Music-led: pictures first, four lines of type. */
   "ad-nl": {
     id: "ad-nl",
     label: "Zuurstofkamer - Meta/TikTok (9:16)",
     format: "vertical",
     shots: SHOTS_AD,
     energy: "high",
+    // Statements, not questions - "wat is dit?" was ruled out - and the
+    // lines Michael already approved in the explainer, so the two ads
+    // say the same thing in the same words.
     captions: {
-      "a01-ports":   { caption: "WAT IS DIT?" },
-      "a02-reveal":  { caption: "EEN ZUURSTOFKAMER" },
-      "a06-chair":   { caption: "TWEE UUR", sub: "Een stoel. Meer niet." },
-      // Nothing over a07: she is speaking, and her words are already
-      // on screen as subtitles.
-      "a10-hotel":   { caption: "VLAAMSE ARDENNEN" },
+      "a01-far":     { caption: "ZUURSTOFKAMER", sub: "De enige in de Benelux." },
+      "a04-inside":  { caption: "TWEE KEER ZOVEEL ZUURSTOF", sub: "Als in de lucht buiten." },
+      "a06-chair":   { caption: "WEGZAKKEN IN EEN MASSAGESTOEL", sub: "Twee uur. Koffie erbij." },
+      "a12-hotel":   { caption: "VLAAMSE ARDENNEN" },
     },
     endCard: {
       durationInFrames: 72,
