@@ -51,7 +51,9 @@ const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index 
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
         }}
       >
-        {CONFORMED ? resolveMedia(`${shot.id}.mp4`) : resolveMedia(shot.file ?? `${shot.id}.mp4`)}
+        {CONFORMED
+          ? resolveMedia(`${shot.id}.mp4`, shot.project)
+          : resolveMedia(shot.file ?? `${shot.id}.mp4`, shot.project)}
       </div>
     </AbsoluteFill>
   );

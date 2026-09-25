@@ -65,26 +65,39 @@ if (ffmpegCheck.status !== 0) {
 // shot 11 after twenty minutes, is worse than one that refuses to start.
 // Check every conformed clip this film needs is on disk first.
 if (final) {
-  const cutPath = join("out", "cut.json");
-  if (!existsSync(cutPath)) {
+  // One cut.json per client project: out/cut.json, out/<project>/cut.json.
+  const cutPaths = [join("out", "cut.json")];
+  if (existsSync("out")) {
+    for (const d of readdirSync("out", { withFileTypes: true })) {
+      if (d.isDirectory() && existsSync(join("out", d.name, "cut.json"))) {
+        cutPaths.push(join("out", d.name, "cut.json"));
+      }
+    }
+  }
+  if (!existsSync(cutPaths[0]) && cutPaths.length === 1) {
     process.stderr.write("No out/cut.json. Run: npm run cut:export, then conform.ps1.\n");
     process.exit(1);
   }
-  const cut = JSON.parse(readFileSync(cutPath, "utf8"));
   const film = id.replace(/-titled$/, "");
-  const needed = cut.shots.filter((s) => s.film === id || s.film === film).map((s) => s.id);
-  const missing = needed.filter((s) => !existsSync(join("public", "media", `${s}.mp4`)));
+  const shots = cutPaths
+    .filter((p) => existsSync(p))
+    .flatMap((p) => JSON.parse(readFileSync(p, "utf8")).shots)
+    .filter((s) => s.film === id || s.film === film);
+  const needed = shots.map((s) => s.id);
+  const where = (s) => join("public", ...(s.project ? [s.project] : []), "media", `${s.id}.mp4`);
+  const missing = shots.filter((s) => !existsSync(where(s))).map((s) => where(s));
   if (needed.length === 0) {
     process.stderr.write(`out/cut.json has no shots for ${id}. Run: npm run cut:export\n`);
     process.exit(1);
   }
   if (missing.length) {
     process.stderr.write(
-      `Not conformed yet (${missing.length} of ${needed.length}) - run conform.ps1 first:\n  ${missing.join("\n  ")}\n`,
+      `Not conformed yet (${missing.length} of ${needed.length}) - run conform.ps1` +
+        `${shots[0]?.project ? ` -Project ${shots[0].project}` : ""} first:\n  ${missing.join("\n  ")}\n`,
     );
     process.exit(1);
   }
-  process.stdout.write(`All ${needed.length} conformed clips found in public/media.\n`);
+  process.stdout.write(`All ${needed.length} conformed clips found.\n`);
 }
 
 rmSync(frames, { recursive: true, force: true });

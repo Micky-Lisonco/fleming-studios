@@ -55,7 +55,15 @@ param(
     # Fallback when the footage is log but no .cube is to hand. Approximate,
     # not a substitute for the real conversion, but far better than leaving
     # it flat.
-    [switch] $LogFootage
+    [switch] $LogFootage,
+
+    # One folder per client. With -Project elite everything this script
+    # writes goes under out\elite\ and public\elite\, so a second client's
+    # footage can never overwrite the first one's clip list - which conform
+    # needs to find the masters again. Leave it off and the paths are
+    # exactly what they were (the Normocare project).
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9-]*$')]
+    [string] $Project
 )
 
 $ErrorActionPreference = 'Stop'
@@ -183,12 +191,16 @@ $parent = Split-Path -Parent $PSScriptRoot
 $inRepo = ((Split-Path -Leaf $PSScriptRoot) -eq 'scripts') -and
           (Test-Path -LiteralPath (Join-Path $parent 'package.json'))
 
+$pub = if ($Project) { "public\$Project" } else { 'public' }
+$out = if ($Project) { "out\$Project" } else { 'out' }
+
 if ($inRepo) {
-    $proxyDir = Join-Path $parent 'public\media-proxy'
-    $audioDir = Join-Path $parent 'out\audio'
-    $lookDir  = Join-Path $parent 'out\lookbook'
+    $proxyDir = Join-Path $parent "$pub\media-proxy"
+    $audioDir = Join-Path $parent "$out\audio"
+    $lookDir  = Join-Path $parent "$out\lookbook"
 } else {
     $base     = Join-Path $PSScriptRoot 'footage-prep'
+    if ($Project) { $base = Join-Path $base $Project }
     $proxyDir = Join-Path $base 'media-proxy'
     $audioDir = Join-Path $base 'audio'
     $lookDir  = Join-Path $base 'lookbook'

@@ -141,8 +141,13 @@ export const MEDIA_DIR: string = ENV_DIR || "media-proxy";
  */
 export const CONFORMED = MEDIA_DIR === "media";
 
+/** The active media folder for a project: public/<project>/<MEDIA_DIR>. */
+const mediaRoot = (project?: string): string =>
+  project ? `${project}/${MEDIA_DIR}` : MEDIA_DIR;
+
 /** Resolves a bare filename against whichever media folder is active. */
-export const resolveMedia = (file: string): string => `${MEDIA_DIR}/${file}`;
+export const resolveMedia = (file: string, project?: string): string =>
+  `${mediaRoot(project)}/${file}`;
 
 /**
  * The file a shot plays, in whichever mode is active.
@@ -153,9 +158,13 @@ export const resolveMedia = (file: string): string => `${MEDIA_DIR}/${file}`;
  */
 export const shotSource = (shot: Shot): string | null => {
   if (shot.kind === "image") return shot.file ? `images/${shot.file}` : null;
-  if (CONFORMED) return `${MEDIA_DIR}/${shot.id}.mp4`;
-  return shot.file ? `${MEDIA_DIR}/${shot.file}` : null;
+  if (CONFORMED) return resolveMedia(`${shot.id}.mp4`, shot.project);
+  return shot.file ? resolveMedia(shot.file, shot.project) : null;
 };
+
+/** Marks every shot in a list as belonging to one client project. */
+export const inProject = (project: string, shots: Shot[]): Shot[] =>
+  shots.map((s) => ({ ...s, project }));
 
 /**
  * Where playback starts inside that file. A conformed clip has the trim
@@ -188,6 +197,13 @@ export type Subtitle = { from: number; to: number; text: string };
 export type Shot = {
   /** Short name, shown on the Studio timeline. */
   id: string;
+  /**
+   * Client project the footage belongs to, e.g. "elite". Its proxies and
+   * conformed clips live in public/<project>/, so two clients' footage
+   * never shares a folder. Unset for Normocare, which predates projects
+   * and lives directly in public/. Stamp a whole list with inProject().
+   */
+  project?: string;
   /**
    * Bare filename inside the active media folder, e.g. "03-koppenberg.mp4".
    * Leave null and a labelled placeholder renders instead, so the edit

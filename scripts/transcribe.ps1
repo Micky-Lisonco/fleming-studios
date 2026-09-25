@@ -45,7 +45,15 @@ param(
     #     pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
     #     .\transcribe.ps1 -Device cuda
     [ValidateSet('cpu', 'cuda', 'auto')]
-    [string] $Device = 'cpu'
+    [string] $Device = 'cpu',
+
+    # One folder per client. With -Project elite everything this script
+    # writes goes under out\elite\ and public\elite\, so a second client's
+    # footage can never overwrite the first one's clip list - which conform
+    # needs to find the masters again. Leave it off and the paths are
+    # exactly what they were (the Normocare project).
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9-]*$')]
+    [string] $Project
 )
 
 $ErrorActionPreference = 'Stop'
@@ -54,12 +62,15 @@ $parent = Split-Path -Parent $PSScriptRoot
 $inRepo = ((Split-Path -Leaf $PSScriptRoot) -eq 'scripts') -and
           (Test-Path -LiteralPath (Join-Path $parent 'package.json'))
 
+$out = if ($Project) { "out\$Project" } else { 'out' }
 if ($inRepo) {
-    $audioDir = Join-Path $parent 'out\audio'
-    $srtDir   = Join-Path $parent 'out\transcripts'
+    $audioDir = Join-Path $parent "$out\audio"
+    $srtDir   = Join-Path $parent "$out\transcripts"
 } else {
-    $audioDir = Join-Path $PSScriptRoot 'footage-prep\audio'
-    $srtDir   = Join-Path $PSScriptRoot 'footage-prep\transcripts'
+    $prep     = Join-Path $PSScriptRoot 'footage-prep'
+    if ($Project) { $prep = Join-Path $prep $Project }
+    $audioDir = Join-Path $prep 'audio'
+    $srtDir   = Join-Path $prep 'transcripts'
 }
 
 if (-not (Test-Path -LiteralPath $audioDir)) {
@@ -182,5 +193,5 @@ if ($written.Count -eq 0) {
 }
 Write-Host "Transcripts: $srtDir  ($($written.Count) written)" -ForegroundColor Green
 Write-Host ""
-Write-Host "Send out\transcripts\ and out\lookbook\ - text and small images."
+Write-Host "Send $out\transcripts\ and $out\lookbook\ - text and small images."
 Write-Host "That is enough to pick the soundbites and build the edit."

@@ -68,7 +68,13 @@ param(
 
     # Re-encode every shot, even ones already conformed with identical
     # settings. Normally they are kept.
-    [switch] $Force
+    [switch] $Force,
+
+    # The client project the cut belongs to, matching -Project on the
+    # footage scripts: reads out\<Project>\cut.json and its manifest, and
+    # writes into public\<Project>\media. Leave it off for Normocare.
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9-]*$')]
+    [string] $Project
 )
 
 $ErrorActionPreference = 'Stop'
@@ -148,11 +154,13 @@ if (-not $ffmpeg) {
 }
 
 $root   = Split-Path -Parent $PSScriptRoot
-$cutPath = Join-Path $root 'out\cut.json'
-$mediaDir = Join-Path $root 'public\media'
+$out    = if ($Project) { "out\$Project" } else { 'out' }
+$pub    = if ($Project) { "public\$Project" } else { 'public' }
+$cutPath = Join-Path $root "$out\cut.json"
+$mediaDir = Join-Path $root "$pub\media"
 
 if (-not (Test-Path -LiteralPath $cutPath)) {
-    Write-Host "No out\cut.json - run 'npm run cut:export' first." -ForegroundColor Yellow
+    Write-Host "No $out\cut.json - run 'npm run cut:export' first." -ForegroundColor Yellow
     exit 1
 }
 
@@ -169,7 +177,7 @@ New-Item -ItemType Directory -Force -Path $mediaDir | Out-Null
 # other, and it is written by make-proxies.ps1 at the same moment the
 # proxies are, so the two cannot drift.
 $toMaster = @{}
-foreach ($base in @((Join-Path $root 'out\lookbook\manifest.json'),
+foreach ($base in @((Join-Path $root "$out\lookbook\manifest.json"),
                     (Join-Path $SourcePath 'footage-prep\lookbook\manifest.json'))) {
     if (Test-Path -LiteralPath $base) {
         foreach ($row in (Get-Content -LiteralPath $base -Raw | ConvertFrom-Json)) {
@@ -199,7 +207,7 @@ if ($LutMap) {
 # figure means a fixed, predictable gain rather than letting a normaliser
 # guess from two seconds of speech - which on short clips it does badly.
 $measured = @{}
-$analysisPath = Join-Path $root 'out\analysis\footage.json'
+$analysisPath = Join-Path $root "$out\analysis\footage.json"
 if (Test-Path -LiteralPath $analysisPath) {
     foreach ($row in (Get-Content -LiteralPath $analysisPath -Raw | ConvertFrom-Json)) {
         if ($row.lufs) { $measured[$row.file] = [double]$row.lufs }
@@ -338,6 +346,11 @@ if ($failed -gt 0) {
 Write-Host ""
 Write-Host "Now render the finished films in 4K:"
 Write-Host ""
-Write-Host "    npm run video:render:safe -- brand-wide --final --4k"
-Write-Host "    npm run video:render:safe -- ad-explainer-nl --final --4k"
-Write-Host "    npm run video:render:safe -- ad-nl --final --4k"
+if ($Project) {
+    Write-Host "    npm run video:render:safe -- <film> --final --4k"
+    Write-Host "    (the $Project films are listed in remotion\edit.ts)"
+} else {
+    Write-Host "    npm run video:render:safe -- brand-wide --final --4k"
+    Write-Host "    npm run video:render:safe -- ad-explainer-nl --final --4k"
+    Write-Host "    npm run video:render:safe -- ad-nl --final --4k"
+}

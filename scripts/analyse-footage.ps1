@@ -40,7 +40,15 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string] $SourcePath,
 
-    [int] $SampleSeconds = 30
+    [int] $SampleSeconds = 30,
+
+    # One folder per client. With -Project elite everything this script
+    # writes goes under out\elite\ and public\elite\, so a second client's
+    # footage can never overwrite the first one's clip list - which conform
+    # needs to find the masters again. Leave it off and the paths are
+    # exactly what they were (the Normocare project).
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9-]*$')]
+    [string] $Project
 )
 
 $ErrorActionPreference = 'Stop'
@@ -120,8 +128,10 @@ $parent = Split-Path -Parent $PSScriptRoot
 $inRepo = ((Split-Path -Leaf $PSScriptRoot) -eq 'scripts') -and
           (Test-Path -LiteralPath (Join-Path $parent 'package.json'))
 
-if ($inRepo) { $outDir = Join-Path $parent 'out\analysis' }
+$out = if ($Project) { "out\$Project" } else { 'out' }
+if ($inRepo) { $outDir = Join-Path $parent "$out\analysis" }
 else         { $outDir = Join-Path $PSScriptRoot 'footage-analysis' }
+if ($Project -and -not $inRepo) { $outDir = Join-Path $outDir $Project }
 
 $reportPath = Join-Path $outDir 'report.txt'
 $jsonPath   = Join-Path $outDir 'footage.json'

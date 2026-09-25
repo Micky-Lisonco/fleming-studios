@@ -1,5 +1,8 @@
 /**
- * Writes out/cut.json: every piece of master footage both films use.
+ * Writes out/cut.json: every piece of master footage the films use, one
+ * file per client project - out/cut.json for Normocare (no project) and
+ * out/<project>/cut.json for the rest, which is where conform.ps1
+ * -Project <name> looks.
  *
  *   npm run cut:export
  *
@@ -25,15 +28,17 @@ for (const film of Object.values(FILMS)) {
     if (shot.kind === "image") continue;
     const speed = shot.speed ?? 1;
     const key = JSON.stringify([shot.file, shot.startFrom ?? 0, shot.durationInFrames, speed]);
-    if (byId.has(shot.id)) {
-      if (byId.get(shot.id) !== key) {
+    const key2 = `${shot.project ?? ""}/${shot.id}`;
+    if (byId.has(key2)) {
+      if (byId.get(key2) !== key) {
         throw new Error(`Shot id "${shot.id}" is used for two different pieces of footage. Rename one.`);
       }
       continue;
     }
-    byId.set(shot.id, key);
+    byId.set(key2, key);
     shots.push({
       id: shot.id,
+      project: shot.project ?? null,
       film: film.id,
       file: shot.file,
       startSec: +((shot.startFrom ?? 0) / FPS).toFixed(3),
@@ -53,11 +58,16 @@ const missing = Object.values(FILMS).flatMap((f) =>
   f.shots.filter((s) => !s.file).map((s) => `${f.id}/${s.id}`)
 );
 
-mkdirSync("out", { recursive: true });
-writeFileSync("out/cut.json", JSON.stringify({ fps: FPS, shots }, null, 2));
-
-const seconds = shots.reduce((n, s) => n + s.durationSec, 0);
-console.log(`Wrote out/cut.json — ${shots.length} shots, ${seconds.toFixed(1)}s of footage.`);
+const projects = [...new Set(shots.map((s) => s.project))];
+if (!projects.includes(null)) projects.unshift(null);
+for (const project of projects) {
+  const dir = project ? `out/${project}` : "out";
+  const mine = shots.filter((s) => s.project === project);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(`${dir}/cut.json`, JSON.stringify({ fps: FPS, project, shots: mine }, null, 2));
+  const seconds = mine.reduce((n, s) => n + s.durationSec, 0);
+  console.log(`Wrote ${dir}/cut.json — ${mine.length} shots, ${seconds.toFixed(1)}s of footage.`);
+}
 for (const film of Object.values(FILMS)) {
   console.log(`  ${film.id.padEnd(12)} ${(filmFrames(film) / FPS).toFixed(2)}s`);
 }
