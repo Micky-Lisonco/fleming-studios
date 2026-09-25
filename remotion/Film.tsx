@@ -86,6 +86,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
               sub={words?.sub}
               card={card}
               punch={!calm}
+              plain={film.plain}
             />
           </Sequence>
         );
@@ -112,13 +113,13 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
         >
           <TextCard
             card={ov.card}
-            accent={BRAND.oxygen}
+            accent={film.endCard?.accent ?? BRAND.oxygen}
             durationInFrames={ov.durationInFrames}
           />
         </Sequence>
       ))}
 
-      {film.endCard ? <ProgressBar accent={BRAND.oxygen} /> : null}
+      {film.endCard ? <ProgressBar accent={film.endCard.accent ?? BRAND.oxygen} /> : null}
 
       {/* Fades both ends to black so a looping header joins invisibly. */}
       {film.loopFade ? (

@@ -1,6 +1,10 @@
 import { Composition } from "remotion";
 import { FILMS, FORMATS, FPS, TARGET_FRAMES, filmFrames } from "./edit";
 import { Film } from "./Film";
+// Loads Elite Cleaning's Nunito for the end card. Imported here, where the
+// video is drawn, rather than in edit.ts - edit.ts is also read by the
+// cut export in plain Node, which has no browser to load a font into.
+import "./fonts";
 
 /**
  * One composition per film. They are separate cuts with separate shot
@@ -12,11 +16,12 @@ export const RemotionRoot: React.FC = () => (
       const layout = FORMATS[film.format];
       const frames = filmFrames(film);
 
-      if (frames !== TARGET_FRAMES) {
+      const target = film.targetFrames ?? TARGET_FRAMES;
+      if (frames !== target) {
         // eslint-disable-next-line no-console
         console.warn(
-          `[${film.id}] is ${(frames / FPS).toFixed(2)}s, brief is ${TARGET_FRAMES / FPS}s ` +
-            `(${frames - TARGET_FRAMES > 0 ? "+" : ""}${frames - TARGET_FRAMES} frames).`
+          `[${film.id}] is ${(frames / FPS).toFixed(2)}s, brief is ${target / FPS}s ` +
+            `(${frames - target > 0 ? "+" : ""}${frames - target} frames).`
         );
       }
 

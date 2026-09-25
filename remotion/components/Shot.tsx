@@ -43,6 +43,20 @@ const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index 
       <div style={{ fontSize: 34, letterSpacing: "0.32em", opacity: 0.8, marginTop: 8 }}>
         AWAITING FOOTAGE
       </div>
+      {shot.note ? (
+        <div
+          style={{
+            marginTop: 28,
+            maxWidth: "80%",
+            textAlign: "center",
+            fontSize: 44,
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.85)",
+          }}
+        >
+          {shot.note}
+        </div>
+      ) : null}
       <div
         style={{
           marginTop: 40,
@@ -88,7 +102,9 @@ export const Shot: React.FC<{
   /** A full-frame text beat, for the explainer cut. */
   card?: Card;
   punch: boolean;
-}> = ({ shot, index, crossfade, isFirst, caption, sub, card, punch: punchOn }) => {
+  /** No vignette or scrim - a website header background. */
+  plain?: boolean;
+}> = ({ shot, index, crossfade, isFirst, caption, sub, card, punch: punchOn, plain }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const accent = shot.accent ?? BRAND.oxygen;
@@ -223,7 +239,7 @@ export const Shot: React.FC<{
         <Img src={staticFile(shotSource(shot)!)} style={mediaStyle} />
       )}
 
-      <Overlay accent={accent} />
+      {plain ? null : <Overlay accent={accent} />}
 
       {shot.speaker ? <LowerThird speaker={shot.speaker} accent={accent} /> : null}
 

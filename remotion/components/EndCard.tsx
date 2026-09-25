@@ -10,8 +10,13 @@ import {
 import { BRAND, END_CARD, layoutFor } from "../edit";
 import type { Film } from "../edit";
 
-export const EndCard: React.FC<{ endCard: Film["endCard"] }> = ({ endCard }) => {
+export const EndCard: React.FC<{ endCard: NonNullable<Film["endCard"]> }> = ({ endCard }) => {
   const frame = useCurrentFrame();
+  // Each film can carry its own brand; unset falls back to Cobblestone.
+  const accent = endCard.accent ?? END_CARD.accent;
+  const logo = endCard.logo !== undefined ? endCard.logo : END_CARD.logo;
+  const background = endCard.background ?? BRAND.black;
+  const font = endCard.fontFamily ?? "system-ui, -apple-system, Helvetica, sans-serif";
   const { fps, width, height } = useVideoConfig();
   const layout = layoutFor(width, height);
 
@@ -26,16 +31,16 @@ export const EndCard: React.FC<{ endCard: Film["endCard"] }> = ({ endCard }) => 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: BRAND.black,
+        backgroundColor: background,
         alignItems: "center",
         justifyContent: "center",
         opacity,
-        fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
+        fontFamily: font,
       }}
     >
       <AbsoluteFill
         style={{
-          background: `radial-gradient(circle at 50% 44%, ${END_CARD.accent}26 0%, rgba(0,0,0,0) 58%)`,
+          background: `radial-gradient(circle at 50% 44%, ${accent}26 0%, rgba(0,0,0,0) 58%)`,
         }}
       />
 
@@ -45,14 +50,14 @@ export const EndCard: React.FC<{ endCard: Film["endCard"] }> = ({ endCard }) => 
         from the glow painted behind it, and supplied logos are often a
         JPEG on a solid black box that needs to blend away.
       */}
-      {END_CARD.logo ? (
+      {logo ? (
         <Img
-          src={staticFile(END_CARD.logo)}
+          src={staticFile(logo)}
           style={{
             width: layout.logoWidth,
             objectFit: "contain",
             transform: `scale(${scale})`,
-            mixBlendMode: "screen",
+            mixBlendMode: endCard.logoBlend ?? "screen",
           }}
         />
       ) : (
@@ -77,7 +82,7 @@ export const EndCard: React.FC<{ endCard: Film["endCard"] }> = ({ endCard }) => 
             fontSize: 42,
             fontWeight: 600,
             letterSpacing: "0.18em",
-            color: END_CARD.accent,
+            color: accent,
             textTransform: "uppercase",
           }}
         >
@@ -113,13 +118,13 @@ export const EndCard: React.FC<{ endCard: Film["endCard"] }> = ({ endCard }) => 
           style={{
             display: "inline-block",
             padding: "26px 56px",
-            border: `3px solid ${END_CARD.accent}`,
+            border: `3px solid ${accent}`,
             borderRadius: 999,
-            color: END_CARD.accent,
+            color: accent,
             fontSize: 38,
             fontWeight: 700,
             letterSpacing: "0.06em",
-            boxShadow: `0 0 50px ${END_CARD.accent}55`,
+            boxShadow: `0 0 50px ${accent}55`,
           }}
         >
           {endCard.cta}

@@ -4,6 +4,13 @@
  *   npm run video:render:safe -- brand-wide              draft, from proxies
  *   npm run video:render:safe -- brand-wide --final      delivery, from 4K
  *   npm run video:render:safe -- brand-wide --final --4k 3840x2160 output
+ *   npm run video:render:safe -- elite-header-wide --final --web
+ *
+ * --web is for website header backgrounds: a light file that starts
+ * playing fast (1920x1080 wide, 720x1280 vertical - phones do not need
+ * more behind a headline), plus <film>-poster.jpg for the <video poster>
+ * attribute, taken just after the fade-in rather than from the black
+ * first frame.
  *
  * Without --final it renders from public/media-proxy: small, soft,
  * low-bitrate copies that exist to keep editing fast. That is a draft and
@@ -27,15 +34,19 @@
  * Silent output: the films have no music yet and every shot is muted.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const argv = process.argv.slice(2);
 const id = argv.find((a) => !a.startsWith("--")) ?? "brand-wide";
 const final = argv.includes("--final");
-const uhd = argv.includes("--4k");
+const web = argv.includes("--web");
+const uhd = argv.includes("--4k") && !web;
+if (web && argv.includes("--4k")) {
+  process.stdout.write("--web ignores --4k: a header background has to load fast.\n");
+}
 const frames = join("out", "frames", id);
-const output = join("out", `${id}${final ? "" : "-draft"}${uhd ? "-4k" : ""}.mp4`);
+const output = join("out", `${id}${final ? "" : "-draft"}${uhd ? "-4k" : ""}${web ? "-web" : ""}.mp4`);
 const win = process.platform === "win32";
 
 // npx is a .cmd on Windows and only runs through a shell; ffmpeg is a
@@ -126,6 +137,23 @@ if (!first) {
 const digits = first.replace(/^frame-/, "").replace(/\.jpe?g$/, "").length;
 const ext = first.split(".").pop();
 
+// Frame size, read from the JPEG itself (the SOF marker) so the script
+// needs nothing beyond Node to know whether the film is vertical.
+const jpegSize = (path) => {
+  const b = readFileSync(path);
+  for (let i = 2; i < b.length - 9; ) {
+    if (b[i] !== 0xff) { i++; continue; }
+    const m = b[i + 1];
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) {
+      return { h: b.readUInt16BE(i + 5), w: b.readUInt16BE(i + 7) };
+    }
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return { w: 1, h: 0 };
+};
+const size = jpegSize(join(frames, first));
+const vertical = size.h > size.w;
+
 run("ffmpeg", [
   "-y", "-loglevel", "error", "-framerate", "25",
   "-i", join(frames, `frame-%0${digits}d.${ext}`),
@@ -138,16 +166,39 @@ run("ffmpeg", [
   // bt709 limited) measured 3-4 levels dark and slightly cyan on neutral
   // grey test patches; going through rgb24 lands greys exactly and
   // colours within 2 levels.
-  "-vf", "format=rgb24,scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
+  "-vf",
+  "format=rgb24," +
+    // Vertical web files come down to 720 wide; everything else keeps
+    // its rendered size.
+    (web && vertical ? "scale=w=720:h=-2:flags=lanczos:" : "scale=") +
+    "out_color_matrix=bt709:out_range=tv,format=yuv420p",
   // Tagged in the H.264 stream itself: -color_primaries and friends lose
   // to per-frame metadata in ffmpeg 7, and this works in any build.
   "-c:v", "libx264", "-x264-params", "colorprim=bt709:transfer=bt709:colormatrix=bt709:range=tv",
   // Delivery: lower CRF and a slower preset spend bits on detail - the
   // cobbles and the brushed steel are exactly what a fast encode smears.
-  "-crf", final ? "16" : "18", "-preset", final ? "slow" : "medium",
+  // Web: CRF 26 is where a background loop stops growing visibly better
+  // and only gets heavier; high profile plays on every current browser.
+  ...(web ? ["-profile:v", "high"] : []),
+  "-crf", web ? "26" : final ? "16" : "18", "-preset", final || web ? "slow" : "medium",
   "-movflags", "+faststart",
   output,
 ]);
 
+if (web) {
+  // Poster: the first frame of a looping header is black (loop fade), so
+  // take one a second in.
+  const all = readdirSync(frames).filter((f) => f.startsWith("frame-")).sort();
+  const pick = all[Math.min(all.length - 1, 25)];
+  const poster = join("out", `${id}${final ? "" : "-draft"}-poster.jpg`);
+  run("ffmpeg", [
+    "-y", "-loglevel", "error", "-i", join(frames, pick),
+    ...(vertical ? ["-vf", "scale=720:-2:flags=lanczos"] : []),
+    "-q:v", "3", poster,
+  ]);
+  process.stdout.write(`Poster: ${poster}\n`);
+}
+
 rmSync(frames, { recursive: true, force: true });
-process.stdout.write(`\nDone: ${output}\n`);
+const mb = (statSync(output).size / 1e6).toFixed(1);
+process.stdout.write(`\nDone: ${output} (${mb} MB)\n`);

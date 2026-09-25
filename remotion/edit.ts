@@ -198,6 +198,12 @@ export type Shot = {
   /** Short name, shown on the Studio timeline. */
   id: string;
   /**
+   * What this slot is for, shown on the placeholder until footage is
+   * assigned - so a skeleton edit reads as a shot list, not as numbered
+   * grey boxes.
+   */
+  note?: string;
+  /**
    * Client project the footage belongs to, e.g. "elite". Its proxies and
    * conformed clips live in public/<project>/, so two clients' footage
    * never shares a folder. Unset for Normocare, which predates projects
@@ -489,7 +495,25 @@ export type Film = {
     line: string;
     venue: string;
     cta: string;
+    /** Per-film brand. Unset falls back to the Cobblestone look. */
+    logo?: string | null;
+    accent?: string;
+    background?: string;
+    fontFamily?: string;
+    /**
+     * "screen" blends a logo supplied as a JPEG on black into a dark
+     * card; "normal" for a transparent PNG, which screen would wash out.
+     */
+    logoBlend?: "screen" | "normal";
   } | null;
+  /**
+   * No vignette and no bottom scrim. For a website header background:
+   * the page lays its own headline and its own overlay on top, and a
+   * second darkening baked into the video makes the header muddy.
+   */
+  plain?: boolean;
+  /** Intended length. Defaults to TARGET_FRAMES; only used to warn. */
+  targetFrames?: number;
   /**
    * Text beats that run across several shots rather than sitting on
    * one. The opening montage needs a single line held over four quick
@@ -700,4 +724,98 @@ export const speechRanges = (film: Film): Array<[number, number]> => {
     cursor += shot.durationInFrames;
   }
   return ranges;
+};
+
+/**
+ * ── ELITE CLEANING ────────────────────────────────────────────
+ * Second client: Tino, Elite Cleaning, Geraardsbergen (elitecleaning.be).
+ * Brand from the Elite Cleaning project knowledge document.
+ *
+ * Copy rules, binding: Flemish Belgian Dutch, never Netherlands Dutch;
+ * "je/jij", not "u"; no em dashes anywhere; social proof is always
+ * "honderden klanten", never a number. Real footage of Tino at work is
+ * the brand's strongest asset, so generated images are the exception.
+ *
+ * Three films from one edit of Tino arriving and getting to work:
+ *   elite-header-wide      desktop website header, 16:9
+ *   elite-header-vertical  mobile website header, 9:16
+ *   elite-story            Instagram/Facebook stories, 9:16 + end card
+ * The headers carry no text and no sound - the site sets its own
+ * headline on top, and browsers only autoplay a muted background video -
+ * and they loop, so both ends fade.
+ *
+ * The shots below are placeholders until the footage is analysed: the
+ * slots follow the arrival, and get re-cut to what was actually filmed.
+ */
+export const ELITE = {
+  navy: "#0b1e3d",
+  blue: "#2563c7",
+  sky: "#4fa3e0",
+  skyLight: "#e8f4fd",
+  gold: "#f0a500",
+  white: "#ffffff",
+} as const;
+
+/** Loaded by fonts.ts wherever the video is drawn. */
+export const ELITE_FONT = 'Nunito, "Nunito Sans", system-ui, sans-serif';
+
+const HEADER_FRAMES = 15 * FPS; // 375: long enough not to feel like a GIF, light enough to load
+
+export const SHOTS_ELITE: Shot[] = inProject("elite", [
+  { id: "x01-street",  file: null, kind: "video", durationInFrames: 75, note: "The van comes down the street", accent: ELITE.sky },
+  { id: "x02-park",    file: null, kind: "video", durationInFrames: 60, note: "Parks, Tino steps out", accent: ELITE.sky },
+  { id: "x03-gear",    file: null, kind: "video", durationInFrames: 60, note: "Ladder and gear out of the van", accent: ELITE.sky },
+  { id: "x04-walk",    file: null, kind: "video", durationInFrames: 60, note: "Walks up to the house", accent: ELITE.sky },
+  { id: "x05-work",    file: null, kind: "video", durationInFrames: 60, note: "At work", accent: ELITE.sky },
+  { id: "x06-result",  file: null, kind: "video", durationInFrames: 60, note: "The result", accent: ELITE.sky },
+]);
+
+FILMS["elite-header-wide"] = {
+  id: "elite-header-wide",
+  label: "Elite Cleaning - website header (16:9)",
+  format: "wide",
+  shots: SHOTS_ELITE,
+  energy: "calm",
+  captions: {},
+  endCard: null,
+  plain: true,
+  loopFade: 12,
+  targetFrames: HEADER_FRAMES,
+};
+
+FILMS["elite-header-vertical"] = {
+  id: "elite-header-vertical",
+  label: "Elite Cleaning - mobile website header (9:16)",
+  format: "vertical",
+  shots: SHOTS_ELITE,
+  energy: "calm",
+  captions: {},
+  endCard: null,
+  plain: true,
+  loopFade: 12,
+  targetFrames: HEADER_FRAMES,
+};
+
+FILMS["elite-story"] = {
+  id: "elite-story",
+  label: "Elite Cleaning - story (9:16)",
+  format: "vertical",
+  shots: SHOTS_ELITE,
+  energy: "calm",
+  captions: {},
+  endCard: {
+    durationInFrames: 50,
+    wordmark: "ELITE CLEANING",
+    line: "Specialist in reiniging",
+    venue: "Geraardsbergen en omstreken",
+    cta: "elitecleaning.be",
+    // Set to "images/elite-cleaning-logo.png" once the logo is in
+    // public/images - until then the wordmark stands in.
+    logo: null,
+    logoBlend: "normal",
+    accent: ELITE.gold,
+    background: ELITE.navy,
+    fontFamily: ELITE_FONT,
+  },
+  targetFrames: HEADER_FRAMES + 50,
 };
