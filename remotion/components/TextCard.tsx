@@ -146,6 +146,8 @@ export const TextCard: React.FC<{ card: Card; accent: string; durationInFrames: 
             // The measured fit should make this unreachable; it is here
             // so a font that fails to load can never bleed off frame.
             overflowWrap: "anywhere",
+            // Even lines, no stranded "EEN" between two long ones.
+            textWrap: "balance",
           }}
         >
           {card.title}

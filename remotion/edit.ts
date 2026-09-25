@@ -338,11 +338,13 @@ export const SHOTS_AD: Shot[] = [
 
   // ── THE CHAIR (7.2s - 11.8s) - the recliner on its own, then Fien
   // sinking into one: the only shot of her, and the one where she is
-  // doing what the words say.
+  // doing what the words say. Then a deep breath and a climb (approved
+  // generated stills) where the control panel and a dark porthole were,
+  // and the normocare headrest.
   { id: "a06-chair",   file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 32, startFrom: 40,  focus: "72% 50%", move: "push", accent: BRAND.pulse },
   { id: "a07-sit",     file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 30, startFrom: 700, move: "pull", accent: BRAND.pulse },
-  { id: "a08-panel",   file: "04-6E8A6395.mp4",                  kind: "video", durationInFrames: 30, startFrom: 60,  move: "push", accent: BRAND.pulse },
-  { id: "a09-window",  file: "19-6E8A6410.mp4",                  kind: "video", durationInFrames: 28, startFrom: 20,  move: "push", accent: BRAND.pulse },
+  { id: "a08-breath",  file: "breath-a.png",                     kind: "image", durationInFrames: 30, move: "pull", accent: BRAND.pulse },
+  { id: "a09-energy",  file: "energy-a.png",                     kind: "image", durationInFrames: 28, move: "push", accent: BRAND.pulse },
   { id: "a10-detail",  file: "18-6E8A6409.mp4",                  kind: "video", durationInFrames: 26, startFrom: 120, move: "pull", accent: BRAND.pulse },
 
   // ── WHERE (11.8s - 17.1s) - the cobbles, the hotel, the way in, away.
@@ -366,17 +368,18 @@ export const SHOTS_AD: Shot[] = [
  */
 export const SHOTS_EXPLAINER: Shot[] = [
   /**
-   * Two generated stills, both of a cyclist on a road. Nothing
-   * generated is set inside the chamber: every invented interior read
-   * as a waiting room next to the real one, and the real one is the
-   * entire product.
+   * Nothing generated is set inside the chamber: every invented
+   * interior read as a waiting room next to the real one, and the real
+   * one is the entire product.
    *
    * The rest is chosen off the contact sheets rather than off the
    * filenames. Nineteen of the thirty clips are Fien talking to camera,
    * which is how she ended up in five shots of a film with no speech in
-   * it; the seven that are not - the empty row of chairs, the control
-   * panel, the recliner, the headrest, the porthole - are the ones that
-   * show the product, and they now carry it.
+   * it; the ones that are not - the empty row of chairs, the aisle, the
+   * recliner - show the product, and they now carry it.
+   *
+   * Four generated stills in all, none of them inside the chamber: two
+   * cyclists, a deep breath, and someone full of energy on a climb.
    */
 
   // ── 1. WHAT IT IS (0.0s - 2.8s)
@@ -398,16 +401,17 @@ export const SHOTS_EXPLAINER: Shot[] = [
 
   // ── 2. THE OXYGEN (2.8s - 5.6s)
   //
-  // Outside to inside, then the proof. The interior is empty on
-  // purpose - it is the room being sold, not an interview - and the
-  // control panel with its gauges, its emergency stop and its intercom
-  // is the shot that says this is a real installation and not a
-  // wellness gimmick. No number is claimed; the screen is atmosphere.
+  // Outside to inside, then a breath. The interior is empty on purpose -
+  // it is the room being sold, not an interview. The control panel that
+  // used to follow read, in a vertical slice, as an unidentifiable
+  // close-up, so it gave way to an approved generated image.
   // e04 was 4.8s into this clip, where the vertical slice is the edge
   // of a table and a window - "zoomed in on something". 2.2s in is the
   // aisle: seats down both sides of the tube.
   { id: "e04-inside", file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 35, startFrom: 55,  focus: "57% 50%", move: "push", accent: BRAND.oxygen },
-  { id: "e05-panel",  file: "04-6E8A6395.mp4",                  kind: "video", durationInFrames: 35, startFrom: 60,  move: "pull", accent: BRAND.oxygen },
+  // Generated, approved by Michael: the control screen it replaces was
+  // unreadable in a vertical slice - "zoomed in on something".
+  { id: "e05-breath", file: "breath-a.png",                     kind: "image", durationInFrames: 35, move: "pull", accent: BRAND.oxygen },
 
   // ── 3. THE CHAIR (5.6s - 8.4s) - the empty recliner first, then the
   // only shot of Fien left in the film. She earns this one: the card
@@ -432,10 +436,12 @@ export const SHOTS_EXPLAINER: Shot[] = [
   // ── 6. EVERYONE ELSE (13.6s - 16.4s) - the card says everybody, so
   // the picture should have people in it. The drone pulls back off the
   // portholes to the whole chamber standing in the square with a crowd
-  // and a rack of bikes around it, then the porthole from the inside:
-  // you, in there, and the rest of the day out there.
+  // and a rack of bikes around it, then someone out in the Ardennes
+  // with energy to spare.
   { id: "e12-crowd",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 1150, pan: [4, 44], punch: false, accent: BRAND.pulse },
-  { id: "e13-window", file: "19-6E8A6410.mp4",                  kind: "video", durationInFrames: 35, startFrom: 20,  move: "push", accent: BRAND.pulse },
+  // Generated, approved by Michael: someone of 55 full of energy on a
+  // cobbled climb. Replaces a porthole shot that was mostly black.
+  { id: "e13-energy", file: "energy-a.png",                     kind: "image", durationInFrames: 35, move: "push", accent: BRAND.pulse },
 
   // ── 7. THE ONLY ONE (16.4s - 18.4s)
   { id: "e14-away",   file: "29-DJI_20260905124542_0034_D.mp4", kind: "video", durationInFrames: 25, startFrom: 250, move: "pull", speed: 1.1, accent: BRAND.oxygen },
@@ -520,7 +526,10 @@ export const FILMS: Record<string, Film> = {
       "b01-cobbles": { caption: "DE VLAAMSE ARDENNEN" },
       "b05-hotel":   { caption: "FLANDERS COBBLESTONE" },
       "b07-tank":    { caption: "DE ZUURSTOFKAMER", sub: "De enige in de Benelux" },
-      "b14-away":    { caption: "RIJD HARD. RUST HARDER." },
+      // Was "RUST HARDER" - rest framing, which Michael ruled out: the
+      // room is about recovery, not about resting. "Herstel hier" says
+      // recovery without promising how fast.
+      "b14-away":    { caption: "RIJD HARD. HERSTEL HIER." },
     },
     // No extra frames: the shots already add to twenty seconds, and the
     // words ride over them rather than after them.

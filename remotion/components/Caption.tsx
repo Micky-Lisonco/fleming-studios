@@ -57,6 +57,10 @@ export const Caption: React.FC<{
           textShadow: "0 8px 60px rgba(0,0,0,0.85)",
           textTransform: "uppercase",
           overflowWrap: "anywhere",
+          // Even lines, no orphan: "RIJD HARD. HERSTEL / HIER." becomes
+          // "RIJD HARD. / HERSTEL HIER.". Balancing keeps the line count
+          // greedy wrapping would use, so the measured fit still holds.
+          textWrap: "balance",
         }}
       >
         {text}

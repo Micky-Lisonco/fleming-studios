@@ -21,13 +21,22 @@ New-Item -ItemType Directory -Force -Path $dest | Out-Null
 
 $base = 'https://d8j0ntlcm91z4.cloudfront.net/user_3GRcGkXwo3j5Yynu7p0ad1XyOhc'
 
-# The two the edit uses. Both are a cyclist on a road - the one subject
-# with no footage of it. Nothing generated goes inside the chamber any
-# more: every invented interior read as a waiting room beside the real
-# one.
+# What the edit uses. None of it is inside the chamber: every invented
+# interior read as a waiting room beside the real one.
+#
+#   cyclist-road / cyclist-climb   the riders beat
+#   breath-a / breath-b            under "Twee keer zoveel zuurstof"
+#   energy-a / energy-b            under "Herstel en energie"
+#
+# The edit points at the -a versions. The -b versions are a second take
+# of the same prompt; say which you prefer and edit.ts changes one word.
 $wanted = @{
   'cyclist-road.png'  = "$base/hf_20260922_125045_6ae4c3c3-fd6d-415a-ac94-049041475bd2.png"
   'cyclist-climb.png' = "$base/hf_20260922_125044_0183844f-b520-4aae-90fa-1fdeddf41bf1.png"
+  'breath-a.png'      = "$base/hf_20260925_075747_3449259d-2a63-4f9d-9e35-efc6ccd194ee.png"
+  'breath-b.png'      = "$base/hf_20260925_075850_df747a38-9155-4383-90dd-77b4d7cf1302.png"
+  'energy-a.png'      = "$base/hf_20260925_075747_ed4294b6-d122-48d2-8c86-bbe707ba4735.png"
+  'energy-b.png'      = "$base/hf_20260925_075859_ff67b649-65f7-4a1c-81ec-82b3298ec0bb.png"
 }
 
 # Retired generated interiors, kept only so they can be seen once and
