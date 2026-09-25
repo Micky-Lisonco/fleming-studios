@@ -1,5 +1,6 @@
 import {
   AbsoluteFill,
+  Easing,
   Img,
   OffthreadVideo,
   Video,
@@ -149,7 +150,11 @@ export const Shot: React.FC<{
     objectFit: fit,
     // Only matters when the frame is a different shape to the footage,
     // i.e. horizontal source squeezed into the 9:16 cut.
-    objectPosition: shot.focus ?? "50% 50%",
+    objectPosition: shot.pan
+      ? `${interpolate(progress, [0, 1], shot.pan, {
+          easing: Easing.inOut(Easing.cubic),
+        })}% ${(shot.focus ?? "50% 50%").split(" ")[1] ?? "50%"}`
+      : shot.focus ?? "50% 50%",
     transform: `translateX(${moveX}%) scale(${scale})`,
   };
 

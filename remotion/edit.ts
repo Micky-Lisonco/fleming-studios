@@ -225,8 +225,22 @@ export type Shot = {
    *   broll     everything else the Canon shot
    */
   wants?: "aerial" | "interview" | "broll";
-  /** How the file fills the frame. "cover" crops, "contain" letterboxes. */
+  /**
+   * How the file fills the frame. "cover" crops, "contain" letterboxes.
+   * Always "cover" in the delivered films: Michael wants the full screen
+   * used at every moment. Use `pan` to show something wider than the
+   * vertical slice.
+   */
   fit?: "cover" | "contain";
+  /**
+   * Horizontal pan across a horizontal source cropped to 9:16, as CSS
+   * object-position x in percent, from start to end of the shot: [18, 68]
+   * travels from the left of the picture towards the right. A vertical
+   * slice keeps about a third of a 16:9 frame, which cuts a fifteen-metre
+   * chamber in half; panning shows all of it and keeps the screen full.
+   * Overrides the x part of `focus`.
+   */
+  pan?: [number, number];
   /**
    * Where the crop holds when horizontal footage is squeezed into 9:16.
    * A CSS object-position: "50% 50%" centres, "30% 50%" favours the left
@@ -311,21 +325,21 @@ export const SHOTS_AD: Shot[] = [
    * pictures carry the rest. Fien is in one shot.
    */
 
-  // ── WHAT IT IS (0.0s - 3.5s) - far, overhead, close. The two wides
-  // letterbox so the whole length of the chamber is in frame.
-  { id: "a01-far",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 30, startFrom: 150, fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
-  { id: "a02-scale",   file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 30, startFrom: 60,  fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
-  { id: "a03-ports",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 28, startFrom: 40,  move: "left", accent: BRAND.oxygen },
+  // ── WHAT IT IS (0.0s - 3.5s) - far, overhead, close. Full screen: the
+  // far shot pans along the chamber rather than letterboxing it.
+  { id: "a01-far",     file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 34, startFrom: 150, pan: [18, 68], punch: false, accent: BRAND.oxygen },
+  { id: "a02-scale",   file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 30, startFrom: 60,  focus: "23% 50%", accent: BRAND.oxygen },
+  { id: "a03-ports",   file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 24, startFrom: 40,  focus: "82% 50%", move: "left", accent: BRAND.oxygen },
 
   // ── INSIDE (3.5s - 7.2s) - the empty room, then the row of chairs
   // down the length of the tube.
-  { id: "a04-inside",  file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 30, startFrom: 120, move: "push", accent: BRAND.oxygen },
-  { id: "a05-row",     file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 30, startFrom: 120, move: "pull", accent: BRAND.oxygen },
+  { id: "a04-inside",  file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 30, startFrom: 55,  focus: "57% 50%", move: "push", accent: BRAND.oxygen },
+  { id: "a05-row",     file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 30, startFrom: 250, focus: "38% 50%", move: "pull", accent: BRAND.oxygen },
 
   // ── THE CHAIR (7.2s - 11.8s) - the recliner on its own, then Fien
   // sinking into one: the only shot of her, and the one where she is
   // doing what the words say.
-  { id: "a06-chair",   file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 32, startFrom: 40,  move: "push", accent: BRAND.pulse },
+  { id: "a06-chair",   file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 32, startFrom: 40,  focus: "72% 50%", move: "push", accent: BRAND.pulse },
   { id: "a07-sit",     file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 30, startFrom: 700, move: "pull", accent: BRAND.pulse },
   { id: "a08-panel",   file: "04-6E8A6395.mp4",                  kind: "video", durationInFrames: 30, startFrom: 60,  move: "push", accent: BRAND.pulse },
   { id: "a09-window",  file: "19-6E8A6410.mp4",                  kind: "video", durationInFrames: 28, startFrom: 20,  move: "push", accent: BRAND.pulse },
@@ -372,17 +386,15 @@ export const SHOTS_EXPLAINER: Shot[] = [
   // coverage on the shoot - so the film opened by zooming in on the one
   // thing it needed to stand back from.
   //
-  // The two wide ones are letterboxed, not cropped. The chamber is
-  // roughly fifteen metres of horizontal object, and a 9:16 crop of a
-  // 16:9 frame keeps about a quarter of its width: cropped, even the
-  // widest drone shot shows the middle third of a silver tube and no
-  // sense of its length.
-  //
-  // They sit high in the frame rather than centred, so the picture and
-  // the text card each get their own air.
-  { id: "e01-far",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 24, startFrom: 150, fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
-  { id: "e02-scale",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 24, startFrom: 60,  fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.oxygen },
-  { id: "e03-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 22, startFrom: 40,  move: "left", accent: BRAND.oxygen },
+  // Full screen throughout - Michael ruled out the letterbox. The chamber
+  // is roughly fifteen metres of horizontal object and a 9:16 slice of a
+  // 16:9 frame keeps about a third of its width, so the far shot pans
+  // along it instead: the whole length, and the screen stays full. The
+  // other two are framed on something that reads in a vertical slice -
+  // the normocare logo, then one porthole.
+  { id: "e01-far",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 30, startFrom: 150, pan: [18, 68], punch: false, accent: BRAND.oxygen },
+  { id: "e02-scale",  file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 22, startFrom: 60,  focus: "23% 50%", accent: BRAND.oxygen },
+  { id: "e03-ports",  file: "30-DJI_20260905124720_0035_D.mp4", kind: "video", durationInFrames: 18, startFrom: 40,  focus: "82% 50%", move: "left", accent: BRAND.oxygen },
 
   // ── 2. THE OXYGEN (2.8s - 5.6s)
   //
@@ -391,14 +403,17 @@ export const SHOTS_EXPLAINER: Shot[] = [
   // control panel with its gauges, its emergency stop and its intercom
   // is the shot that says this is a real installation and not a
   // wellness gimmick. No number is claimed; the screen is atmosphere.
-  { id: "e04-inside", file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 35, startFrom: 120, move: "push", accent: BRAND.oxygen },
+  // e04 was 4.8s into this clip, where the vertical slice is the edge
+  // of a table and a window - "zoomed in on something". 2.2s in is the
+  // aisle: seats down both sides of the tube.
+  { id: "e04-inside", file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 35, startFrom: 55,  focus: "57% 50%", move: "push", accent: BRAND.oxygen },
   { id: "e05-panel",  file: "04-6E8A6395.mp4",                  kind: "video", durationInFrames: 35, startFrom: 60,  move: "pull", accent: BRAND.oxygen },
 
   // ── 3. THE CHAIR (5.6s - 8.4s) - the empty recliner first, then the
   // only shot of Fien left in the film. She earns this one: the card
   // says "wegzakken in een massagestoel" and she is the person doing
   // it. Five appearances in a film with no speech was four too many.
-  { id: "e06-chair",  file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 35, startFrom: 40,  move: "push", accent: BRAND.pulse },
+  { id: "e06-chair",  file: "07-6E8A6398.mp4",                  kind: "video", durationInFrames: 35, startFrom: 40,  focus: "72% 50%", move: "push", accent: BRAND.pulse },
   { id: "e07-sit",    file: "12-6E8A6403.mp4",                  kind: "video", durationInFrames: 35, startFrom: 700, move: "pull", accent: BRAND.pulse },
 
   // ── 4. FOR RIDERS (8.4s - 11.2s) - a cyclist riding, plainly. The
@@ -410,7 +425,8 @@ export const SHOTS_EXPLAINER: Shot[] = [
   // chairs running the length of the tube. It says "zeventien
   // plaatsen" without being told to. This slot used to hold a close-up
   // of Fien's face, which said nothing about seventeen of anything.
-  { id: "e10-row",    file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 30, startFrom: 120, move: "push", accent: BRAND.oxygen },
+  // 10s in, not 4.8s: earlier the vertical slice is the metal door frame.
+  { id: "e10-row",    file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 30, startFrom: 250, focus: "38% 50%", move: "push", accent: BRAND.oxygen },
   { id: "e11-hotel",  file: "26-DJI_20260905124317_0025_D.mp4", kind: "video", durationInFrames: 30, startFrom: 250, move: "pull", speed: 1.15, accent: BRAND.oxygen },
 
   // ── 6. EVERYONE ELSE (13.6s - 16.4s) - the card says everybody, so
@@ -418,7 +434,7 @@ export const SHOTS_EXPLAINER: Shot[] = [
   // portholes to the whole chamber standing in the square with a crowd
   // and a rack of bikes around it, then the porthole from the inside:
   // you, in there, and the rest of the day out there.
-  { id: "e12-crowd",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 1150, fit: "contain", focus: "50% 38%", punch: false, accent: BRAND.pulse },
+  { id: "e12-crowd",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 35, startFrom: 1150, pan: [4, 44], punch: false, accent: BRAND.pulse },
   { id: "e13-window", file: "19-6E8A6410.mp4",                  kind: "video", durationInFrames: 35, startFrom: 20,  move: "push", accent: BRAND.pulse },
 
   // ── 7. THE ONLY ONE (16.4s - 18.4s)
@@ -524,7 +540,7 @@ export const FILMS: Record<string, Film> = {
     captions: {
       "a01-far":     { caption: "ZUURSTOFKAMER", sub: "De enige in de Benelux." },
       "a04-inside":  { caption: "TWEE KEER ZOVEEL ZUURSTOF", sub: "Als in de lucht buiten." },
-      "a06-chair":   { caption: "WEGZAKKEN IN EEN MASSAGESTOEL", sub: "Twee uur. Koffie erbij." },
+      "a06-chair":   { caption: "WEGZAKKEN IN EEN MASSAGESTOEL", sub: "Twee uur voor jezelf." },
       "a12-hotel":   { caption: "VLAAMSE ARDENNEN" },
     },
     endCard: {
@@ -563,7 +579,9 @@ FILMS["ad-explainer-nl"] = {
     // show the real chair while saying it.
     { from: 140, durationInFrames: 70, card: {
       title: "Wegzakken in een massagestoel",
-      body: "Twee uur. Koffie erbij.",
+      // No coffee: it has been taken out of the chamber - people spilled
+      // it on the chairs.
+      body: "Twee uur voor jezelf.",
     } },
     { from: 210, durationInFrames: 70, card: {
       kicker: "Voor wie",
