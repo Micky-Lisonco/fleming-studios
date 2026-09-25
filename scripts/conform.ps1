@@ -242,7 +242,12 @@ foreach ($shot in $cut.shots) {
     # A little tail beyond the shot length absorbs rounding between the
     # frame count here and the frame count Remotion asks for, so the last
     # frame never comes up short.
-    $grab = [math]::Round($shot.durationSec + 0.5, 3)
+    #
+    # sourceSec is what the shot consumes from the master, which is more
+    # than its timeline length when it plays faster than 1x. Older cut.json
+    # files do not have it, so fall back to the timeline length.
+    $need = if ($shot.sourceSec) { [double]$shot.sourceSec } else { [double]$shot.durationSec }
+    $grab = [math]::Round($need + 0.5, 3)
 
     # The grade must match what the proxies got, per camera. A shot graded
     # differently here than in the cut that was approved is the whole point
@@ -257,7 +262,11 @@ foreach ($shot in $cut.shots) {
     )
     if ($grade) { $args += @('-vf',$grade) }
     $args += @(
-        '-c:v','libx264','-preset','slow','-crf',"$Crf",
+        # -g 12: a keyframe every half second. The safe render has Chrome
+        # seek to every frame, and a seek decodes from the last keyframe -
+        # with the default 250-frame gap that is up to ten seconds of 4K
+        # decoded per rendered frame.
+        '-c:v','libx264','-preset','slow','-crf',"$Crf",'-g','12',
         '-pix_fmt','yuv420p','-movflags','+faststart'
     )
     # Silent shots lose their audio track here rather than at render time.
@@ -297,7 +306,8 @@ if ($failed -gt 0) {
     Write-Host "All shots conformed into $mediaDir" -ForegroundColor Green
 }
 Write-Host ""
-Write-Host "Now render the finished films:"
+Write-Host "Now render the finished films in 4K:"
 Write-Host ""
-Write-Host '    $env:REMOTION_MEDIA_DIR = "media"'
-Write-Host "    npm run video:render:all"
+Write-Host "    npm run video:render:safe -- brand-wide --final --4k"
+Write-Host "    npm run video:render:safe -- ad-explainer-nl --final --4k"
+Write-Host "    npm run video:render:safe -- ad-nl --final --4k"
