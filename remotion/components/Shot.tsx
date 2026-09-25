@@ -2,6 +2,7 @@ import {
   AbsoluteFill,
   Img,
   OffthreadVideo,
+  Video,
   interpolate,
   spring,
   staticFile,
@@ -57,6 +58,20 @@ const Placeholder: React.FC<{ shot: ShotType; index: number }> = ({ shot, index 
 
 const NO_SPEED =
   typeof process !== "undefined" && process.env?.REMOTION_NO_SPEED === "1";
+
+/**
+ * REMOTION_BROWSER_VIDEO=1 has Chrome decode the footage instead of
+ * Remotion's native compositor. On Michael's Windows machine the
+ * compositor's binaries (compositor.exe, ffprobe.exe) die with an access
+ * violation even at concurrency 1, on frame 0, probing a single proxy -
+ * so the fault is the binaries on that machine, not the edit or the
+ * load. scripts/render-safe.mjs sets this, renders frames only, and
+ * encodes with the system ffmpeg, so no Remotion native binary runs.
+ * Slower, and the reason it is not the default.
+ */
+const BROWSER_VIDEO =
+  typeof process !== "undefined" && process.env?.REMOTION_BROWSER_VIDEO === "1";
+const FootageVideo = BROWSER_VIDEO ? Video : OffthreadVideo;
 
 export const Shot: React.FC<{
   shot: ShotType;
@@ -164,7 +179,7 @@ export const Shot: React.FC<{
     <AbsoluteFill style={{ opacity }}>
       {letterboxed && shotSource(shot) !== null ? (
         shot.kind === "video" ? (
-          <OffthreadVideo
+          <FootageVideo
             src={staticFile(shotSource(shot)!)}
             startFrom={shotStartFrom(shot)}
             playbackRate={NO_SPEED ? 1 : shot.speed ?? 1}
@@ -180,7 +195,7 @@ export const Shot: React.FC<{
       {shotSource(shot) === null ? (
         <Placeholder shot={shot} index={index} />
       ) : shot.kind === "video" ? (
-        <OffthreadVideo
+        <FootageVideo
           src={staticFile(shotSource(shot)!)}
           startFrom={shotStartFrom(shot)}
           // Variable speed is the least-travelled path through the

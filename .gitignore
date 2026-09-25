@@ -8,3 +8,4 @@ public/images/*.png
 
 # Local render stand-ins, never committed.
 public/media-standin/
+public/media-standin-vp9/
