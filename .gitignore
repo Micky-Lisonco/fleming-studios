@@ -14,3 +14,6 @@ public/media-standin-vp9/
 public/*/media-proxy/
 public/*/media/
 public/*/media-standin/
+
+# Python bytecode caches
+__pycache__/
