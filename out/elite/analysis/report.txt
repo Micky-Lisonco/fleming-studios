@@ -1,0 +1,312 @@
+﻿FOOTAGE ANALYSIS
+Source:  D:\ELITE
+Sampled: 30s per clip for measured statistics
+Date:    2026-09-26 10:43
+
+-- [1] 6E8A6371.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 223,3 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   6s, 159 MB
+   audio    aac, 2 ch @ 48000 Hz - -23.29 LUFS, range 11.70 LU, peak -2.95 dBTP
+   picture  luma avg 125,9, saturation avg 5,6
+   camera   major_brand=mp42  creation_time=2026-09-05T08:27:49.000000Z
+   notes    low saturation (5.6) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT
+
+-- [2] 6E8A6372.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 220,7 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   845s, 22229 MB
+   audio    aac, 2 ch @ 48000 Hz - -25.91 LUFS, range 19.20 LU, peak -0.29 dBTP
+   picture  luma avg 102,5, saturation avg 4,4
+   camera   major_brand=mp42  creation_time=2026-09-05T08:28:07.000000Z
+   notes    low saturation (4.4) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at -0.29 dBTP - risk of clipping
+
+-- [3] 6E8A6373.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,5 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   23s, 603 MB
+   audio    aac, 2 ch @ 48000 Hz - -17.00 LUFS, range 19.60 LU, peak -0.68 dBTP
+   picture  luma avg 112,5, saturation avg 6,6
+   camera   major_brand=mp42  creation_time=2026-09-05T08:47:24.000000Z
+   notes    low saturation (6.6) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at -0.68 dBTP - risk of clipping
+
+-- [4] 6E8A6374.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,6 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   21s, 565 MB
+   audio    aac, 2 ch @ 48000 Hz - -19.38 LUFS, range 15.10 LU, peak -0.21 dBTP
+   picture  luma avg 130,9, saturation avg 8,1
+   camera   major_brand=mp42  creation_time=2026-09-05T08:48:02.000000Z
+   notes    low saturation (8.1) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at -0.21 dBTP - risk of clipping
+
+-- [5] 6E8A6375.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,4 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   23s, 602 MB
+   audio    aac, 2 ch @ 48000 Hz - -19.95 LUFS, range 17.50 LU, peak 0.43 dBTP
+   picture  luma avg 110,6, saturation avg 7,9
+   camera   major_brand=mp42  creation_time=2026-09-05T08:48:42.000000Z
+   notes    low saturation (7.9) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.43 dBTP - risk of clipping
+
+-- [6] 6E8A6376.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,1 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   37s, 986 MB
+   audio    aac, 2 ch @ 48000 Hz - -19.21 LUFS, range 13.70 LU, peak 0.79 dBTP
+   picture  luma avg 81,7, saturation avg 4,9
+   camera   major_brand=mp42  creation_time=2026-09-05T08:52:20.000000Z
+   notes    low saturation (4.9) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.79 dBTP - risk of clipping
+
+-- [7] 6E8A6377.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 220,8 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   156s, 4102 MB
+   audio    aac, 2 ch @ 48000 Hz - -17.29 LUFS, range 6.40 LU, peak 0.37 dBTP
+   picture  luma avg 116,6, saturation avg 22,3
+   camera   major_brand=mp42  creation_time=2026-09-05T09:13:02.000000Z
+   notes    peaks at 0.37 dBTP - risk of clipping
+
+-- [8] 6E8A6378.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 222,1 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   12s, 323 MB
+   audio    aac, 2 ch @ 48000 Hz - -17.72 LUFS, range 3.00 LU, peak 0.28 dBTP
+   picture  luma avg 130,3, saturation avg 10
+   camera   major_brand=mp42  creation_time=2026-09-05T09:15:40.000000Z
+   notes    low saturation (10) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.28 dBTP - risk of clipping
+
+-- [9] 6E8A6379.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 232,7 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   2s, 54 MB
+   audio    aac, 2 ch @ 48000 Hz - -15.05 LUFS, range 0.00 LU, peak 0.08 dBTP
+   picture  luma avg 128,6, saturation avg 9,5
+   camera   major_brand=mp42  creation_time=2026-09-05T09:16:20.000000Z
+   notes    low saturation (9.5) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.08 dBTP - risk of clipping
+
+-- [10] 6E8A6380.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   65s, 1705 MB
+   audio    aac, 2 ch @ 48000 Hz - -17.79 LUFS, range 4.60 LU, peak 2.53 dBTP
+   picture  luma avg 125,3, saturation avg 8,7
+   camera   major_brand=mp42  creation_time=2026-09-05T09:16:23.000000Z
+   notes    low saturation (8.7) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 2.53 dBTP - risk of clipping
+
+-- [11] 6E8A6381.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,3 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   36s, 944 MB
+   audio    aac, 2 ch @ 48000 Hz - -17.72 LUFS, range 16.70 LU, peak 2.13 dBTP
+   picture  luma avg 104,8, saturation avg 7,9
+   camera   major_brand=mp42  creation_time=2026-09-05T09:26:33.000000Z
+   notes    low saturation (7.9) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 2.13 dBTP - risk of clipping
+
+-- [12] 6E8A6382.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,1 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   24s, 645 MB
+   audio    aac, 2 ch @ 48000 Hz - -18.08 LUFS, range 3.50 LU, peak 0.21 dBTP
+   picture  luma avg 128,9, saturation avg 13,7
+   camera   major_brand=mp42  creation_time=2026-09-05T09:32:38.000000Z
+   notes    low saturation (13.7) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.21 dBTP - risk of clipping
+
+-- [13] 6E8A6383.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 223,2 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   8s, 205 MB
+   audio    aac, 2 ch @ 48000 Hz - -18.72 LUFS, range 3.00 LU, peak 0.14 dBTP
+   picture  luma avg 124,5, saturation avg 11,7
+   camera   major_brand=mp42  creation_time=2026-09-05T09:33:20.000000Z
+   notes    low saturation (11.7) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.14 dBTP - risk of clipping
+
+-- [14] 6E8A6384.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 222,2 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   11s, 288 MB
+   audio    aac, 2 ch @ 48000 Hz - -16.45 LUFS, range 3.10 LU, peak 0.34 dBTP
+   picture  luma avg 122,1, saturation avg 12,2
+   camera   major_brand=mp42  creation_time=2026-09-05T09:33:32.000000Z
+   notes    low saturation (12.2) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.34 dBTP - risk of clipping
+
+-- [15] 6E8A6385.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 222,4 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   13s, 332 MB
+   audio    aac, 2 ch @ 48000 Hz - -17.66 LUFS, range 3.00 LU, peak 0.34 dBTP
+   picture  luma avg 123,1, saturation avg 11,9
+   camera   major_brand=mp42  creation_time=2026-09-05T09:33:51.000000Z
+   notes    low saturation (11.9) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.34 dBTP - risk of clipping
+
+-- [16] 6E8A6386.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 222,2 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   14s, 371 MB
+   audio    aac, 2 ch @ 48000 Hz - -18.08 LUFS, range 6.80 LU, peak 0.23 dBTP
+   picture  luma avg 121,3, saturation avg 10,8
+   camera   major_brand=mp42  creation_time=2026-09-05T09:34:09.000000Z
+   notes    low saturation (10.8) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.23 dBTP - risk of clipping
+
+-- [17] 6E8A6387.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,6 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   19s, 503 MB
+   audio    aac, 2 ch @ 48000 Hz - -18.70 LUFS, range 6.80 LU, peak 0.21 dBTP
+   picture  luma avg 124,2, saturation avg 10,7
+   camera   major_brand=mp42  creation_time=2026-09-05T09:34:56.000000Z
+   notes    low saturation (10.7) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.21 dBTP - risk of clipping
+
+-- [18] 6E8A6388.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 227,8 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   2s, 63 MB
+   audio    aac, 2 ch @ 48000 Hz - -15.55 LUFS, range 0.00 LU, peak 0.17 dBTP
+   picture  luma avg 136,9, saturation avg 16,9
+   camera   major_brand=mp42  creation_time=2026-09-05T09:35:19.000000Z
+   notes    peaks at 0.17 dBTP - risk of clipping
+
+-- [19] 6E8A6389.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,4 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   21s, 544 MB
+   audio    aac, 2 ch @ 48000 Hz - -18.44 LUFS, range 3.50 LU, peak 0.41 dBTP
+   picture  luma avg 122,4, saturation avg 10,4
+   camera   major_brand=mp42  creation_time=2026-09-05T09:35:52.000000Z
+   notes    low saturation (10.4) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.41 dBTP - risk of clipping
+
+-- [20] 6E8A6390.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 225,3 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   4s, 101 MB
+   audio    aac, 2 ch @ 48000 Hz - -16.27 LUFS, range 3.00 LU, peak 0.39 dBTP
+   picture  luma avg 121,5, saturation avg 9,9
+   camera   major_brand=mp42  creation_time=2026-09-05T09:36:18.000000Z
+   notes    low saturation (9.9) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.39 dBTP - risk of clipping
+
+-- [21] 6E8A6391.MP4
+   video    h264 3840x2160 @ 50 fps, yuvj420p, 221,6 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   20s, 527 MB
+   audio    aac, 2 ch @ 48000 Hz - -18.27 LUFS, range 6.70 LU, peak 0.27 dBTP
+   picture  luma avg 128,9, saturation avg 9,2
+   camera   major_brand=mp42  creation_time=2026-09-05T09:36:44.000000Z
+   notes    low saturation (9.2) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; peaks at 0.27 dBTP - risk of clipping
+
+-- [22] DJI_20260905111306_0009_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 80,7 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   14s, 131 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 97,8, saturation avg 10,1
+   camera   major_brand=isom  creation_time=2026-09-05T09:13:06.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (10.1) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [23] DJI_20260905111416_0010_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 89 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   9s, 90 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 96,1, saturation avg 11,1
+   camera   major_brand=isom  creation_time=2026-09-05T09:14:16.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (11.1) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [24] DJI_20260905111438_0011_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 92,9 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   7s, 82 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 96,6, saturation avg 11,3
+   camera   major_brand=isom  creation_time=2026-09-05T09:14:38.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (11.3) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [25] DJI_20260905111509_0012_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 93,7 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   7s, 81 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 96, saturation avg 11,8
+   camera   major_brand=isom  creation_time=2026-09-05T09:15:09.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (11.8) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [26] DJI_20260905112014_0013_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 72,4 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   47s, 409 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 124,6, saturation avg 11,9
+   camera   major_brand=isom  creation_time=2026-09-05T09:20:14.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (11.9) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [27] DJI_20260905112103_0014_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 73,2 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   32s, 284 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 98,6, saturation avg 7,5
+   camera   major_brand=isom  creation_time=2026-09-05T09:21:03.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (7.5) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [28] DJI_20260905112207_0020_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 77 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   20s, 180 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 97, saturation avg 9,8
+   camera   major_brand=isom  creation_time=2026-09-05T09:22:07.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (9.8) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [29] DJI_20260905112604_0021_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 71,2 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   53s, 454 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 101,3, saturation avg 11,4
+   camera   major_brand=isom  creation_time=2026-09-05T09:26:04.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (11.4) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [30] DJI_20260905124317_0025_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 72 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   42s, 358 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 110,8, saturation avg 12,3
+   camera   major_brand=isom  creation_time=2026-09-05T10:43:18.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (12.3) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [31] DJI_20260905124432_0031_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 75,3 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   24s, 219 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 104,7, saturation avg 10,3
+   camera   major_brand=isom  creation_time=2026-09-05T10:44:32.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (10.3) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [32] DJI_20260905124510_0032_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 98,3 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   6s, 66 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 117, saturation avg 6
+   camera   major_brand=isom  creation_time=2026-09-05T10:45:10.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (6) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [33] DJI_20260905124519_0033_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 83 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   12s, 118 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 106,5, saturation avg 9,5
+   camera   major_brand=isom  creation_time=2026-09-05T10:45:19.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (9.5) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- [34] DJI_20260905124542_0034_D.MP4
+   video    hevc 3840x2160 @ 25 fps, yuv420p10le, 75,8 Mb/s
+   colour   primaries=bt709 transfer=bt709 space=bt709
+   length   22s, 203 MB
+   audio    none - ? LUFS, range ? LU, peak ? dBTP
+   picture  luma avg 109,6, saturation avg 12,6
+   camera   major_brand=isom  creation_time=2026-09-05T10:45:42.000000Z  encoder=DJI Mavic4 Pro L3B  handler_name=VideoHandler
+   notes    10-bit - fine, but the delivery is 8-bit yuv420p; low saturation (12.6) - flat, but the file says Rec.709, so this is the scene or the picture profile, not log. Lift it with a grade, do not apply a log LUT; NO AUDIO - cannot carry a soundbite
+
+-- 34 clips analysed --
