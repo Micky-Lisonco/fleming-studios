@@ -505,6 +505,8 @@ export type Film = {
      * card; "normal" for a transparent PNG, which screen would wash out.
      */
     logoBlend?: "screen" | "normal";
+    /** Text colour, for a light card. Unset: white on dark. */
+    ink?: string;
   } | null;
   /**
    * No vignette and no bottom scrim. For a website header background:
@@ -736,16 +738,20 @@ export const speechRanges = (film: Film): Array<[number, number]> => {
  * "honderden klanten", never a number. Real footage of Tino at work is
  * the brand's strongest asset, so generated images are the exception.
  *
- * Three films from one edit of Tino arriving and getting to work:
- *   elite-header-wide      desktop website header, 16:9
- *   elite-header-vertical  mobile website header, 9:16
- *   elite-story            Instagram/Facebook stories, 9:16 + end card
- * The headers carry no text and no sound - the site sets its own
- * headline on top, and browsers only autoplay a muted background video -
- * and they loop, so both ends fade.
+ * Two films:
+ *   elite-header-wide  the website header behind elitecleaning.be, 16:9.
+ *                      No text, no sound (the site sets its own headline,
+ *                      and browsers only autoplay muted video), and it
+ *                      loops, so both ends fade. Elite only: no hotel, no
+ *                      chamber, no Cobblestone banners.
+ *   elite-ad           the advert, 9:16. Tino's voice goes over it later,
+ *                      so it is cut with room for that. The hotel and the
+ *                      oxygen chamber may appear, briefly - it is where he
+ *                      works, not what the ad is about.
  *
- * The shots below are placeholders until the footage is analysed: the
- * slots follow the arrival, and get re-cut to what was actually filmed.
+ * Shot choices come from the contact sheets (out/elite/lookbook). Canon
+ * clips are 50p and the drone 25p; startFrom is in timeline frames at 25
+ * fps either way, so seconds x 25.
  */
 export const ELITE = {
   navy: "#0b1e3d",
@@ -761,20 +767,59 @@ export const ELITE_FONT = 'Nunito, "Nunito Sans", system-ui, sans-serif';
 
 const HEADER_FRAMES = 15 * FPS; // 375: long enough not to feel like a GIF, light enough to load
 
-export const SHOTS_ELITE: Shot[] = inProject("elite", [
-  { id: "x01-street",  file: null, kind: "video", durationInFrames: 75, note: "The van comes down the street", accent: ELITE.sky },
-  { id: "x02-park",    file: null, kind: "video", durationInFrames: 60, note: "Parks, Tino steps out", accent: ELITE.sky },
-  { id: "x03-gear",    file: null, kind: "video", durationInFrames: 60, note: "Ladder and gear out of the van", accent: ELITE.sky },
-  { id: "x04-walk",    file: null, kind: "video", durationInFrames: 60, note: "Walks up to the house", accent: ELITE.sky },
-  { id: "x05-work",    file: null, kind: "video", durationInFrames: 60, note: "At work", accent: ELITE.sky },
-  { id: "x06-result",  file: null, kind: "video", durationInFrames: 60, note: "The result", accent: ELITE.sky },
+/**
+ * The arrival, then the work. Each shot's source moment is named from the
+ * contact sheets; clip numbers are the Elite ones (out/elite/lookbook).
+ */
+const ROAD   = { file: "26-DJI_20260905112014_0013_D.mp4", startFrom: 200 };  // drone, low along the cobbles
+const VAN    = { file: "11-6E8A6381.mp4",                  startFrom: 10 };   // the van rolls in
+const OUT    = { file: "11-6E8A6381.mp4",                  startFrom: 125 };  // Tino steps out
+const IN     = { file: "01-6E8A6371.mp4",                  startFrom: 80 };   // comes in with his gear
+const WINDOW = { file: "04-6E8A6374.mp4",                  startFrom: 250 };  // cleaning the window, wide
+const GLASS  = { file: "06-6E8A6376.mp4",                  startFrom: 12 };   // outside the big glass, seen from in
+
+export const SHOTS_ELITE_HEADER: Shot[] = inProject("elite", [
+  { id: "h01-road",   ...ROAD,   kind: "video", durationInFrames: 70, accent: ELITE.sky },
+  { id: "h02-van",    ...VAN,    kind: "video", durationInFrames: 70, accent: ELITE.sky },
+  { id: "h03-out",    ...OUT,    kind: "video", durationInFrames: 60, accent: ELITE.sky },
+  { id: "h04-in",     ...IN,     kind: "video", durationInFrames: 60, accent: ELITE.sky },
+  { id: "h05-window", ...WINDOW, kind: "video", durationInFrames: 60, accent: ELITE.sky },
+  { id: "h06-glass",  ...GLASS,  kind: "video", durationInFrames: 55, accent: ELITE.sky },
 ]);
+
+/**
+ * The advert: the same arrival and work, re-framed for 9:16 (focus = where
+ * Tino is in the 16:9 frame), plus the job site - the hotel, Tino at its
+ * entrance, and a glimpse of the oxygen chamber. The chamber shot comes
+ * from the Normocare project's footage, so it carries no project.
+ */
+export const SHOTS_ELITE_AD: Shot[] = [
+  ...inProject("elite", [
+    { id: "v01-road",   ...ROAD,   kind: "video", durationInFrames: 50, accent: ELITE.blue },
+    { id: "v02-van",    ...VAN,    kind: "video", durationInFrames: 50, focus: "80% 50%", accent: ELITE.blue },
+    { id: "v03-out",    ...OUT,    kind: "video", durationInFrames: 45, focus: "38% 50%", accent: ELITE.blue },
+    // The job: the hotel from the air, then Tino at its entrance.
+    { id: "v04-hotel",  file: "30-DJI_20260905124317_0025_D.mp4", startFrom: 250, kind: "video", durationInFrames: 35, speed: 1.15, accent: ELITE.blue },
+    { id: "v05-hero",   file: "24-DJI_20260905111438_0011_D.mp4", startFrom: 12,  kind: "video", durationInFrames: 45, focus: "45% 50%", accent: ELITE.blue },
+    { id: "v06-in",     ...IN,     kind: "video", durationInFrames: 45, focus: "78% 50%", accent: ELITE.blue },
+    { id: "v07-window", ...WINDOW, kind: "video", durationInFrames: 50, focus: "72% 50%", accent: ELITE.blue },
+    { id: "v08-glass",  ...GLASS,  kind: "video", durationInFrames: 45, focus: "35% 50%", accent: ELITE.blue },
+  ]),
+  // A glimpse of the oxygen chamber - Normocare footage, so no project.
+  { id: "v09-chamber", file: "24-DJI_20260905124227_0023_D.mp4", startFrom: 60, kind: "video", durationInFrames: 30, focus: "23% 50%", accent: ELITE.blue },
+  ...inProject("elite", [
+    // The least certain in-point: 520s into a 14-minute clip, taken from a
+    // contact sheet with one frame every two minutes. Checked against a
+    // denser sheet before delivery.
+    { id: "v10-close",  file: "02-6E8A6372.mp4", startFrom: 13000, kind: "video", durationInFrames: 55, focus: "95% 50%", accent: ELITE.blue },
+  ]),
+];
 
 FILMS["elite-header-wide"] = {
   id: "elite-header-wide",
   label: "Elite Cleaning - website header (16:9)",
   format: "wide",
-  shots: SHOTS_ELITE,
+  shots: SHOTS_ELITE_HEADER,
   energy: "calm",
   captions: {},
   endCard: null,
@@ -783,39 +828,28 @@ FILMS["elite-header-wide"] = {
   targetFrames: HEADER_FRAMES,
 };
 
-FILMS["elite-header-vertical"] = {
-  id: "elite-header-vertical",
-  label: "Elite Cleaning - mobile website header (9:16)",
+FILMS["elite-ad"] = {
+  id: "elite-ad",
+  label: "Elite Cleaning - advert (9:16)",
   format: "vertical",
-  shots: SHOTS_ELITE,
+  shots: SHOTS_ELITE_AD,
   energy: "calm",
   captions: {},
-  endCard: null,
-  plain: true,
-  loopFade: 12,
-  targetFrames: HEADER_FRAMES,
-};
-
-FILMS["elite-story"] = {
-  id: "elite-story",
-  label: "Elite Cleaning - story (9:16)",
-  format: "vertical",
-  shots: SHOTS_ELITE,
-  energy: "calm",
-  captions: {},
+  // Light card: the logo is black and dark grey on light-blue bubbles and
+  // disappears on navy, and it may not be altered - so the card goes light
+  // rather than the logo going white.
   endCard: {
     durationInFrames: 50,
     wordmark: "ELITE CLEANING",
     line: "Specialist in reiniging",
     venue: "Geraardsbergen en omstreken",
     cta: "elitecleaning.be",
-    // Set to "images/elite-cleaning-logo.png" once the logo is in
-    // public/images - until then the wordmark stands in.
-    logo: null,
+    logo: "images/elite-cleaning-logo.png",
     logoBlend: "normal",
-    accent: ELITE.gold,
-    background: ELITE.navy,
+    accent: ELITE.blue,
+    background: ELITE.skyLight,
+    ink: ELITE.navy,
     fontFamily: ELITE_FONT,
   },
-  targetFrames: HEADER_FRAMES + 50,
+  targetFrames: TARGET_FRAMES,
 };

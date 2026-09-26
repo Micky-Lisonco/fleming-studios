@@ -17,6 +17,7 @@ export const EndCard: React.FC<{ endCard: NonNullable<Film["endCard"]> }> = ({ e
   const logo = endCard.logo !== undefined ? endCard.logo : END_CARD.logo;
   const background = endCard.background ?? BRAND.black;
   const font = endCard.fontFamily ?? "system-ui, -apple-system, Helvetica, sans-serif";
+  const ink = endCard.ink ?? BRAND.white;
   const { fps, width, height } = useVideoConfig();
   const layout = layoutFor(width, height);
 
@@ -67,7 +68,7 @@ export const EndCard: React.FC<{ endCard: NonNullable<Film["endCard"]> }> = ({ e
             fontSize: layout.wordmarkSize,
             fontWeight: 800,
             letterSpacing: "-0.03em",
-            color: BRAND.white,
+            color: ink,
           }}
         >
           {endCard.wordmark}
@@ -98,7 +99,8 @@ export const EndCard: React.FC<{ endCard: NonNullable<Film["endCard"]> }> = ({ e
             fontSize: 34,
             fontWeight: 400,
             letterSpacing: "0.02em",
-            color: "rgba(255,255,255,0.62)",
+            color: ink,
+            opacity: 0.68,
           }}
         >
           {endCard.venue}
