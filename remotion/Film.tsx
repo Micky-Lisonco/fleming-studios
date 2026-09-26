@@ -85,7 +85,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
               caption={words?.caption}
               sub={words?.sub}
               card={card}
-              punch={!calm}
+              punch={shot.punch ?? !calm}
               plain={film.plain}
             />
           </Sequence>

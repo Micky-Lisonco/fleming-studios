@@ -298,7 +298,20 @@ export type Shot = {
    *   saturation  SVG saturate(): 1 unchanged, 1.5 half again
    *   warmth      red up and blue down by the same factor; 1 is neutral
    */
-  grade?: { gamma: number; contrast: number; saturation: number; warmth: number };
+  grade?: {
+    gamma: number;
+    contrast: number;
+    saturation: number;
+    warmth: number;
+    /**
+     * Full tone curve, evenly spaced output values from input 0 to 1.
+     * When present it replaces gamma and contrast: a curve can set the
+     * black and white points and add an S for contrast in one step,
+     * which a gamma lift cannot - lifting with gamma alone raises the
+     * blacks with everything else and leaves the picture milky.
+     */
+    curve?: number[];
+  };
 };
 
 /**
@@ -848,59 +861,70 @@ const S = {
  * the advert, from 33-197 before.
  */
 export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
-  "h01-road": { gamma: 0.811, contrast: 1.1, saturation: 1.515, warmth: 1.02 },
-  "h02-cobbles": { gamma: 0.508, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h03-street": { gamma: 1.17, contrast: 1.1, saturation: 0.939, warmth: 1.02 },
-  "h04-vanair": { gamma: 0.555, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h05-van": { gamma: 0.488, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h06-out": { gamma: 0.635, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h07-ladderoff": { gamma: 0.662, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h08-atvan": { gamma: 0.671, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h09-vanrear": { gamma: 0.546, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h10-carry": { gamma: 0.488, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h11-hero": { gamma: 0.616, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h12-walkin": { gamma: 0.852, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h13-room": { gamma: 0.861, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h14-window": { gamma: 0.71, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h15-crouch": { gamma: 0.373, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h16-glass": { gamma: 0.411, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h17-window2": { gamma: 0.772, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h18-reflect": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h19-solar": { gamma: 0.659, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "h20-solarair": { gamma: 0.687, contrast: 1.1, saturation: 1.568, warmth: 1.02 },
-  "h21-hotel": { gamma: 0.714, contrast: 1.1, saturation: 1.59, warmth: 1.02 },
-  "h22-rise": { gamma: 0.573, contrast: 1.1, saturation: 1.772, warmth: 1.02 },
-  "h23-road2": { gamma: 0.851, contrast: 1.1, saturation: 1.659, warmth: 1.02 },
-  "h24-village": { gamma: 0.554, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v01-road": { gamma: 1.394, contrast: 1.1, saturation: 1.855, warmth: 1.02 },
-  "v02-cobbles": { gamma: 0.887, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v03-sign": { gamma: 0.776, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v04-vanair": { gamma: 0.447, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v05-van": { gamma: 0.372, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v06-out": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v07-ladderoff": { gamma: 0.543, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v08-atvan": { gamma: 0.935, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v09-vanrear": { gamma: 0.522, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v10-carry": { gamma: 0.437, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v11-hotel": { gamma: 0.706, contrast: 1.1, saturation: 1.449, warmth: 1.02 },
-  "v12-leaves": { gamma: 0.869, contrast: 1.1, saturation: 1.34, warmth: 1.02 },
-  "v13-hero": { gamma: 0.631, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v14-walkin": { gamma: 0.708, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v15-room": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v16-window": { gamma: 0.553, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v17-crouch": { gamma: 0.36, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v18-glass": { gamma: 0.441, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v19-window2": { gamma: 0.522, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v20-chamber": { gamma: 0.617, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v21-reflect": { gamma: 0.631, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v22-glass2": { gamma: 0.389, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v23-solar": { gamma: 0.702, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v24-solarair": { gamma: 0.755, contrast: 1.1, saturation: 1.635, warmth: 1.02 },
-  "v25-church": { gamma: 0.586, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v26-churchair": { gamma: 0.443, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v27-rise": { gamma: 0.5, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
-  "v28-street": { gamma: 1.577, contrast: 1.1, saturation: 1.243, warmth: 1.02 },
-  "v29-village": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h01-road": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0029, 0.0115, 0.0234, 0.038, 0.0554, 0.0754, 0.0981, 0.1234, 0.1515, 0.1821, 0.2154, 0.2512, 0.2894, 0.3299, 0.3725, 0.417, 0.4632, 0.5107, 0.5593, 0.6087, 0.6584, 0.708, 0.757, 0.805, 0.8514, 0.8955, 0.9368, 0.9746, 1.0, 1.0, 1.0] },
+  "h02-cobbles": { gamma: 1, contrast: 1, saturation: 1.499, warmth: 1.02,
+    curve: [0.0, 0.0, 0.079, 0.1392, 0.1931, 0.2435, 0.2913, 0.3371, 0.3811, 0.4234, 0.4642, 0.5036, 0.5416, 0.5782, 0.6134, 0.6474, 0.68, 0.7114, 0.7414, 0.7702, 0.7977, 0.824, 0.849, 0.8727, 0.8952, 0.9164, 0.9364, 0.9551, 0.9726, 0.9888, 1.0, 1.0, 1.0] },
+  "h03-street": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0, 0.0, 0.0018, 0.008, 0.0171, 0.0289, 0.0432, 0.06, 0.0796, 0.1018, 0.1268, 0.1546, 0.1852, 0.2186, 0.2548, 0.2936, 0.3351, 0.379, 0.4251, 0.4731, 0.5228, 0.5739, 0.6258, 0.6781, 0.7304, 0.7819, 0.8322, 0.8803, 0.9257, 0.9673, 1.0] },
+  "h04-vanair": { gamma: 1, contrast: 1, saturation: 1.375, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0627, 0.1344, 0.194, 0.248, 0.2982, 0.3455, 0.3904, 0.4332, 0.4741, 0.5133, 0.5508, 0.5867, 0.6212, 0.6542, 0.6858, 0.7161, 0.745, 0.7727, 0.7991, 0.8242, 0.8481, 0.8708, 0.8923, 0.9125, 0.9317, 0.9496, 0.9664, 0.9821, 0.9966, 1.0, 1.0] },
+  "h05-van": { gamma: 1, contrast: 1, saturation: 1.671, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0349, 0.0681, 0.1019, 0.1367, 0.1723, 0.2087, 0.2457, 0.2832, 0.321, 0.3591, 0.3973, 0.4355, 0.4736, 0.5113, 0.5488, 0.5857, 0.6221, 0.6578, 0.6927, 0.7267, 0.7597, 0.7917, 0.8224, 0.852, 0.8801, 0.9069, 0.9321, 0.9557, 0.9776, 0.9977, 1.0] },
+  "h06-out": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0247, 0.0607, 0.0971, 0.1343, 0.1724, 0.2112, 0.2506, 0.2905, 0.3308, 0.3711, 0.4116, 0.4518, 0.4919, 0.5315, 0.5707, 0.6092, 0.647, 0.6839, 0.7198, 0.7547, 0.7883, 0.8207, 0.8516, 0.8811, 0.909, 0.9351, 0.9595, 0.9821, 1.0, 1.0, 1.0] },
+  "h07-ladderoff": { gamma: 1, contrast: 1, saturation: 1.428, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0115, 0.0369, 0.0647, 0.0949, 0.1271, 0.1612, 0.197, 0.2343, 0.2729, 0.3126, 0.3532, 0.3945, 0.4363, 0.4784, 0.5207, 0.5629, 0.6048, 0.6463, 0.6871, 0.727, 0.7659, 0.8035, 0.8396, 0.874, 0.9066, 0.9372, 0.9654, 0.9912, 1.0, 1.0, 1.0] },
+  "h08-atvan": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0076, 0.0505, 0.0897, 0.1285, 0.1673, 0.2062, 0.2452, 0.2842, 0.3231, 0.3619, 0.4004, 0.4385, 0.4763, 0.5135, 0.5502, 0.5861, 0.6213, 0.6558, 0.6893, 0.7218, 0.7534, 0.7839, 0.8132, 0.8413, 0.8682, 0.8937, 0.9179, 0.9407, 0.962, 0.9818, 1.0] },
+  "h09-vanrear": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0391, 0.1015, 0.1544, 0.2033, 0.2496, 0.294, 0.3368, 0.3781, 0.4181, 0.4567, 0.4942, 0.5304, 0.5655, 0.5994, 0.6322, 0.6638, 0.6943, 0.7236, 0.7518, 0.7789, 0.8049, 0.8297, 0.8533, 0.8759, 0.8973, 0.9176, 0.9367, 0.9547, 0.9715, 0.9872, 1.0] },
+  "h10-carry": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.034, 0.1054, 0.1626, 0.2146, 0.2633, 0.3095, 0.3536, 0.3959, 0.4366, 0.4758, 0.5135, 0.5499, 0.5849, 0.6186, 0.6511, 0.6823, 0.7123, 0.741, 0.7686, 0.795, 0.8201, 0.8442, 0.867, 0.8887, 0.9092, 0.9286, 0.9469, 0.964, 0.98, 0.9948, 1.0, 1.0] },
+  "h11-hero": { gamma: 1, contrast: 1, saturation: 1.239, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0127, 0.0749, 0.1284, 0.1798, 0.23, 0.2792, 0.3275, 0.3749, 0.4213, 0.4667, 0.511, 0.554, 0.5959, 0.6364, 0.6755, 0.7131, 0.7493, 0.7839, 0.8168, 0.8481, 0.8777, 0.9055, 0.9315, 0.9556, 0.9777, 0.998, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "h12-walkin": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.004, 0.0165, 0.0324, 0.0513, 0.0728, 0.0969, 0.1235, 0.1526, 0.184, 0.2176, 0.2534, 0.2911, 0.3306, 0.3717, 0.4143, 0.458, 0.5027, 0.5481, 0.5939, 0.6399, 0.6856, 0.7308, 0.7751, 0.8182, 0.8596, 0.8989, 0.9358, 0.9698, 1.0, 1.0, 1.0, 1.0] },
+  "h13-room": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0087, 0.0326, 0.0583, 0.0856, 0.1145, 0.1448, 0.1765, 0.2092, 0.2431, 0.2778, 0.3132, 0.3493, 0.3858, 0.4227, 0.4599, 0.4971, 0.5342, 0.5712, 0.6079, 0.6442, 0.6799, 0.715, 0.7492, 0.7825, 0.8147, 0.8457, 0.8755, 0.9037, 0.9305, 0.9555, 0.9787, 1.0] },
+  "h14-window": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.03, 0.0691, 0.1067, 0.1441, 0.1815, 0.219, 0.2565, 0.2939, 0.3312, 0.3683, 0.4051, 0.4415, 0.4776, 0.5131, 0.5481, 0.5825, 0.6162, 0.6492, 0.6813, 0.7126, 0.7429, 0.7723, 0.8007, 0.8279, 0.8541, 0.8791, 0.9029, 0.9254, 0.9466, 0.9665, 0.985, 1.0] },
+  "h15-crouch": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.1546, 0.2439, 0.3119, 0.3693, 0.4197, 0.465, 0.5064, 0.5444, 0.5797, 0.6126, 0.6434, 0.6723, 0.6996, 0.7252, 0.7495, 0.7724, 0.7941, 0.8146, 0.8341, 0.8525, 0.8699, 0.8865, 0.9022, 0.917, 0.931, 0.9443, 0.9568, 0.9686, 0.9797, 0.9902, 1.0, 1.0] },
+  "h16-glass": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.1381, 0.2242, 0.2914, 0.3491, 0.4004, 0.4469, 0.4897, 0.5293, 0.5662, 0.6008, 0.6333, 0.6639, 0.6928, 0.7201, 0.7459, 0.7704, 0.7936, 0.8155, 0.8363, 0.856, 0.8746, 0.8922, 0.9089, 0.9246, 0.9395, 0.9535, 0.9666, 0.979, 0.9906, 1.0, 1.0, 1.0] },
+  "h17-window2": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0172, 0.0485, 0.0801, 0.1127, 0.1461, 0.1804, 0.2154, 0.251, 0.2871, 0.3235, 0.3602, 0.397, 0.4338, 0.4705, 0.5071, 0.5433, 0.5791, 0.6143, 0.649, 0.683, 0.7162, 0.7485, 0.7799, 0.8102, 0.8393, 0.8673, 0.8939, 0.9191, 0.9429, 0.9651, 0.9857, 1.0] },
+  "h18-reflect": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0114, 0.0505, 0.0895, 0.1297, 0.1709, 0.2131, 0.2561, 0.2996, 0.3435, 0.3876, 0.4316, 0.4755, 0.519, 0.5619, 0.6042, 0.6456, 0.686, 0.7252, 0.7632, 0.7996, 0.8345, 0.8677, 0.899, 0.9283, 0.9555, 0.9805, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "h19-solar": { gamma: 1, contrast: 1, saturation: 1.453, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0219, 0.0784, 0.1276, 0.1744, 0.2199, 0.2643, 0.3078, 0.3504, 0.3921, 0.4329, 0.4728, 0.5117, 0.5496, 0.5865, 0.6223, 0.657, 0.6906, 0.723, 0.7542, 0.7841, 0.8128, 0.8403, 0.8664, 0.8911, 0.9145, 0.9365, 0.9571, 0.9762, 0.9939, 1.0, 1.0] },
+  "h20-solarair": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0, 0.0562, 0.1059, 0.1529, 0.1986, 0.2433, 0.2872, 0.3304, 0.3728, 0.4144, 0.4552, 0.495, 0.5339, 0.5718, 0.6087, 0.6445, 0.6792, 0.7127, 0.745, 0.7761, 0.8059, 0.8343, 0.8614, 0.8871, 0.9114, 0.9342, 0.9556, 0.9754, 0.9937, 1.0, 1.0] },
+  "h21-hotel": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0, 0.0218, 0.0787, 0.1283, 0.1755, 0.2214, 0.2662, 0.31, 0.3529, 0.3949, 0.436, 0.4762, 0.5153, 0.5535, 0.5906, 0.6266, 0.6615, 0.6952, 0.7277, 0.759, 0.789, 0.8177, 0.8452, 0.8712, 0.8959, 0.9192, 0.9411, 0.9616, 0.9805, 0.998, 1.0] },
+  "h22-rise": { gamma: 1, contrast: 1, saturation: 1.089, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0706, 0.1372, 0.1934, 0.2446, 0.2923, 0.3373, 0.3802, 0.421, 0.4602, 0.4977, 0.5337, 0.5683, 0.6015, 0.6335, 0.6641, 0.6935, 0.7218, 0.7488, 0.7747, 0.7995, 0.8231, 0.8457, 0.8672, 0.8876, 0.907, 0.9253, 0.9426, 0.9589, 0.9741, 0.9884, 1.0] },
+  "h23-road2": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0056, 0.0189, 0.0355, 0.0549, 0.0769, 0.1014, 0.1283, 0.1575, 0.189, 0.2225, 0.2581, 0.2955, 0.3346, 0.3752, 0.4171, 0.4602, 0.5041, 0.5486, 0.5935, 0.6384, 0.6832, 0.7274, 0.7708, 0.813, 0.8537, 0.8924, 0.9288, 0.9625, 0.9931, 1.0, 1.0] },
+  "h24-village": { gamma: 1, contrast: 1, saturation: 1.43, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0514, 0.1269, 0.1884, 0.2439, 0.2955, 0.3441, 0.3902, 0.4342, 0.4763, 0.5165, 0.555, 0.5919, 0.6272, 0.6611, 0.6935, 0.7244, 0.754, 0.7822, 0.809, 0.8345, 0.8587, 0.8817, 0.9033, 0.9237, 0.9429, 0.9608, 0.9774, 0.9929, 1.0, 1.0, 1.0] },
+  "s01-arrive": { gamma: 1, contrast: 1, saturation: 1.627, warmth: 1.02,
+    curve: [0.0, 0.0, 0.1408, 0.2416, 0.3179, 0.3822, 0.4388, 0.4897, 0.536, 0.5787, 0.6181, 0.6547, 0.6888, 0.7207, 0.7506, 0.7785, 0.8048, 0.8294, 0.8525, 0.8741, 0.8944, 0.9134, 0.9312, 0.9477, 0.9632, 0.9776, 0.9909, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "s02-out": { gamma: 1, contrast: 1, saturation: 1.736, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0216, 0.0547, 0.0889, 0.1244, 0.1611, 0.1989, 0.2376, 0.2771, 0.3172, 0.3576, 0.3983, 0.4391, 0.4798, 0.5203, 0.5604, 0.6, 0.639, 0.6771, 0.7144, 0.7505, 0.7855, 0.8192, 0.8514, 0.8821, 0.9111, 0.9383, 0.9635, 0.9868, 1.0, 1.0, 1.0] },
+  "s03-ladder": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0, 0.082, 0.1492, 0.2071, 0.2601, 0.3097, 0.3566, 0.4013, 0.4438, 0.4846, 0.5236, 0.561, 0.5968, 0.6312, 0.6641, 0.6957, 0.7258, 0.7547, 0.7822, 0.8084, 0.8334, 0.8571, 0.8796, 0.9009, 0.921, 0.9398, 0.9575, 0.974, 0.9894, 1.0, 1.0, 1.0] },
+  "s04-carry": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0298, 0.0885, 0.1431, 0.1966, 0.2494, 0.3015, 0.3529, 0.4034, 0.4529, 0.5014, 0.5486, 0.5945, 0.6389, 0.6817, 0.7229, 0.7623, 0.7998, 0.8354, 0.869, 0.9004, 0.9296, 0.9566, 0.9811, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "s05-walkin": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.0068, 0.0216, 0.0408, 0.0641, 0.0912, 0.122, 0.1565, 0.1947, 0.2362, 0.281, 0.3287, 0.3791, 0.4318, 0.4864, 0.5424, 0.5993, 0.6565, 0.7134, 0.7693, 0.8235, 0.8751, 0.9232, 0.9671, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "s06-work": { gamma: 1, contrast: 1, saturation: 1.8, warmth: 1.02,
+    curve: [0.0, 0.1908, 0.2884, 0.3639, 0.4277, 0.4836, 0.5336, 0.579, 0.6204, 0.6586, 0.6939, 0.7266, 0.7571, 0.7854, 0.8119, 0.8366, 0.8596, 0.8812, 0.9013, 0.92, 0.9375, 0.9537, 0.9688, 0.9828, 0.9958, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "s07-grin": { gamma: 1, contrast: 1, saturation: 1.789, warmth: 1.02,
+    curve: [0.0, 0.0072, 0.0262, 0.0486, 0.0739, 0.102, 0.1326, 0.1656, 0.2008, 0.238, 0.277, 0.3177, 0.3597, 0.4029, 0.4471, 0.492, 0.5373, 0.5828, 0.6282, 0.6733, 0.7176, 0.761, 0.8031, 0.8436, 0.8821, 0.9184, 0.9521, 0.9829, 1.0, 1.0, 1.0, 1.0, 1.0] },
+  "s08-rise": { gamma: 1, contrast: 1, saturation: 1.459, warmth: 1.02,
+    curve: [0.0, 0.0, 0.0123, 0.0726, 0.1246, 0.1746, 0.2235, 0.2715, 0.3187, 0.365, 0.4105, 0.455, 0.4985, 0.5409, 0.5821, 0.6221, 0.6608, 0.6982, 0.7342, 0.7687, 0.8017, 0.8331, 0.8629, 0.891, 0.9174, 0.942, 0.9648, 0.9858, 1.0, 1.0, 1.0, 1.0, 1.0] },
 };
 // </elite-grades>
 
@@ -937,48 +961,36 @@ export const SHOTS_ELITE_HEADER: Shot[] = graded(inProject("elite", [
 ]));
 
 /**
- * Advert: the same story re-framed for 9:16 (focus = where the subject is
- * in the 16:9 frame), plus the job site in flashes - the hotel, the church,
- * the oxygen chamber - which is where he works, not what the ad is about.
- * Tino's voice goes over it later.
+ * Advert: a story in eight beats, 18 seconds, for a voiceover to sit on.
+ * Michael's brief after the fast cut: too long, too many shots, Tino not
+ * always visible, the frame moving left and right. So: one beat per
+ * sentence, 1.8-2.6s each, Tino in the middle of every shot after the van
+ * arrives, no pans, and every shot moving the same way (a slow push in),
+ * no punch-in on the cut.
+ *
+ *   0.0  the van drives in, from the air      Ik ben Tino van Elite Cleaning.
+ *   2.5  Tino steps out                       Ramen, zonnepanelen, dak en gevel:
+ *   4.9  the ladder comes off the roof        wij maken het weer proper.
+ *   6.9  he walks in with the ladder          Van de ladder tot het laatste
+ *   8.9  through the door with his bucket     streepje glas,
+ *  10.7  crouched at the window               ik doe het zelf,
+ *  12.9  grinning at the glass                en ik doe het grondig.
+ *  15.5  the drone rises off him              Honderden klanten gingen je voor.
+ *  18.0  logo                                 Vraag je gratis offerte.
  */
-export const SHOTS_ELITE_AD: Shot[] = graded([
-  ...inProject("elite", [
-    { id: "v01-road",      ...S.road,      kind: "video", durationInFrames: 20, focus: "50% 50%" },
-    { id: "v02-cobbles",   ...S.cobbles,   kind: "video", durationInFrames: 18, focus: "45% 50%" },
-    { id: "v03-sign",      ...S.sign,      kind: "video", durationInFrames: 16, focus: "45% 50%" },
-    // The van drives along the front of the hotel, so the frame follows it.
-    { id: "v04-vanair",    ...S.vanAir,    kind: "video", durationInFrames: 42, pan: [6, 20] },
-    { id: "v05-van",       ...S.van,       kind: "video", durationInFrames: 16, focus: "80% 50%", move: "push" },
-    { id: "v06-out",       ...S.out,       kind: "video", durationInFrames: 30, focus: "38% 50%", move: "pull" },
-    { id: "v07-ladderoff", ...S.ladderOff, kind: "video", durationInFrames: 20, focus: "4% 50%", move: "push" },
-    { id: "v08-atvan",     ...S.atVan,     kind: "video", durationInFrames: 16, focus: "25% 50%", move: "pull" },
-    { id: "v09-vanrear",   ...S.vanRear,   kind: "video", durationInFrames: 18, focus: "45% 50%", move: "push" },
-    { id: "v10-carry",     ...S.carry,     kind: "video", durationInFrames: 24, focus: "55% 50%", move: "pull" },
-    { id: "v11-hotel",     ...S.hotel,     kind: "video", durationInFrames: 16, focus: "50% 50%" },
-    { id: "v12-leaves",    ...S.leaves,    kind: "video", durationInFrames: 18, focus: "45% 50%", move: "push" },
-    { id: "v13-hero",      ...S.hero,      kind: "video", durationInFrames: 24, focus: "45% 50%" },
-    { id: "v14-walkin",    ...S.walkIn,    kind: "video", durationInFrames: 20, focus: "78% 50%", move: "push" },
-    { id: "v15-room",      ...S.room,      kind: "video", durationInFrames: 16, focus: "72% 50%", move: "pull" },
-    { id: "v16-window",    ...S.window,    kind: "video", durationInFrames: 16, focus: "68% 50%", move: "push" },
-    { id: "v17-crouch",    ...S.crouch,    kind: "video", durationInFrames: 22, focus: "80% 50%", move: "pull" },
-    { id: "v18-glass",     ...S.glass,     kind: "video", durationInFrames: 18, focus: "40% 50%", move: "push" },
-    { id: "v19-window2",   ...S.window2,   kind: "video", durationInFrames: 16, focus: "52% 50%", move: "pull" },
-  ]),
-  // A flash of the oxygen chamber - Normocare footage, so no project.
-  { id: "v20-chamber", file: "24-DJI_20260905124227_0023_D.mp4", startFrom: 60, kind: "video", durationInFrames: 16, focus: "23% 50%", grade: ELITE_GRADE.drone },
-  ...inProject("elite", [
-    { id: "v21-reflect",   ...S.reflect,   kind: "video", durationInFrames: 32, focus: "91% 50%", move: "push" },
-    { id: "v22-glass2",    ...S.glass2,    kind: "video", durationInFrames: 16, focus: "70% 50%", move: "pull" },
-    { id: "v23-solar",     ...S.solar,     kind: "video", durationInFrames: 18, focus: "40% 50%" },
-    { id: "v24-solarair",  ...S.solarAir,  kind: "video", durationInFrames: 18, focus: "50% 50%" },
-    { id: "v25-church",    ...S.church,    kind: "video", durationInFrames: 16, focus: "55% 50%" },
-    { id: "v26-churchair", ...S.churchAir, kind: "video", durationInFrames: 16, focus: "50% 50%" },
-    { id: "v27-rise",      ...S.rise,      kind: "video", durationInFrames: 20, focus: "50% 50%" },
-    { id: "v28-street",    ...S.street,    kind: "video", durationInFrames: 16, focus: "30% 50%", move: "push" },
-    { id: "v29-village",   ...S.village,   kind: "video", durationInFrames: 26, focus: "50% 50%" },
-  ]),
-]);
+export const SHOTS_ELITE_AD: Shot[] = graded(inProject("elite", [
+  // The van stays inside a fixed slice at 18% for the whole beat, so the
+  // frame does not have to chase it.
+  { id: "s01-arrive", ...S.vanAir,    speed: 1.2, kind: "video", durationInFrames: 62, focus: "18% 50%", move: "push", punch: false },
+  { id: "s02-out",    ...S.out,                   kind: "video", durationInFrames: 60, focus: "38% 50%", move: "push", punch: false },
+  { id: "s03-ladder", ...S.ladderOff,             kind: "video", durationInFrames: 50, focus: "4% 50%",  move: "push", punch: false },
+  { id: "s04-carry",  ...S.carry,                 kind: "video", durationInFrames: 50, focus: "55% 50%", move: "push", punch: false },
+  { id: "s05-walkin", ...S.walkIn,                kind: "video", durationInFrames: 45, focus: "78% 50%", move: "push", punch: false },
+  { id: "s06-work",   ...S.crouch,                kind: "video", durationInFrames: 55, focus: "80% 50%", move: "push", punch: false },
+  { id: "s07-grin",   ...S.reflect,               kind: "video", durationInFrames: 66, focus: "91% 50%", move: "push", punch: false },
+  { id: "s08-rise",   ...S.hero,      speed: 1.2, kind: "video", durationInFrames: 62, focus: "45% 50%", move: "push", punch: false },
+]));
+
 
 FILMS["elite-header-wide"] = {
   id: "elite-header-wide",
@@ -998,7 +1010,8 @@ FILMS["elite-ad"] = {
   label: "Elite Cleaning - advert (9:16)",
   format: "vertical",
   shots: SHOTS_ELITE_AD,
-  energy: "fast",
+  // 6-frame dissolves: soft enough under a voice, still a cut.
+  energy: "high",
   captions: {},
   // No vignette or bottom scrim: they exist to keep captions legible, this
   // cut has none yet, and they were taking back a third of the brightness
@@ -1020,5 +1033,6 @@ FILMS["elite-ad"] = {
     ink: ELITE.navy,
     fontFamily: ELITE_FONT,
   },
-  targetFrames: 25 * FPS,
+  // 18s of story + 1.8s of logo.
+  targetFrames: 18 * FPS + 45,
 };

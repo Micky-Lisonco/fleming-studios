@@ -28,21 +28,33 @@ const GradeFilter: React.FC<{ id: string; grade: NonNullable<ShotType["grade"]> 
   id,
   grade,
 }) => {
-  const { gamma, contrast, saturation, warmth } = grade;
+  const { gamma, contrast, saturation, warmth, curve } = grade;
   const intercept = 0.5 - 0.5 * contrast;
+  const table = curve?.map((v) => v.toFixed(4)).join(" ");
   return (
     <svg width={0} height={0} style={{ position: "absolute" }} aria-hidden>
       <filter id={id} colorInterpolationFilters="sRGB">
-        <feComponentTransfer>
-          <feFuncR type="gamma" amplitude={1} exponent={gamma} offset={0} />
-          <feFuncG type="gamma" amplitude={1} exponent={gamma} offset={0} />
-          <feFuncB type="gamma" amplitude={1} exponent={gamma} offset={0} />
-        </feComponentTransfer>
-        <feComponentTransfer>
-          <feFuncR type="linear" slope={contrast} intercept={intercept} />
-          <feFuncG type="linear" slope={contrast} intercept={intercept} />
-          <feFuncB type="linear" slope={contrast} intercept={intercept} />
-        </feComponentTransfer>
+        {table ? (
+          // One tone curve: black and white points, mids, and the S.
+          <feComponentTransfer>
+            <feFuncR type="table" tableValues={table} />
+            <feFuncG type="table" tableValues={table} />
+            <feFuncB type="table" tableValues={table} />
+          </feComponentTransfer>
+        ) : (
+          <>
+            <feComponentTransfer>
+              <feFuncR type="gamma" amplitude={1} exponent={gamma} offset={0} />
+              <feFuncG type="gamma" amplitude={1} exponent={gamma} offset={0} />
+              <feFuncB type="gamma" amplitude={1} exponent={gamma} offset={0} />
+            </feComponentTransfer>
+            <feComponentTransfer>
+              <feFuncR type="linear" slope={contrast} intercept={intercept} />
+              <feFuncG type="linear" slope={contrast} intercept={intercept} />
+              <feFuncB type="linear" slope={contrast} intercept={intercept} />
+            </feComponentTransfer>
+          </>
+        )}
         <feColorMatrix type="saturate" values={String(saturation)} />
         <feColorMatrix
           type="matrix"
