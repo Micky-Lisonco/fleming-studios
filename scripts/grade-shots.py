@@ -11,18 +11,27 @@ solved again.
 For each shot it takes the contact-sheet frame the shot opens on (in-points
 sit exactly on those frames: frame k of a clip of length D is at k x D / 6.5
 s), cropped to what the viewer sees - the 9:16 slice for a vertical film -
-and builds one tone curve for it:
-  levels      the shot's own 1st and 99.5th percentile become black and
-              white, so every shot has real blacks and real whites
-  midtones    a gamma on top, solved so the median luma reaches TARGET_MED
-  S-curve     a fixed amount of contrast (S_CURVE), shadows down and
-              highlights up around the middle
-then solves saturation to TARGET_SAT. The curve goes to the renderer as an
-SVG table, and the maths here is the renderer's.
+and builds one tone curve for it by moving its tones part of the way
+towards a well-exposed reference, rather than all the way to one target:
 
-The first version lifted with gamma alone, to a brighter target: that
-raises the blacks along with everything else, and Michael was right that it
-came out milky, with no contrast.
+  1. measure the shot's 5th, 20th, 50th, 80th and 95th luma percentiles,
+     averaged over every contact-sheet frame inside the shot, not only
+     the first - a drone shot that rises from shade into sun is graded
+     for all of it
+  2. move each towards REFERENCE by PULL (0.55): a dark shot comes up,
+     a bright one comes down, a flat one gains contrast and a harsh one
+     loses some, and each keeps its own character
+  3. draw a smooth monotone curve (Fritsch-Carlson) through those points,
+     anchored at 0 and 255 so nothing is clipped that was not already
+  4. nudge saturation the same partial way towards TARGET_SAT
+
+MANUAL holds per-shot corrections made by eye after reviewing each shot.
+
+History: a gamma lift to a bright target raised the blacks and came out
+milky; then levels plus a fixed S-curve forced every shot to one median,
+which blew out backlit windows and made already-contrasty shots harsh.
+Both were one rule for every shot. This one moves each shot only as far
+as it needs.
 
 Needs Pillow and Node 22+. Contact sheets are read from out/<project>/lookbook
 and, for shots with no project (Normocare), out/lookbook - override that one
@@ -33,14 +42,50 @@ from PIL import Image, ImageDraw, ImageStat
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FILMS = ["elite-header-wide", "elite-ad"]
-TARGET_MED, TARGET_SAT = 118, 80
-S_CURVE, WARMTH = 0.35, 1.02
+# Percentiles (5, 20, 50, 80, 95) of a well-exposed daylight frame, 0-255.
+REFERENCE = (16, 52, 112, 178, 222)
+PCTS = (.05, .20, .50, .80, .95)
+PULL = 0.55
+TARGET_SAT, SAT_PULL, WARMTH = 70, 0.6, 1.02
 CURVE_POINTS = 33
+
+# Per-shot corrections by eye, applied on top of the measured pull:
+#   pull   override PULL for this shot (0 = leave its tones alone)
+#   mid    extra levels on the 50th percentile (+ brighter, - darker)
+#   sat    override the saturation factor
+MANUAL = {
+    # Reviewed shot by shot. Backlit: Tino still reads a little dark
+    # against the window; the windows have room to spare.
+    "h14-window": {"mid": 8},
+    "h15-crouch": {"mid": 8},
+    "h16-glass":  {"mid": 6},
+    "s06-work":   {"mid": 10},
+}
 
 def lookbook(project):
     if project:
         return os.path.join(ROOT, "out", project, "lookbook")
     return os.environ.get("NORMOCARE_LOOKBOOK", os.path.join(ROOT, "out", "lookbook"))
+
+def pchip(xs, ys):
+    """Monotone cubic through (xs, ys) - Fritsch-Carlson. No overshoot, so
+    a tone curve built with it can never reverse or ring."""
+    n = len(xs); h = [xs[i + 1] - xs[i] for i in range(n - 1)]
+    d = [(ys[i + 1] - ys[i]) / h[i] for i in range(n - 1)]
+    m = [d[0]] + [0.0] * (n - 2) + [d[-1]]
+    for i in range(1, n - 1):
+        if d[i - 1] * d[i] <= 0: m[i] = 0.0
+        else:
+            w1, w2 = 2 * h[i] + h[i - 1], h[i] + 2 * h[i - 1]
+            m[i] = (w1 + w2) / (w1 / d[i - 1] + w2 / d[i])
+    def f(x):
+        if x <= xs[0]: return ys[0]
+        if x >= xs[-1]: return ys[-1]
+        i = max(j for j in range(n - 1) if xs[j] <= x)
+        t = (x - xs[i]) / h[i]
+        h00, h10, h01, h11 = 2*t**3 - 3*t**2 + 1, t**3 - 2*t**2 + t, -2*t**3 + 3*t**2, t**3 - t**2
+        return h00 * ys[i] + h10 * h[i] * m[i] + h01 * ys[i + 1] + h11 * h[i] * m[i + 1]
+    return f
 
 def smooth(x):
     return x * x * (3 - 2 * x)
@@ -97,6 +142,7 @@ def solve(fn, target, lo, hi, increasing):
 def export_shots():
     js = ("import('./remotion/edit.ts').then(({FILMS})=>{const o={};for(const id of %s){const f=FILMS[id];"
           "o[id]=f.shots.map(s=>({id:s.id,project:s.project??null,file:s.file,startFrom:s.startFrom??0,"
+          "durationInFrames:s.durationInFrames,speed:s.speed??1,"
           "focusX:s.focus?parseFloat(s.focus):50,pan:s.pan??null,vertical:f.format==='vertical'}))}"
           "console.log(JSON.stringify(o))})") % json.dumps(FILMS)
     out = subprocess.run(["node", "--experimental-strip-types", "--no-warnings", "-e", js],
@@ -115,27 +161,38 @@ def grade_film(shots, man, sheet_path=None):
     grades, rows = {}, []
     for s in shots:
         D = man[(s["project"], s["file"])]["durationSec"]
-        k = max(0, min(5, round(s["startFrom"] / 25 * 6.5 / D)))
         strip = Image.open(os.path.join(lookbook(s["project"]), s["file"][:-4] + ".jpg"))
         fw = strip.width // 6
-        fr = strip.crop((k * fw, 0, (k + 1) * fw, strip.height)).convert("RGB")
-        if s["vertical"]:
-            cw = round(fr.height * 9 / 16)
-            fx = (s["pan"][0] if s["pan"] else s["focusX"]) / 100
-            cx = round((fr.width - cw) * fx)
-            fr = fr.crop((cx, 0, cx + cw, fr.height))
-        b = min(pct(fr, .01), 40) / 255          # black point, never more than 40
-        w = max(pct(fr, .995), 190) / 255        # white point, never below 190
-        g = solve(lambda g: pct(fr.point(curve_lut(curve_fn(b, w, g)) * 3), .5), TARGET_MED, .45, 2.2, False)
-        # With levels and the S in place a deeper mid lift no longer washes
-        # the picture out, so a subject in a dark corner can come up further.
-        g = max(0.45, min(1.8, g))
-        f = curve_fn(b, w, g)
-        table = [round(f(i / (CURVE_POINTS - 1)), 4) for i in range(CURVE_POINTS)]
-        toned = fr.point(table_lut(table) * 3)
-        sv = max(1.0, min(1.8, solve(lambda x: sat(apply(toned, 1, 1, x, 1)), TARGET_SAT, .8, 2.4, True)))
+        t0 = s["startFrom"] / 25; t1 = t0 + s["durationInFrames"] * s.get("speed", 1) / 25
+        k0 = max(0, min(5, round(t0 * 6.5 / D)))
+        ks = sorted({k0} | {k for k in range(6) if t0 <= k * D / 6.5 <= t1})
+        frames = []
+        for k in ks:
+            fr = strip.crop((k * fw, 0, (k + 1) * fw, strip.height)).convert("RGB")
+            if s["vertical"]:
+                cw = round(fr.height * 9 / 16)
+                fx = (s["pan"][0] if s["pan"] else s["focusX"]) / 100
+                cx = round((fr.width - cw) * fx)
+                fr = fr.crop((cx, 0, cx + cw, fr.height))
+            frames.append(fr)
+        src = [sum(pct(f, p) for f in frames) / len(frames) for p in PCTS]
+        man_ = MANUAL.get(s["id"], {})
+        pull = man_.get("pull", PULL)
+        tgt = [v + pull * (r - v) for v, r in zip(src, REFERENCE)]
+        tgt[2] += man_.get("mid", 0)
+        # keep the points strictly increasing on both axes
+        xs, ys = [0.0], [0.0]
+        for x, y in zip(src, tgt):
+            if x > xs[-1] + 2 and y > ys[-1] + 2 and x < 253:
+                xs.append(x); ys.append(min(y, 253.0))
+        xs.append(255.0); ys.append(255.0)
+        f = pchip([x / 255 for x in xs], [y / 255 for y in ys])
+        table = [round(min(1, max(0, f(i / (CURVE_POINTS - 1)))), 4) for i in range(CURVE_POINTS)]
+        toned = [fr.point(table_lut(table) * 3) for fr in frames]
+        need = solve(lambda x: sum(sat(apply(t, 1, 1, x, 1)) for t in toned) / len(toned), TARGET_SAT, .8, 2.4, True)
+        sv = man_.get("sat", max(1.0, min(1.45, 1 + SAT_PULL * (need - 1))))
         grades[s["id"]] = {"gamma": 1, "contrast": 1, "saturation": round(sv, 3), "warmth": WARMTH, "curve": table}
-        after = apply(toned, 1, 1, sv, WARMTH)
+        fr = frames[0]; after = apply(toned[0], 1, 1, sv, WARMTH)
         rows.append((s["id"], fr, after, pct(fr, .5), pct(after, .5), pct(fr, .9) - pct(fr, .1), pct(after, .9) - pct(after, .1)))
     if sheet_path:
         v = shots[0]["vertical"]; tw = 150 if v else 240; th = round(tw * 16 / 9) if v else round(tw * 9 / 16)
