@@ -970,13 +970,13 @@ export const SHOTS_ELITE_HEADER: Shot[] = graded(inProject("elite", [
  *
  *   0.0  the van drives in, from the air      Ik ben Tino van Elite Cleaning.
  *   2.5  Tino steps out                       Ramen, zonnepanelen, dak en gevel:
- *   4.9  the ladder comes off the roof        wij maken het weer proper.
+ *   4.9  the ladder comes off the roof        ik maak alles weer proper.
  *   6.9  he walks in with the ladder          Van de ladder tot het laatste
  *   8.9  through the door with his bucket     streepje glas,
  *  10.7  crouched at the window               ik doe het zelf,
  *  12.9  grinning at the glass                en ik doe het grondig.
  *  15.5  the drone rises off him              Honderden klanten gingen je voor.
- *  18.0  logo                                 Vraag je gratis offerte.
+ *  18.0  logo                                 Vraag vandaag je gratis offerte.
  */
 export const SHOTS_ELITE_AD: Shot[] = graded(inProject("elite", [
   // The van stays inside a fixed slice at 18% for the whole beat, so the
