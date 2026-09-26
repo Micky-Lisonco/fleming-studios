@@ -5,6 +5,7 @@
  * -Project <name> looks.
  *
  *   npm run cut:export
+ *   npm run cut:export -- elite-header-wide      only these films
  *
  * Derived from edit.ts rather than maintained by hand, so the conform
  * cannot fall out of step with the cut. Shot ids are unique across the
@@ -14,6 +15,17 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { FILMS, FPS, filmFrames } from "../remotion/edit.ts";
 
+// Film ids on the command line limit the export to those films, so conform
+// does not cut 4K clips for a film that is about to change. Only the
+// projects those films belong to get their cut.json rewritten.
+const only = process.argv.slice(2);
+const films = Object.values(FILMS).filter((f) => only.length === 0 || only.includes(f.id));
+const unknown = only.filter((id) => !FILMS[id]);
+if (unknown.length) {
+  console.error(`No such film: ${unknown.join(", ")}`);
+  process.exit(1);
+}
+
 const shots = [];
 // brand-wide and brand-wide-titled share a shot list, so the same shot id
 // turns up twice. Conform writes one file per id, so the second copy is
@@ -21,7 +33,7 @@ const shots = [];
 // if two films ever give one id different footage, because one of them
 // would silently render the other's picture.
 const byId = new Map();
-for (const film of Object.values(FILMS)) {
+for (const film of films) {
   for (const shot of film.shots) {
     if (!shot.file) continue;
     // Stills are already final and have no master to trim from.
@@ -59,7 +71,7 @@ const missing = Object.values(FILMS).flatMap((f) =>
 );
 
 const projects = [...new Set(shots.map((s) => s.project))];
-if (!projects.includes(null)) projects.unshift(null);
+if (only.length === 0 && !projects.includes(null)) projects.unshift(null);
 for (const project of projects) {
   const dir = project ? `out/${project}` : "out";
   const mine = shots.filter((s) => s.project === project);
