@@ -782,7 +782,7 @@ export const ELITE = {
 /** Loaded by fonts.ts wherever the video is drawn. */
 export const ELITE_FONT = 'Nunito, "Nunito Sans", system-ui, sans-serif';
 
-const HEADER_FRAMES = 15 * FPS; // 375: long enough not to feel like a GIF, light enough to load
+const HEADER_FRAMES = 20 * FPS; // 500: room for every usable moment at the pace Michael wants
 
 /**
  * Grade. The footage measures a saturation of 4-8 on the Canon (20-40 is
@@ -806,11 +806,16 @@ export const ELITE_GRADE = {
 const S = {
   road:     { file: "26-DJI_20260905112014_0013_D.mp4", startFrom: 182,   speed: 1.5, grade: ELITE_GRADE.drone },   // low along the cobbles
   cobbles:  { file: "27-DJI_20260905112103_0014_D.mp4", startFrom: 0,     speed: 1.4, grade: ELITE_GRADE.drone },   // cobbled street, road sign
+  sign:     { file: "27-DJI_20260905112103_0014_D.mp4", startFrom: 125,   speed: 1.4, grade: ELITE_GRADE.drone },   // the street with the hotel sign
+  road2:    { file: "26-DJI_20260905112014_0013_D.mp4", startFrom: 547,   speed: 1.5, grade: ELITE_GRADE.drone },   // further along the road
   street:   { file: "18-6E8A6388.mp4",                  startFrom: 9,                 grade: ELITE_GRADE.outdoor }, // street, cyclists
   vanAir:   { file: "22-DJI_20260905111306_0009_D.mp4", startFrom: 156,   speed: 1.5, grade: ELITE_GRADE.drone },   // the van drives in, from the air
   van:      { file: "11-6E8A6381.mp4",                  startFrom: 0,                 grade: ELITE_GRADE.outdoor }, // the van, on the ground
   out:      { file: "11-6E8A6381.mp4",                  startFrom: 138,               grade: ELITE_GRADE.outdoor }, // Tino steps out
+  ladderOff:{ file: "11-6E8A6381.mp4",                  startFrom: 276,               grade: ELITE_GRADE.outdoor }, // takes the ladder off the roof
   atVan:    { file: "11-6E8A6381.mp4",                  startFrom: 413,               grade: ELITE_GRADE.outdoor }, // at the van
+  vanRear:  { file: "11-6E8A6381.mp4",                  startFrom: 551,               grade: ELITE_GRADE.outdoor }, // reaching up at the back of the van
+  carry:    { file: "11-6E8A6381.mp4",                  startFrom: 689,               grade: ELITE_GRADE.outdoor }, // walks in with the ladder on his shoulder
   hotel:    { file: "30-DJI_20260905124317_0025_D.mp4", startFrom: 321,   speed: 1.3, grade: ELITE_GRADE.drone },   // the hotel from the air
   hero:     { file: "24-DJI_20260905111438_0011_D.mp4", startFrom: 0,     speed: 1.3, grade: ELITE_GRADE.drone },   // Tino at the entrance, top-down
   walkIn:   { file: "01-6E8A6371.mp4",                  startFrom: 92,                grade: ELITE_GRADE.indoor },  // through the door with his bucket
@@ -819,6 +824,11 @@ const S = {
   glass:    { file: "06-6E8A6376.mp4",                  startFrom: 0,                 grade: ELITE_GRADE.indoor },  // outside the big glass
   reflect:  { file: "02-6E8A6372.mp4",                  startFrom: 9748,              grade: ELITE_GRADE.indoor },  // grinning at the window, 390s in
   window2:  { file: "05-6E8A6375.mp4",                  startFrom: 263,               grade: ELITE_GRADE.indoor },  // at the window, other room
+  crouch:   { file: "02-6E8A6372.mp4",                  startFrom: 0,                 grade: ELITE_GRADE.indoor },  // crouched, the bottom of the window
+  leaves:   { file: "07-6E8A6377.mp4",                  startFrom: 600,               grade: ELITE_GRADE.outdoor }, // through the leaves, at the entrance (banners: advert only)
+  solar:    { file: "33-DJI_20260905124519_0033_D.mp4", startFrom: 91,    speed: 1.3, grade: ELITE_GRADE.drone },   // roof of solar panels, close
+  solarAir: { file: "34-DJI_20260905124542_0034_D.mp4", startFrom: 345,   speed: 1.3, grade: ELITE_GRADE.drone },   // roofs of solar panels, from higher
+  churchAir:{ file: "28-DJI_20260905112207_0020_D.mp4", startFrom: 151,   speed: 1.3, grade: ELITE_GRADE.drone },   // church and fields
   // Someone in a red hoodie stands at the left of this frame - vertical
   // slice only, where he is out of shot.
   glass2:   { file: "06-6E8A6376.mp4",                  startFrom: 719,               grade: ELITE_GRADE.indoor },  // behind the glass, other side
@@ -827,26 +837,104 @@ const S = {
   village:  { file: "27-DJI_20260905112103_0014_D.mp4", startFrom: 250,   speed: 1.4, grade: ELITE_GRADE.drone },   // rising over the street
 };
 
+// <elite-grades> Written by scripts/grade-shots.py - regenerate, do not edit by hand.
+/**
+ * One grade per shot, solved so every shot lands on the same brightness
+ * and colour: the median luma of what the viewer sees goes to 132, the
+ * darkest fifth is lifted to at least 78 (what brings Tino out from
+ * against a window), and saturation goes to 92. Measured on the exact
+ * frame each shot opens on, and for the 9:16 advert on the vertical slice
+ * only. Result: median luma 131-172 across the header and 123-175 across
+ * the advert, from 33-197 before.
+ */
+export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
+  "h01-road": { gamma: 0.811, contrast: 1.1, saturation: 1.515, warmth: 1.02 },
+  "h02-cobbles": { gamma: 0.508, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h03-street": { gamma: 1.17, contrast: 1.1, saturation: 0.939, warmth: 1.02 },
+  "h04-vanair": { gamma: 0.555, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h05-van": { gamma: 0.488, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h06-out": { gamma: 0.635, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h07-ladderoff": { gamma: 0.662, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h08-atvan": { gamma: 0.671, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h09-vanrear": { gamma: 0.546, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h10-carry": { gamma: 0.488, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h11-hero": { gamma: 0.616, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h12-walkin": { gamma: 0.852, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h13-room": { gamma: 0.861, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h14-window": { gamma: 0.71, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h15-crouch": { gamma: 0.373, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h16-glass": { gamma: 0.411, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h17-window2": { gamma: 0.772, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h18-reflect": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h19-solar": { gamma: 0.659, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "h20-solarair": { gamma: 0.687, contrast: 1.1, saturation: 1.568, warmth: 1.02 },
+  "h21-hotel": { gamma: 0.714, contrast: 1.1, saturation: 1.59, warmth: 1.02 },
+  "h22-rise": { gamma: 0.573, contrast: 1.1, saturation: 1.772, warmth: 1.02 },
+  "h23-road2": { gamma: 0.851, contrast: 1.1, saturation: 1.659, warmth: 1.02 },
+  "h24-village": { gamma: 0.554, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v01-road": { gamma: 1.394, contrast: 1.1, saturation: 1.855, warmth: 1.02 },
+  "v02-cobbles": { gamma: 0.887, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v03-sign": { gamma: 0.776, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v04-vanair": { gamma: 0.447, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v05-van": { gamma: 0.372, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v06-out": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v07-ladderoff": { gamma: 0.543, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v08-atvan": { gamma: 0.935, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v09-vanrear": { gamma: 0.522, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v10-carry": { gamma: 0.437, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v11-hotel": { gamma: 0.706, contrast: 1.1, saturation: 1.449, warmth: 1.02 },
+  "v12-leaves": { gamma: 0.869, contrast: 1.1, saturation: 1.34, warmth: 1.02 },
+  "v13-hero": { gamma: 0.631, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v14-walkin": { gamma: 0.708, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v15-room": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v16-window": { gamma: 0.553, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v17-crouch": { gamma: 0.36, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v18-glass": { gamma: 0.441, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v19-window2": { gamma: 0.522, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v20-chamber": { gamma: 0.617, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v21-reflect": { gamma: 0.631, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v22-glass2": { gamma: 0.389, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v23-solar": { gamma: 0.702, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v24-solarair": { gamma: 0.755, contrast: 1.1, saturation: 1.635, warmth: 1.02 },
+  "v25-church": { gamma: 0.586, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v26-churchair": { gamma: 0.443, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v27-rise": { gamma: 0.5, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+  "v28-street": { gamma: 1.577, contrast: 1.1, saturation: 1.243, warmth: 1.02 },
+  "v29-village": { gamma: 0.571, contrast: 1.1, saturation: 2.2, warmth: 1.02 },
+};
+// </elite-grades>
+
+/** Per-shot grade where one was solved, the shot's preset otherwise. */
+const graded = (shots: Shot[]): Shot[] =>
+  shots.map((s) => ({ ...s, grade: ELITE_SHOT_GRADES[s.id] ?? s.grade }));
+
 /** Website header: the arrival and the work, fast, looping. */
-export const SHOTS_ELITE_HEADER: Shot[] = inProject("elite", [
-  { id: "h01-road",    ...S.road,    kind: "video", durationInFrames: 22 },
-  { id: "h02-cobbles", ...S.cobbles, kind: "video", durationInFrames: 20 },
-  { id: "h03-street",  ...S.street,  kind: "video", durationInFrames: 18, move: "push" },
-  { id: "h04-vanair",  ...S.vanAir,  kind: "video", durationInFrames: 40 },
-  { id: "h05-van",     ...S.van,     kind: "video", durationInFrames: 18, move: "push" },
-  { id: "h06-out",     ...S.out,     kind: "video", durationInFrames: 30, move: "pull" },
-  { id: "h07-atvan",   ...S.atVan,   kind: "video", durationInFrames: 18, move: "push" },
-  { id: "h08-hero",    ...S.hero,    kind: "video", durationInFrames: 22 },
-  { id: "h09-walkin",  ...S.walkIn,  kind: "video", durationInFrames: 20, move: "push" },
-  { id: "h10-room",    ...S.room,    kind: "video", durationInFrames: 18, move: "pull" },
-  { id: "h11-window",  ...S.window,  kind: "video", durationInFrames: 18, move: "push" },
-  { id: "h12-glass",   ...S.glass,   kind: "video", durationInFrames: 20, move: "pull" },
-  { id: "h13-window2", ...S.window2, kind: "video", durationInFrames: 20, move: "push" },
-  { id: "h14-reflect", ...S.reflect, kind: "video", durationInFrames: 30, move: "pull" },
-  { id: "h15-hotel",   ...S.hotel,   kind: "video", durationInFrames: 18 },
-  { id: "h16-rise",    ...S.rise,    kind: "video", durationInFrames: 22 },
-  { id: "h17-village", ...S.village, kind: "video", durationInFrames: 21 },
-]);
+export const SHOTS_ELITE_HEADER: Shot[] = graded(inProject("elite", [
+  { id: "h01-road",      ...S.road,      kind: "video", durationInFrames: 22 },
+  { id: "h02-cobbles",   ...S.cobbles,   kind: "video", durationInFrames: 18 },
+  { id: "h03-street",    ...S.street,    kind: "video", durationInFrames: 16, move: "push" },
+  { id: "h04-vanair",    ...S.vanAir,    kind: "video", durationInFrames: 40 },
+  { id: "h05-van",       ...S.van,       kind: "video", durationInFrames: 16, move: "push" },
+  { id: "h06-out",       ...S.out,       kind: "video", durationInFrames: 28, move: "pull" },
+  { id: "h07-ladderoff", ...S.ladderOff, kind: "video", durationInFrames: 20, move: "push" },
+  { id: "h08-atvan",     ...S.atVan,     kind: "video", durationInFrames: 16, move: "pull" },
+  { id: "h09-vanrear",   ...S.vanRear,   kind: "video", durationInFrames: 18, move: "push" },
+  { id: "h10-carry",     ...S.carry,     kind: "video", durationInFrames: 26, move: "pull" },
+  { id: "h11-hero",      ...S.hero,      kind: "video", durationInFrames: 24 },
+  { id: "h12-walkin",    ...S.walkIn,    kind: "video", durationInFrames: 20, move: "push" },
+  { id: "h13-room",      ...S.room,      kind: "video", durationInFrames: 16, move: "pull" },
+  { id: "h14-window",    ...S.window,    kind: "video", durationInFrames: 16, move: "push" },
+  { id: "h15-crouch",    ...S.crouch,    kind: "video", durationInFrames: 24, move: "pull" },
+  { id: "h16-glass",     ...S.glass,     kind: "video", durationInFrames: 18, move: "push" },
+  { id: "h17-window2",   ...S.window2,   kind: "video", durationInFrames: 16, move: "pull" },
+  { id: "h18-reflect",   ...S.reflect,   kind: "video", durationInFrames: 32, move: "push" },
+  { id: "h19-solar",     ...S.solar,     kind: "video", durationInFrames: 18 },
+  { id: "h20-solarair",  ...S.solarAir,  kind: "video", durationInFrames: 18 },
+  { id: "h21-hotel",     ...S.hotel,     kind: "video", durationInFrames: 18 },
+  { id: "h22-rise",      ...S.rise,      kind: "video", durationInFrames: 20 },
+  { id: "h23-road2",     ...S.road2,     kind: "video", durationInFrames: 16 },
+  { id: "h24-village",   ...S.village,   kind: "video", durationInFrames: 24 },
+]));
 
 /**
  * Advert: the same story re-framed for 9:16 (focus = where the subject is
@@ -854,34 +942,43 @@ export const SHOTS_ELITE_HEADER: Shot[] = inProject("elite", [
  * the oxygen chamber - which is where he works, not what the ad is about.
  * Tino's voice goes over it later.
  */
-export const SHOTS_ELITE_AD: Shot[] = [
+export const SHOTS_ELITE_AD: Shot[] = graded([
   ...inProject("elite", [
-    { id: "v01-road",    ...S.road,    kind: "video", durationInFrames: 20, focus: "50% 50%" },
-    { id: "v02-cobbles", ...S.cobbles, kind: "video", durationInFrames: 18, focus: "45% 50%" },
-    // The van follows along the front of the hotel, so the frame does too.
-    { id: "v03-vanair",  ...S.vanAir,  kind: "video", durationInFrames: 42, pan: [6, 20] },
-    { id: "v04-van",     ...S.van,     kind: "video", durationInFrames: 18, focus: "80% 50%", move: "push" },
-    { id: "v05-out",     ...S.out,     kind: "video", durationInFrames: 36, focus: "38% 50%", move: "pull" },
-    { id: "v06-atvan",   ...S.atVan,   kind: "video", durationInFrames: 18, focus: "25% 50%", move: "push" },
-    { id: "v07-hotel",   ...S.hotel,   kind: "video", durationInFrames: 18, focus: "50% 50%" },
-    { id: "v08-hero",    ...S.hero,    kind: "video", durationInFrames: 28, focus: "45% 50%" },
-    { id: "v09-walkin",  ...S.walkIn,  kind: "video", durationInFrames: 20, focus: "78% 50%", move: "push" },
-    { id: "v10-room",    ...S.room,    kind: "video", durationInFrames: 18, focus: "72% 50%", move: "pull" },
-    { id: "v11-window",  ...S.window,  kind: "video", durationInFrames: 18, focus: "68% 50%", move: "push" },
-    { id: "v12-glass",   ...S.glass,   kind: "video", durationInFrames: 20, focus: "40% 50%", move: "pull" },
-    { id: "v13-window2", ...S.window2, kind: "video", durationInFrames: 20, focus: "52% 50%", move: "push" },
+    { id: "v01-road",      ...S.road,      kind: "video", durationInFrames: 20, focus: "50% 50%" },
+    { id: "v02-cobbles",   ...S.cobbles,   kind: "video", durationInFrames: 18, focus: "45% 50%" },
+    { id: "v03-sign",      ...S.sign,      kind: "video", durationInFrames: 16, focus: "45% 50%" },
+    // The van drives along the front of the hotel, so the frame follows it.
+    { id: "v04-vanair",    ...S.vanAir,    kind: "video", durationInFrames: 42, pan: [6, 20] },
+    { id: "v05-van",       ...S.van,       kind: "video", durationInFrames: 16, focus: "80% 50%", move: "push" },
+    { id: "v06-out",       ...S.out,       kind: "video", durationInFrames: 30, focus: "38% 50%", move: "pull" },
+    { id: "v07-ladderoff", ...S.ladderOff, kind: "video", durationInFrames: 20, focus: "4% 50%", move: "push" },
+    { id: "v08-atvan",     ...S.atVan,     kind: "video", durationInFrames: 16, focus: "25% 50%", move: "pull" },
+    { id: "v09-vanrear",   ...S.vanRear,   kind: "video", durationInFrames: 18, focus: "45% 50%", move: "push" },
+    { id: "v10-carry",     ...S.carry,     kind: "video", durationInFrames: 24, focus: "55% 50%", move: "pull" },
+    { id: "v11-hotel",     ...S.hotel,     kind: "video", durationInFrames: 16, focus: "50% 50%" },
+    { id: "v12-leaves",    ...S.leaves,    kind: "video", durationInFrames: 18, focus: "45% 50%", move: "push" },
+    { id: "v13-hero",      ...S.hero,      kind: "video", durationInFrames: 24, focus: "45% 50%" },
+    { id: "v14-walkin",    ...S.walkIn,    kind: "video", durationInFrames: 20, focus: "78% 50%", move: "push" },
+    { id: "v15-room",      ...S.room,      kind: "video", durationInFrames: 16, focus: "72% 50%", move: "pull" },
+    { id: "v16-window",    ...S.window,    kind: "video", durationInFrames: 16, focus: "68% 50%", move: "push" },
+    { id: "v17-crouch",    ...S.crouch,    kind: "video", durationInFrames: 22, focus: "80% 50%", move: "pull" },
+    { id: "v18-glass",     ...S.glass,     kind: "video", durationInFrames: 18, focus: "40% 50%", move: "push" },
+    { id: "v19-window2",   ...S.window2,   kind: "video", durationInFrames: 16, focus: "52% 50%", move: "pull" },
   ]),
   // A flash of the oxygen chamber - Normocare footage, so no project.
-  { id: "v14-chamber", file: "24-DJI_20260905124227_0023_D.mp4", startFrom: 60, kind: "video", durationInFrames: 18, focus: "23% 50%", grade: ELITE_GRADE.drone },
+  { id: "v20-chamber", file: "24-DJI_20260905124227_0023_D.mp4", startFrom: 60, kind: "video", durationInFrames: 16, focus: "23% 50%", grade: ELITE_GRADE.drone },
   ...inProject("elite", [
-    { id: "v15-reflect", ...S.reflect, kind: "video", durationInFrames: 36, focus: "91% 50%", move: "pull" },
-    { id: "v17-glass2",  ...S.glass2,  kind: "video", durationInFrames: 18, focus: "70% 50%", move: "pull" },
-    { id: "v18-church",  ...S.church,  kind: "video", durationInFrames: 18, focus: "55% 50%" },
-    { id: "v19-rise",    ...S.rise,    kind: "video", durationInFrames: 22, focus: "50% 50%" },
-    { id: "v20-street",  ...S.street,  kind: "video", durationInFrames: 18, focus: "30% 50%", move: "push" },
-    { id: "v21-village", ...S.village, kind: "video", durationInFrames: 31, focus: "50% 50%" },
+    { id: "v21-reflect",   ...S.reflect,   kind: "video", durationInFrames: 32, focus: "91% 50%", move: "push" },
+    { id: "v22-glass2",    ...S.glass2,    kind: "video", durationInFrames: 16, focus: "70% 50%", move: "pull" },
+    { id: "v23-solar",     ...S.solar,     kind: "video", durationInFrames: 18, focus: "40% 50%" },
+    { id: "v24-solarair",  ...S.solarAir,  kind: "video", durationInFrames: 18, focus: "50% 50%" },
+    { id: "v25-church",    ...S.church,    kind: "video", durationInFrames: 16, focus: "55% 50%" },
+    { id: "v26-churchair", ...S.churchAir, kind: "video", durationInFrames: 16, focus: "50% 50%" },
+    { id: "v27-rise",      ...S.rise,      kind: "video", durationInFrames: 20, focus: "50% 50%" },
+    { id: "v28-street",    ...S.street,    kind: "video", durationInFrames: 16, focus: "30% 50%", move: "push" },
+    { id: "v29-village",   ...S.village,   kind: "video", durationInFrames: 26, focus: "50% 50%" },
   ]),
-];
+]);
 
 FILMS["elite-header-wide"] = {
   id: "elite-header-wide",
@@ -903,6 +1000,10 @@ FILMS["elite-ad"] = {
   shots: SHOTS_ELITE_AD,
   energy: "fast",
   captions: {},
+  // No vignette or bottom scrim: they exist to keep captions legible, this
+  // cut has none yet, and they were taking back a third of the brightness
+  // the grade put in (median luma 132 graded, 98 on screen).
+  plain: true,
   // Light card: the logo is black and dark grey on light-blue bubbles and
   // disappears on navy, and it may not be altered - so the card goes light
   // rather than the logo going white.
@@ -919,5 +1020,5 @@ FILMS["elite-ad"] = {
     ink: ELITE.navy,
     fontFamily: ELITE_FONT,
   },
-  targetFrames: TARGET_FRAMES,
+  targetFrames: 25 * FPS,
 };
