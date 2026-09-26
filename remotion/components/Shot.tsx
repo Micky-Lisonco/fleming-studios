@@ -20,6 +20,40 @@ import type { Card } from "./TextCard";
 import { Overlay } from "./Overlay";
 
 /**
+ * The shot's colour grade as an SVG filter. sRGB interpolation, so the
+ * numbers mean what they say on screen; SVG's default is linearRGB, which
+ * would make a gamma of 0.7 do something quite different.
+ */
+const GradeFilter: React.FC<{ id: string; grade: NonNullable<ShotType["grade"]> }> = ({
+  id,
+  grade,
+}) => {
+  const { gamma, contrast, saturation, warmth } = grade;
+  const intercept = 0.5 - 0.5 * contrast;
+  return (
+    <svg width={0} height={0} style={{ position: "absolute" }} aria-hidden>
+      <filter id={id} colorInterpolationFilters="sRGB">
+        <feComponentTransfer>
+          <feFuncR type="gamma" amplitude={1} exponent={gamma} offset={0} />
+          <feFuncG type="gamma" amplitude={1} exponent={gamma} offset={0} />
+          <feFuncB type="gamma" amplitude={1} exponent={gamma} offset={0} />
+        </feComponentTransfer>
+        <feComponentTransfer>
+          <feFuncR type="linear" slope={contrast} intercept={intercept} />
+          <feFuncG type="linear" slope={contrast} intercept={intercept} />
+          <feFuncB type="linear" slope={contrast} intercept={intercept} />
+        </feComponentTransfer>
+        <feColorMatrix type="saturate" values={String(saturation)} />
+        <feColorMatrix
+          type="matrix"
+          values={`${warmth} 0 0 0 0  0 1 0 0 0  0 0 ${2 - warmth} 0 0  0 0 0 1 0`}
+        />
+      </filter>
+    </svg>
+  );
+};
+
+/**
  * Stands in for a file that has not arrived yet, so the edit always
  * plays end to end and you can judge the pacing before the footage
  * is cut in.
@@ -174,6 +208,7 @@ export const Shot: React.FC<{
         })}% ${(shot.focus ?? "50% 50%").split(" ")[1] ?? "50%"}`
       : shot.focus ?? "50% 50%",
     transform: `translateX(${moveX}%) scale(${scale})`,
+    filter: shot.grade ? `url(#grade-${shot.id})` : undefined,
   };
 
   // A 16:9 frame cropped to 9:16 keeps about a quarter of its width, so
@@ -200,6 +235,7 @@ export const Shot: React.FC<{
     // Transparent instead, so a frame that is not ready shows the
     // previous shot rather than a hole.
     <AbsoluteFill style={{ opacity }}>
+      {shot.grade ? <GradeFilter id={`grade-${shot.id}`} grade={shot.grade} /> : null}
       {/* Its own AbsoluteFill, out of the flow. As a bare sibling it sat
           in the parent's flex column next to the real picture, the two
           split the frame in half, and the sharp shot was pushed into the

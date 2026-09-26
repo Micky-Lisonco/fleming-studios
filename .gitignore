@@ -9,3 +9,8 @@ public/images/*.png
 # Local render stand-ins, never committed.
 public/media-standin/
 public/media-standin-vp9/
+
+# Per-client media (proxies, conformed masters, local stand-ins) - large, never committed.
+public/*/media-proxy/
+public/*/media/
+public/*/media-standin/

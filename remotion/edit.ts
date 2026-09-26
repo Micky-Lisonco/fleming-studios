@@ -287,6 +287,18 @@ export type Shot = {
   speed?: number;
   /** Punch-in on the cut — a fast settle from slightly oversized. On by default. */
   punch?: boolean;
+  /**
+   * Colour grade, applied in the renderer as an SVG filter in sRGB, so
+   * the Studio preview and the delivered file get the same look without
+   * re-cutting proxies or re-conforming masters. In order:
+   *   gamma       per-channel exponent; below 1 lifts shadows and mids
+   *               while leaving highlights where they are - the fix for
+   *               a subject standing dark against a bright window
+   *   contrast    slope around mid-grey
+   *   saturation  SVG saturate(): 1 unchanged, 1.5 half again
+   *   warmth      red up and blue down by the same factor; 1 is neutral
+   */
+  grade?: { gamma: number; contrast: number; saturation: number; warmth: number };
 };
 
 /**
@@ -475,7 +487,11 @@ export type Film = {
   label: string;
   format: "vertical" | "wide";
   shots: Shot[];
-  energy: "high" | "calm";
+  /**
+   * "fast": cuts every second or less, with a 2-frame overlap - enough to
+   * hide a late decode, short enough to read as a hard cut.
+   */
+  energy: "high" | "calm" | "fast";
   /** Keyed by shot id. A shot with no entry runs without type. */
   captions: Record<string, { caption: string; sub?: string }>;
   /**
@@ -698,7 +714,8 @@ export const filmFrames = (film: Film): number =>
  * is still fast enough to feel like cutting rather than fading, but
  * long enough that consecutive shots connect instead of snapping.
  */
-export const crossfadeFor = (film: Film): number => (film.energy === "calm" ? 10 : 6);
+export const crossfadeFor = (film: Film): number =>
+  film.energy === "calm" ? 10 : film.energy === "fast" ? 2 : 6;
 
 /**
  * ── MUSIC ─────────────────────────────────────────────────────
@@ -768,50 +785,101 @@ export const ELITE_FONT = 'Nunito, "Nunito Sans", system-ui, sans-serif';
 const HEADER_FRAMES = 15 * FPS; // 375: long enough not to feel like a GIF, light enough to load
 
 /**
- * The arrival, then the work. Each shot's source moment is named from the
- * contact sheets; clip numbers are the Elite ones (out/elite/lookbook).
+ * Grade. The footage measures a saturation of 4-8 on the Canon (20-40 is
+ * normal) and the interiors are backlit, so Tino stands dark against the
+ * windows: lift shadows and mids with gamma rather than raising brightness
+ * (which would blow the windows out), add contrast, and give the colour
+ * back. Checked on real frames before going in.
  */
-const ROAD   = { file: "26-DJI_20260905112014_0013_D.mp4", startFrom: 200 };  // drone, low along the cobbles
-const VAN    = { file: "11-6E8A6381.mp4",                  startFrom: 10 };   // the van rolls in
-const OUT    = { file: "11-6E8A6381.mp4",                  startFrom: 125 };  // Tino steps out
-const IN     = { file: "01-6E8A6371.mp4",                  startFrom: 80 };   // comes in with his gear
-const WINDOW = { file: "04-6E8A6374.mp4",                  startFrom: 250 };  // cleaning the window, wide
-const GLASS  = { file: "06-6E8A6376.mp4",                  startFrom: 12 };   // outside the big glass, seen from in
+export const ELITE_GRADE = {
+  indoor:  { gamma: 0.70, contrast: 1.12, saturation: 1.75, warmth: 1.03 },
+  outdoor: { gamma: 0.85, contrast: 1.12, saturation: 1.5,  warmth: 1.02 },
+  drone:   { gamma: 0.90, contrast: 1.10, saturation: 1.3,  warmth: 1.0 },
+} as const;
 
+/**
+ * Every in-point sits exactly on a contact-sheet frame (frame k of a clip
+ * of length D is taken at k x D / 6.5 seconds), so what each shot opens on
+ * has been seen, not guessed. Shots are 0.7-1.1s: Michael wants it fast.
+ * Clip numbers are the Elite ones (out/elite/lookbook).
+ */
+const S = {
+  road:     { file: "26-DJI_20260905112014_0013_D.mp4", startFrom: 182,   speed: 1.5, grade: ELITE_GRADE.drone },   // low along the cobbles
+  cobbles:  { file: "27-DJI_20260905112103_0014_D.mp4", startFrom: 0,     speed: 1.4, grade: ELITE_GRADE.drone },   // cobbled street, road sign
+  street:   { file: "18-6E8A6388.mp4",                  startFrom: 9,                 grade: ELITE_GRADE.outdoor }, // street, cyclists
+  vanAir:   { file: "22-DJI_20260905111306_0009_D.mp4", startFrom: 156,   speed: 1.5, grade: ELITE_GRADE.drone },   // the van drives in, from the air
+  van:      { file: "11-6E8A6381.mp4",                  startFrom: 0,                 grade: ELITE_GRADE.outdoor }, // the van, on the ground
+  out:      { file: "11-6E8A6381.mp4",                  startFrom: 138,               grade: ELITE_GRADE.outdoor }, // Tino steps out
+  atVan:    { file: "11-6E8A6381.mp4",                  startFrom: 413,               grade: ELITE_GRADE.outdoor }, // at the van
+  hotel:    { file: "30-DJI_20260905124317_0025_D.mp4", startFrom: 321,   speed: 1.3, grade: ELITE_GRADE.drone },   // the hotel from the air
+  hero:     { file: "24-DJI_20260905111438_0011_D.mp4", startFrom: 0,     speed: 1.3, grade: ELITE_GRADE.drone },   // Tino at the entrance, top-down
+  walkIn:   { file: "01-6E8A6371.mp4",                  startFrom: 92,                grade: ELITE_GRADE.indoor },  // through the door with his bucket
+  room:     { file: "04-6E8A6374.mp4",                  startFrom: 247,               grade: ELITE_GRADE.indoor },  // in the room
+  window:   { file: "03-6E8A6373.mp4",                  startFrom: 263,               grade: ELITE_GRADE.indoor },  // at the window
+  glass:    { file: "06-6E8A6376.mp4",                  startFrom: 0,                 grade: ELITE_GRADE.indoor },  // outside the big glass
+  reflect:  { file: "02-6E8A6372.mp4",                  startFrom: 9748,              grade: ELITE_GRADE.indoor },  // grinning at the window, 390s in
+  window2:  { file: "05-6E8A6375.mp4",                  startFrom: 263,               grade: ELITE_GRADE.indoor },  // at the window, other room
+  // Someone in a red hoodie stands at the left of this frame - vertical
+  // slice only, where he is out of shot.
+  glass2:   { file: "06-6E8A6376.mp4",                  startFrom: 719,               grade: ELITE_GRADE.indoor },  // behind the glass, other side
+  rise:     { file: "25-DJI_20260905111509_0012_D.mp4", startFrom: 111,   speed: 1.3, grade: ELITE_GRADE.drone },   // drone rising off Tino
+  church:   { file: "29-DJI_20260905112604_0021_D.mp4", startFrom: 617,   speed: 1.3, grade: ELITE_GRADE.drone },   // village church
+  village:  { file: "27-DJI_20260905112103_0014_D.mp4", startFrom: 250,   speed: 1.4, grade: ELITE_GRADE.drone },   // rising over the street
+};
+
+/** Website header: the arrival and the work, fast, looping. */
 export const SHOTS_ELITE_HEADER: Shot[] = inProject("elite", [
-  { id: "h01-road",   ...ROAD,   kind: "video", durationInFrames: 70, accent: ELITE.sky },
-  { id: "h02-van",    ...VAN,    kind: "video", durationInFrames: 70, accent: ELITE.sky },
-  { id: "h03-out",    ...OUT,    kind: "video", durationInFrames: 60, accent: ELITE.sky },
-  { id: "h04-in",     ...IN,     kind: "video", durationInFrames: 60, accent: ELITE.sky },
-  { id: "h05-window", ...WINDOW, kind: "video", durationInFrames: 60, accent: ELITE.sky },
-  { id: "h06-glass",  ...GLASS,  kind: "video", durationInFrames: 55, accent: ELITE.sky },
+  { id: "h01-road",    ...S.road,    kind: "video", durationInFrames: 22 },
+  { id: "h02-cobbles", ...S.cobbles, kind: "video", durationInFrames: 20 },
+  { id: "h03-street",  ...S.street,  kind: "video", durationInFrames: 18, move: "push" },
+  { id: "h04-vanair",  ...S.vanAir,  kind: "video", durationInFrames: 40 },
+  { id: "h05-van",     ...S.van,     kind: "video", durationInFrames: 18, move: "push" },
+  { id: "h06-out",     ...S.out,     kind: "video", durationInFrames: 30, move: "pull" },
+  { id: "h07-atvan",   ...S.atVan,   kind: "video", durationInFrames: 18, move: "push" },
+  { id: "h08-hero",    ...S.hero,    kind: "video", durationInFrames: 22 },
+  { id: "h09-walkin",  ...S.walkIn,  kind: "video", durationInFrames: 20, move: "push" },
+  { id: "h10-room",    ...S.room,    kind: "video", durationInFrames: 18, move: "pull" },
+  { id: "h11-window",  ...S.window,  kind: "video", durationInFrames: 18, move: "push" },
+  { id: "h12-glass",   ...S.glass,   kind: "video", durationInFrames: 20, move: "pull" },
+  { id: "h13-window2", ...S.window2, kind: "video", durationInFrames: 20, move: "push" },
+  { id: "h14-reflect", ...S.reflect, kind: "video", durationInFrames: 30, move: "pull" },
+  { id: "h15-hotel",   ...S.hotel,   kind: "video", durationInFrames: 18 },
+  { id: "h16-rise",    ...S.rise,    kind: "video", durationInFrames: 22 },
+  { id: "h17-village", ...S.village, kind: "video", durationInFrames: 21 },
 ]);
 
 /**
- * The advert: the same arrival and work, re-framed for 9:16 (focus = where
- * Tino is in the 16:9 frame), plus the job site - the hotel, Tino at its
- * entrance, and a glimpse of the oxygen chamber. The chamber shot comes
- * from the Normocare project's footage, so it carries no project.
+ * Advert: the same story re-framed for 9:16 (focus = where the subject is
+ * in the 16:9 frame), plus the job site in flashes - the hotel, the church,
+ * the oxygen chamber - which is where he works, not what the ad is about.
+ * Tino's voice goes over it later.
  */
 export const SHOTS_ELITE_AD: Shot[] = [
   ...inProject("elite", [
-    { id: "v01-road",   ...ROAD,   kind: "video", durationInFrames: 50, accent: ELITE.blue },
-    { id: "v02-van",    ...VAN,    kind: "video", durationInFrames: 50, focus: "80% 50%", accent: ELITE.blue },
-    { id: "v03-out",    ...OUT,    kind: "video", durationInFrames: 45, focus: "38% 50%", accent: ELITE.blue },
-    // The job: the hotel from the air, then Tino at its entrance.
-    { id: "v04-hotel",  file: "30-DJI_20260905124317_0025_D.mp4", startFrom: 250, kind: "video", durationInFrames: 35, speed: 1.15, accent: ELITE.blue },
-    { id: "v05-hero",   file: "24-DJI_20260905111438_0011_D.mp4", startFrom: 12,  kind: "video", durationInFrames: 45, focus: "45% 50%", accent: ELITE.blue },
-    { id: "v06-in",     ...IN,     kind: "video", durationInFrames: 45, focus: "78% 50%", accent: ELITE.blue },
-    { id: "v07-window", ...WINDOW, kind: "video", durationInFrames: 50, focus: "72% 50%", accent: ELITE.blue },
-    { id: "v08-glass",  ...GLASS,  kind: "video", durationInFrames: 45, focus: "35% 50%", accent: ELITE.blue },
+    { id: "v01-road",    ...S.road,    kind: "video", durationInFrames: 20, focus: "50% 50%" },
+    { id: "v02-cobbles", ...S.cobbles, kind: "video", durationInFrames: 18, focus: "45% 50%" },
+    // The van follows along the front of the hotel, so the frame does too.
+    { id: "v03-vanair",  ...S.vanAir,  kind: "video", durationInFrames: 42, pan: [6, 20] },
+    { id: "v04-van",     ...S.van,     kind: "video", durationInFrames: 18, focus: "80% 50%", move: "push" },
+    { id: "v05-out",     ...S.out,     kind: "video", durationInFrames: 36, focus: "38% 50%", move: "pull" },
+    { id: "v06-atvan",   ...S.atVan,   kind: "video", durationInFrames: 18, focus: "25% 50%", move: "push" },
+    { id: "v07-hotel",   ...S.hotel,   kind: "video", durationInFrames: 18, focus: "50% 50%" },
+    { id: "v08-hero",    ...S.hero,    kind: "video", durationInFrames: 28, focus: "45% 50%" },
+    { id: "v09-walkin",  ...S.walkIn,  kind: "video", durationInFrames: 20, focus: "78% 50%", move: "push" },
+    { id: "v10-room",    ...S.room,    kind: "video", durationInFrames: 18, focus: "72% 50%", move: "pull" },
+    { id: "v11-window",  ...S.window,  kind: "video", durationInFrames: 18, focus: "68% 50%", move: "push" },
+    { id: "v12-glass",   ...S.glass,   kind: "video", durationInFrames: 20, focus: "40% 50%", move: "pull" },
+    { id: "v13-window2", ...S.window2, kind: "video", durationInFrames: 20, focus: "52% 50%", move: "push" },
   ]),
-  // A glimpse of the oxygen chamber - Normocare footage, so no project.
-  { id: "v09-chamber", file: "24-DJI_20260905124227_0023_D.mp4", startFrom: 60, kind: "video", durationInFrames: 30, focus: "23% 50%", accent: ELITE.blue },
+  // A flash of the oxygen chamber - Normocare footage, so no project.
+  { id: "v14-chamber", file: "24-DJI_20260905124227_0023_D.mp4", startFrom: 60, kind: "video", durationInFrames: 18, focus: "23% 50%", grade: ELITE_GRADE.drone },
   ...inProject("elite", [
-    // The least certain in-point: 520s into a 14-minute clip, taken from a
-    // contact sheet with one frame every two minutes. Checked against a
-    // denser sheet before delivery.
-    { id: "v10-close",  file: "02-6E8A6372.mp4", startFrom: 13000, kind: "video", durationInFrames: 55, focus: "95% 50%", accent: ELITE.blue },
+    { id: "v15-reflect", ...S.reflect, kind: "video", durationInFrames: 36, focus: "91% 50%", move: "pull" },
+    { id: "v17-glass2",  ...S.glass2,  kind: "video", durationInFrames: 18, focus: "70% 50%", move: "pull" },
+    { id: "v18-church",  ...S.church,  kind: "video", durationInFrames: 18, focus: "55% 50%" },
+    { id: "v19-rise",    ...S.rise,    kind: "video", durationInFrames: 22, focus: "50% 50%" },
+    { id: "v20-street",  ...S.street,  kind: "video", durationInFrames: 18, focus: "30% 50%", move: "push" },
+    { id: "v21-village", ...S.village, kind: "video", durationInFrames: 31, focus: "50% 50%" },
   ]),
 ];
 
@@ -820,11 +888,11 @@ FILMS["elite-header-wide"] = {
   label: "Elite Cleaning - website header (16:9)",
   format: "wide",
   shots: SHOTS_ELITE_HEADER,
-  energy: "calm",
+  energy: "fast",
   captions: {},
   endCard: null,
   plain: true,
-  loopFade: 12,
+  loopFade: 8,
   targetFrames: HEADER_FRAMES,
 };
 
@@ -833,13 +901,13 @@ FILMS["elite-ad"] = {
   label: "Elite Cleaning - advert (9:16)",
   format: "vertical",
   shots: SHOTS_ELITE_AD,
-  energy: "calm",
+  energy: "fast",
   captions: {},
   // Light card: the logo is black and dark grey on light-blue bubbles and
   // disappears on navy, and it may not be altered - so the card goes light
   // rather than the logo going white.
   endCard: {
-    durationInFrames: 50,
+    durationInFrames: 45,
     wordmark: "ELITE CLEANING",
     line: "Specialist in reiniging",
     venue: "Geraardsbergen en omstreken",
