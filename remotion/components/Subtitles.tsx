@@ -10,10 +10,11 @@ import type { Subtitle } from "../edit";
  * smaller than a poster caption, on their own scrim, so a line of speech
  * never gets mistaken for the headline.
  */
-export const Subtitles: React.FC<{ lines: Subtitle[]; accent: string }> = ({
-  lines,
-  accent,
-}) => {
+export const Subtitles: React.FC<{
+  lines: Subtitle[];
+  accent: string;
+  fontFamily?: string;
+}> = ({ lines, accent, fontFamily }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
   const layout = layoutFor(width, height);
@@ -42,12 +43,14 @@ export const Subtitles: React.FC<{ lines: Subtitle[]; accent: string }> = ({
         bottom: layout.captionBottom,
         opacity,
         textAlign: "center",
+        // Two even rows rather than a full row and one stranded word.
+        textWrap: "balance",
       }}
     >
       <span
         style={{
           display: "inline",
-          fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
+          fontFamily: fontFamily ?? "system-ui, -apple-system, Helvetica, sans-serif",
           fontSize: Math.round(layout.subSize * 1.1),
           fontWeight: 700,
           lineHeight: 1.35,

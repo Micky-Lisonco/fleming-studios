@@ -189,10 +189,42 @@ export const BRAND = {
 } as const;
 
 /**
- * One line of speech, in frames relative to the START OF THE SHOT (not the
- * timeline). Lift the numbers straight from the .srt: seconds x 30.
+ * One line of speech. On a shot, frames are relative to the START OF THE
+ * SHOT; on a film (Film.subtitles), they are timeline frames.
  */
 export type Subtitle = { from: number; to: number; text: string };
+
+/**
+ * A piece of interview sound laid on the timeline on its own, independent
+ * of the picture. This is what lets a sentence carry on over a cutaway:
+ * the voice runs from the master's own audio while the picture cuts to
+ * the van, or to Tino at the glass, and back.
+ *
+ * Over a shot of the same clip, keep the two in sync by hand: the voice
+ * starts at timeline frame `from` with source frame `startFrom`, so the
+ * shot under it should open on startFrom - (from - shot start).
+ */
+export type VoiceClip = {
+  /** Unique across films: the conformed file is <id>.m4a. */
+  id: string;
+  /** Same filename as a shot: the proxy, which carries the audio too. */
+  file: string;
+  project?: string;
+  /** Timeline frame the voice starts on. */
+  from: number;
+  /** Frames into the source, at 25 fps (seconds x 25). */
+  startFrom: number;
+  durationInFrames: number;
+  /**
+   * Integrated loudness of this stretch of the source, measured from
+   * out/<project>/audio. Levels the Studio preview and the draft render;
+   * conform measures the master itself for the delivery.
+   */
+  lufs: number;
+};
+
+/** Loudness the voice is delivered at: what Meta and TikTok play at. */
+export const VOICE_LUFS = -14;
 
 export type Shot = {
   /** Short name, shown on the Studio timeline. */
@@ -561,6 +593,15 @@ export type Film = {
    * as a glitch; fading both ends makes the join invisible.
    */
   loopFade?: number;
+  /**
+   * Sound on its own track, independent of the cuts. The shots under it
+   * stay muted, so a sentence can run across a cutaway.
+   */
+  voice?: VoiceClip[];
+  /** Burned-in subtitles in timeline frames, for the voice track. */
+  subtitles?: Subtitle[];
+  /** Font for those subtitles. Unset: system sans. */
+  subtitleFont?: string;
 };
 
 const CTA = "flanderscobblestoneparadise.be";
@@ -747,7 +788,7 @@ export const MUSIC: {
   duckedVolume: 0.16,
 };
 
-/** Frame ranges where a shot's own audio plays, so music can duck. */
+/** Frame ranges where speech plays, so music can duck. */
 export const speechRanges = (film: Film): Array<[number, number]> => {
   const ranges: Array<[number, number]> = [];
   let cursor = 0;
@@ -755,6 +796,7 @@ export const speechRanges = (film: Film): Array<[number, number]> => {
     if (shot.audible) ranges.push([cursor, cursor + shot.durationInFrames]);
     cursor += shot.durationInFrames;
   }
+  for (const v of film.voice ?? []) ranges.push([v.from, v.from + v.durationInFrames]);
   return ranges;
 };
 
@@ -768,16 +810,17 @@ export const speechRanges = (film: Film): Array<[number, number]> => {
  * "honderden klanten", never a number. Real footage of Tino at work is
  * the brand's strongest asset, so generated images are the exception.
  *
- * Two films:
+ * Three films:
  *   elite-header-wide  the website header behind elitecleaning.be, 16:9.
  *                      No text, no sound (the site sets its own headline,
  *                      and browsers only autoplay muted video), and it
  *                      loops, so both ends fade. Elite only: no hotel, no
  *                      chamber, no Cobblestone banners.
- *   elite-ad           the advert, 9:16. Tino's voice goes over it later,
- *                      so it is cut with room for that. The hotel and the
- *                      oxygen chamber may appear, briefly - it is where he
- *                      works, not what the ad is about.
+ *   elite-header-vertical  the same header for phones, 9:16.
+ *   elite-ad           the advert, 9:16, with Tino's own voice from the
+ *                      shoot and burned-in subtitles. The hotel may appear,
+ *                      briefly - it is where he works, not what the ad is
+ *                      about.
  *
  * Shot choices come from the contact sheets (out/elite/lookbook). Canon
  * clips are 50p and the drone 25p; startFrom is in timeline frames at 25
@@ -957,22 +1000,18 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.0237, 0.0475, 0.071, 0.0937, 0.115, 0.1349, 0.1541, 0.1731, 0.1923, 0.2123, 0.2336, 0.2566, 0.282, 0.3101, 0.3439, 0.3836, 0.4272, 0.4727, 0.5184, 0.5673, 0.6186, 0.6692, 0.7166, 0.7632, 0.8073, 0.8449, 0.8758, 0.903, 0.9278, 0.9515, 0.9751, 1] },
   "m24-village": { gamma: 1, contrast: 1, saturation: 1.26, warmth: 1.02,
     curve: [0, 0.0246, 0.0504, 0.0891, 0.1533, 0.1991, 0.2365, 0.2698, 0.2999, 0.3279, 0.3548, 0.3817, 0.4096, 0.4379, 0.4649, 0.491, 0.5166, 0.5418, 0.5671, 0.5926, 0.6188, 0.6458, 0.674, 0.7038, 0.736, 0.7713, 0.8079, 0.8439, 0.8775, 0.909, 0.9395, 0.9696, 1] },
-  "s01-arrive": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+  "a01-glass": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.1087, 0.2116, 0.2818, 0.3288, 0.3637, 0.3947, 0.4223, 0.4469, 0.4689, 0.4888, 0.5071, 0.524, 0.54, 0.5557, 0.5713, 0.5874, 0.6043, 0.6225, 0.6424, 0.6644, 0.6881, 0.7122, 0.7368, 0.7621, 0.788, 0.8148, 0.8424, 0.8709, 0.9012, 0.9337, 0.967, 1] },
+  "a02-arrive": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
     curve: [0, 0.0244, 0.05, 0.0887, 0.1538, 0.228, 0.3067, 0.3627, 0.4094, 0.4506, 0.4873, 0.5207, 0.5519, 0.5813, 0.6086, 0.6342, 0.6583, 0.6814, 0.7037, 0.7255, 0.7471, 0.7689, 0.7911, 0.813, 0.8345, 0.8556, 0.8765, 0.8971, 0.9176, 0.9381, 0.9586, 0.9792, 1] },
-  "s02-out": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+  "a03-out": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.0285, 0.0597, 0.105, 0.1572, 0.196, 0.2294, 0.2596, 0.2875, 0.3137, 0.3389, 0.364, 0.3896, 0.4165, 0.4451, 0.474, 0.5029, 0.5319, 0.5611, 0.5907, 0.6208, 0.6514, 0.6828, 0.7151, 0.7496, 0.7853, 0.8207, 0.8544, 0.8854, 0.9148, 0.9433, 0.9714, 1] },
-  "s03-ladder": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
-    curve: [0, 0.0307, 0.0658, 0.1163, 0.1679, 0.2111, 0.2521, 0.2908, 0.327, 0.3608, 0.392, 0.4207, 0.4475, 0.4726, 0.4966, 0.5199, 0.5429, 0.566, 0.5896, 0.6142, 0.6402, 0.6681, 0.6984, 0.7334, 0.7713, 0.8088, 0.8427, 0.8721, 0.8992, 0.9248, 0.9496, 0.9745, 1] },
-  "s04-carry": { gamma: 1, contrast: 1, saturation: 1.409, warmth: 1.02,
-    curve: [0, 0.0436, 0.114, 0.1703, 0.2101, 0.243, 0.272, 0.3, 0.3298, 0.3642, 0.4054, 0.4515, 0.4995, 0.5465, 0.59, 0.6333, 0.6749, 0.7109, 0.739, 0.7642, 0.7873, 0.8088, 0.8287, 0.8475, 0.8652, 0.8822, 0.8986, 0.9148, 0.931, 0.9473, 0.9641, 0.9816, 1] },
-  "s05-walkin": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
-    curve: [0, 0.0616, 0.102, 0.1354, 0.1681, 0.2016, 0.2331, 0.2636, 0.2939, 0.3249, 0.3575, 0.3924, 0.428, 0.4621, 0.4993, 0.5445, 0.6023, 0.7118, 0.7528, 0.7858, 0.8141, 0.8383, 0.859, 0.8767, 0.8921, 0.9057, 0.918, 0.9298, 0.9416, 0.9539, 0.9673, 0.9825, 1] },
-  "s06-work": { gamma: 1, contrast: 1, saturation: 1.402, warmth: 1.02,
-    curve: [0, 0.083, 0.1659, 0.2508, 0.3291, 0.3978, 0.4566, 0.4955, 0.5277, 0.5561, 0.5813, 0.6039, 0.6246, 0.6442, 0.6632, 0.6825, 0.7025, 0.7234, 0.7436, 0.7634, 0.7827, 0.8016, 0.8201, 0.8384, 0.8564, 0.8743, 0.8921, 0.9099, 0.9276, 0.9455, 0.9634, 0.9816, 1] },
-  "s07-grin": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+  "a04-check": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0557, 0.0929, 0.1236, 0.1506, 0.177, 0.2048, 0.231, 0.2557, 0.2795, 0.3027, 0.3259, 0.3495, 0.3741, 0.4002, 0.4281, 0.4585, 0.4921, 0.5301, 0.572, 0.6168, 0.6637, 0.7148, 0.7744, 0.8195, 0.8505, 0.877, 0.9001, 0.9206, 0.9399, 0.9588, 0.9785, 1] },
+  "a05-grin": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.0422, 0.0792, 0.113, 0.1449, 0.1758, 0.2064, 0.2359, 0.2644, 0.2923, 0.32, 0.3476, 0.3755, 0.4041, 0.4335, 0.4638, 0.4943, 0.525, 0.5562, 0.5883, 0.6213, 0.6556, 0.6913, 0.7315, 0.7757, 0.8176, 0.8513, 0.8799, 0.9056, 0.9295, 0.9525, 0.9757, 1] },
-  "s08-rise": { gamma: 1, contrast: 1, saturation: 1.103, warmth: 1.02,
-    curve: [0, 0.0236, 0.0469, 0.0737, 0.109, 0.1524, 0.1959, 0.2358, 0.2744, 0.3134, 0.3539, 0.3975, 0.4486, 0.5046, 0.5578, 0.6005, 0.6361, 0.6684, 0.6979, 0.7252, 0.751, 0.7759, 0.7996, 0.822, 0.8434, 0.8639, 0.8837, 0.9031, 0.9221, 0.9412, 0.9604, 0.9799, 1] },
+  "a06-proper": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0519, 0.0892, 0.1208, 0.1493, 0.1768, 0.205, 0.2316, 0.2567, 0.2808, 0.3044, 0.3279, 0.3518, 0.3766, 0.4028, 0.4307, 0.461, 0.494, 0.5304, 0.5697, 0.6118, 0.6563, 0.7039, 0.763, 0.8142, 0.8469, 0.8745, 0.8983, 0.9195, 0.9391, 0.9583, 0.9782, 1] },
 };
 // </elite-grades>
 
@@ -1040,36 +1079,70 @@ export const SHOTS_ELITE_MOBILE: Shot[] = graded(inProject("elite",
 ));
 
 /**
- * Advert: a story in eight beats, 18 seconds, for a voiceover to sit on.
- * Michael's brief after the fast cut: too long, too many shots, Tino not
- * always visible, the frame moving left and right. So: one beat per
- * sentence, 1.8-2.6s each, Tino in the middle of every shot after the van
- * arrives, no pans, and every shot moving the same way (a slow push in),
- * no punch-in on the cut.
+ * Advert: Tino's own voice from the shoot, 16.2s of story and the logo.
+ * Michael's brief: a clear story, Tino in the middle of the frame, no
+ * left-right pans, nothing random, and Tino speaking from the start.
  *
- *   0.0  the van drives in, from the air      Ik ben Tino van Elite Cleaning.
- *   2.5  Tino steps out                       Ramen, zonnepanelen, dak en gevel:
- *   4.9  the ladder comes off the roof        ik maak alles weer proper.
- *   6.9  he walks in with the ladder          Van de ladder tot het laatste
- *   8.9  through the door with his bucket     streepje glas,
- *  10.7  crouched at the window               ik doe het zelf,
- *  12.9  grinning at the glass                en ik doe het grondig.
- *  15.5  the drone rises off him              Honderden klanten gingen je voor.
- *  18.0  logo                                 Vraag vandaag je gratis offerte.
+ *  frame  picture                        sound (the shoot's own audio)
+ *      0  someone walks into the glass   "Oh, pas op, de raam is toe!"
+ *         Tino has just cleaned          "Oh, ik had dat niet gezien."
+ *    121  the van drives in, from the air  "Dan is een propere ingang
+ *    171  Tino steps out                    een visitekaartje van uw bedrijf."
+ *    222  Tino at the window, on camera  "Ik ben nu de kwaliteit aan het
+ *    276  grinning at the glass           controleren, dat we toch proper
+ *                                         alles achterlaten."
+ *    316  Tino at the window, on camera  "En?" ... "Het is proper!"
+ *    406  logo
+ *
+ * The shots are muted; the voice is its own track (`voice`), so a sentence
+ * runs on across a cutaway. Where the picture is the same clip as the
+ * voice (a01, a04, a06), the in-point is set so lips and words line up.
+ * Lines are cut on the pauses found in the audio, not on the transcript's
+ * whole seconds. Tino's lines keep "u" as he said it: these are his
+ * words, not the brand's copy.
  */
 export const SHOTS_ELITE_AD: Shot[] = graded(inProject("elite", [
-  // The van stays inside a fixed slice at 18% for the whole beat, so the
-  // frame does not have to chase it.
-  { id: "s01-arrive", ...S.vanAir,    speed: 1.2, kind: "video", durationInFrames: 62, focus: "18% 50%", move: "push", punch: false },
-  { id: "s02-out",    ...S.out,                   kind: "video", durationInFrames: 60, focus: "38% 50%", move: "push", punch: false },
-  { id: "s03-ladder", ...S.ladderOff,             kind: "video", durationInFrames: 50, focus: "4% 50%",  move: "push", punch: false },
-  { id: "s04-carry",  ...S.carry,                 kind: "video", durationInFrames: 50, focus: "55% 50%", move: "push", punch: false },
-  { id: "s05-walkin", ...S.walkIn,                kind: "video", durationInFrames: 45, focus: "78% 50%", move: "push", punch: false },
-  { id: "s06-work",   ...S.crouch,                kind: "video", durationInFrames: 55, focus: "80% 50%", move: "push", punch: false },
-  { id: "s07-grin",   ...S.reflect,               kind: "video", durationInFrames: 66, focus: "91% 50%", move: "push", punch: false },
-  { id: "s08-rise",   ...S.hero,      speed: 1.2, kind: "video", durationInFrames: 62, focus: "45% 50%", move: "push", punch: false },
+  // Take 3 of the glass gag. At 28.8s, just before the bump, the person
+  // walking in is at 22-39% of the frame and Tino, outside, at 48-58%: a
+  // slice at 38% holds most of both. No push: zooming in would take the
+  // two of them off the edges.
+  { id: "a01-glass",  file: "06-6E8A6376.mp4", startFrom: 649, grade: ELITE_GRADE.indoor,
+    kind: "video", durationInFrames: 121, focus: "38% 50%", punch: false },
+  // The van stays inside a fixed slice at 18% for the whole beat.
+  { id: "a02-arrive", ...S.vanAir, speed: 1.2, kind: "video", durationInFrames: 50, focus: "18% 50%", move: "push", punch: false },
+  { id: "a03-out",    ...S.out,                kind: "video", durationInFrames: 51, focus: "38% 50%", move: "push", punch: false },
+  // Tino stands at 55% of clip 03 from 14s to the end.
+  { id: "a04-check",  file: "03-6E8A6373.mp4", startFrom: 374, grade: ELITE_GRADE.indoor,
+    kind: "video", durationInFrames: 54, focus: "57% 50%", move: "push", punch: false },
+  { id: "a05-grin",   ...S.reflect,            kind: "video", durationInFrames: 40, focus: "91% 50%", move: "push", punch: false },
+  { id: "a06-proper", file: "03-6E8A6373.mp4", startFrom: 480, grade: ELITE_GRADE.indoor,
+    kind: "video", durationInFrames: 90, focus: "57% 50%", move: "push", punch: false },
 ]));
 
+/** Tino's sound for the advert. Ranges come from the silences in out/elite/audio. */
+const VOICE_ELITE_AD: VoiceClip[] = [
+  // 25.96-30.80s: the warning, the bump on the glass, the reply. Stops
+  // before a half-heard "ja, dat klopt wel" at 30.9s.
+  { id: "a-voice1-glass",   file: "06-6E8A6376.mp4", project: "elite", from: 0,   startFrom: 649, durationInFrames: 121, lufs: -17.57 },
+  // 60.00-63.96s: the last, cleanest take, looking into the lens.
+  { id: "a-voice2-ingang",  file: "10-6E8A6380.mp4", project: "elite", from: 121, startFrom: 1500, durationInFrames: 99, lufs: -21.23 },
+  // 15.08-18.80s, in sync with a04 (374 + 3 frames).
+  { id: "a-voice3-check",   file: "03-6E8A6373.mp4", project: "elite", from: 225, startFrom: 377, durationInFrames: 93, lufs: -24.2 },
+  // 19.28-22.80s, in sync with a06 (480 + 2 frames): the question, the
+  // pause he leaves, the answer.
+  { id: "a-voice4-proper",  file: "03-6E8A6373.mp4", project: "elite", from: 318, startFrom: 482, durationInFrames: 88, lufs: -14.54 },
+];
+
+const SUBTITLES_ELITE_AD: Subtitle[] = [
+  { from: 5,   to: 84,  text: "Oh, pas op, de raam is toe!" },
+  { from: 84,  to: 121, text: "Oh, ik had dat niet gezien." },
+  { from: 122, to: 162, text: "Dan is een propere ingang" },
+  { from: 162, to: 221, text: "een visitekaartje van uw bedrijf." },
+  { from: 225, to: 284, text: "Ik ben nu de kwaliteit aan het controleren," },
+  { from: 284, to: 318, text: "dat we toch proper alles achterlaten." },
+  { from: 318, to: 352, text: "En?" },
+  { from: 362, to: 406, text: "Het is proper!" },
+];
 
 FILMS["elite-header-wide"] = {
   id: "elite-header-wide",
@@ -1105,9 +1178,12 @@ FILMS["elite-ad"] = {
   // 6-frame dissolves: soft enough under a voice, still a cut.
   energy: "high",
   captions: {},
-  // No vignette or bottom scrim: they exist to keep captions legible, this
-  // cut has none yet, and they were taking back a third of the brightness
-  // the grade put in (median luma 132 graded, 98 on screen).
+  voice: VOICE_ELITE_AD,
+  subtitles: SUBTITLES_ELITE_AD,
+  subtitleFont: ELITE_FONT,
+  // No vignette or bottom scrim: they were taking back a third of the
+  // brightness the grade put in (median luma 132 graded, 98 on screen).
+  // The subtitles carry their own backing, line by line.
   plain: true,
   // Light card: the logo is black and dark grey on light-blue bubbles and
   // disappears on navy, and it may not be altered - so the card goes light
@@ -1125,6 +1201,6 @@ FILMS["elite-ad"] = {
     ink: ELITE.navy,
     fontFamily: ELITE_FONT,
   },
-  // 18s of story + 1.8s of logo.
+  // At most 18s of story + 1.8s of logo.
   targetFrames: 18 * FPS + 45,
 };

@@ -8,6 +8,7 @@ import {
 } from "remotion";
 import {
   BRAND,
+  CONFORMED,
   DEFAULT_FILM,
   FILMS,
   MUSIC,
@@ -20,9 +21,17 @@ import { EndCard } from "./components/EndCard";
 import { TextCard } from "./components/TextCard";
 import { ProgressBar } from "./components/ProgressBar";
 import { Shot } from "./components/Shot";
+import { Subtitles } from "./components/Subtitles";
 
 /** Frames of lead-in and tail on the music duck, so it breathes. */
 const DUCK_FADE = 6;
+
+/**
+ * Loudness the voice plays at in the Studio. Lower than the delivered
+ * -14 on purpose: the preview has no limiter, and the loudest lines peak
+ * near full scale in the source.
+ */
+const PREVIEW_LUFS = -19;
 
 /**
  * How far ahead of its own start each shot is mounted. Half a second is
@@ -136,6 +145,43 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
           }}
         />
       ) : null}
+
+      {/* Burned in: most of Meta and TikTok plays muted. Timed to the
+          voice track, over the footage and the end card. */}
+      {film.subtitles?.length ? (
+        <Subtitles
+          lines={film.subtitles}
+          accent={film.endCard?.accent ?? BRAND.oxygen}
+          fontFamily={film.subtitleFont}
+        />
+      ) : null}
+
+      {/* The voice track. A conformed clip is already cut to its range and
+          levelled; a proxy is the whole source, so seek into it and level
+          it here. Only heard in the Studio: the safe render is muted and
+          mixes the same ranges itself, with ffmpeg. */}
+      {(film.voice ?? []).map((v) => (
+        <Sequence
+          key={v.id}
+          from={v.from}
+          durationInFrames={v.durationInFrames}
+          name={`Voice: ${v.id}`}
+        >
+          <Audio
+            src={staticFile(resolveMedia(CONFORMED ? `${v.id}.m4a` : v.file, v.project))}
+            startFrom={CONFORMED ? 0 : v.startFrom}
+            volume={(f) =>
+              interpolate(f, [0, 1, v.durationInFrames - 2, v.durationInFrames], [0, 1, 1, 0], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }) * (CONFORMED ? 1 : 10 ** ((PREVIEW_LUFS - v.lufs) / 20))
+            }
+            // A quiet line needs a gain above 1, which a plain <audio>
+            // element cannot play.
+            useWebAudioApi
+          />
+        </Sequence>
+      ))}
 
       {MUSIC.file ? (
         <Audio

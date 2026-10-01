@@ -121,6 +121,25 @@ function Get-GradeFor {
     return ''
 }
 
+function Get-Loudness {
+    <#
+      Integrated loudness (LUFS) of one stretch of a file, or $null. A
+      voice clip is a few seconds of one person, and the same clip can hold
+      a line said quietly at a distance and one shouted next to the camera,
+      so it is measured on its own rather than taking the whole file's
+      figure.
+    #>
+    param([string] $File, [string] $Start, [string] $Duration)
+    $log = Invoke-Native $ffmpeg @(
+        '-nostdin','-hide_banner','-ss',$Start,'-i',$File,'-t',$Duration,
+        '-vn','-af','loudnorm=print_format=json','-f','null','-'
+    )
+    if ($log -match '"input_i"\s*:\s*"(-?[0-9]+(\.[0-9]+)?)"') {
+        return [double]::Parse($Matches[1], [System.Globalization.CultureInfo]::InvariantCulture)
+    }
+    return $null
+}
+
 function ConvertTo-FilterPath {
     param([string] $Path)
     $p = $Path -replace '\\', '/'
@@ -217,9 +236,12 @@ if (Test-Path -LiteralPath $analysisPath) {
     Write-Host "Loudness: no analysis found - levels left alone, peaks still limited" -ForegroundColor Yellow
 }
 
-$total = ($cut.shots | Measure-Object -Property durationSec -Sum).Sum
+$pictures = @($cut.shots | Where-Object { -not $_.audioOnly })
+$voices = $cut.shots.Count - $pictures.Count
+$total = ($pictures | Measure-Object -Property durationSec -Sum).Sum
 Write-Host ""
-Write-Host "Conforming $($cut.shots.Count) shots - $([math]::Round($total,1))s of footage"
+Write-Host "Conforming $($pictures.Count) shots - $([math]::Round($total,1))s of footage"
+if ($voices -gt 0) { Write-Host "and $voices voice clips (sound only, levelled to $TargetLufs LUFS)" }
 Write-Host ""
 
 $n = 0
@@ -249,7 +271,9 @@ foreach ($shot in $cut.shots) {
         continue
     }
 
-    $dest = Join-Path $mediaDir "$($shot.id).mp4"
+    # A voice clip is sound only: the film lays it on its own track, under
+    # whatever picture the cut puts there.
+    $dest = Join-Path $mediaDir ("$($shot.id)" + $(if ($shot.audioOnly) { '.m4a' } else { '.mp4' }))
     Write-Host ("[{0}/{1}] {2}  <- {3} @ {4}s for {5}s" -f $n, $cut.shots.Count, $shot.id, $shot.file, $shot.startSec, $shot.durationSec)
 
     # A little tail beyond the shot length absorbs rounding between the
@@ -261,50 +285,71 @@ foreach ($shot in $cut.shots) {
     # files do not have it, so fall back to the timeline length.
     $need = if ($shot.sourceSec) { [double]$shot.sourceSec } else { [double]$shot.durationSec }
     $grab = [math]::Round($need + 0.5, 3)
+    # footage.json names the master; older analyses named the proxy.
+    $lufsKey = $null
+    foreach ($k in @($shot.file, (Split-Path -Leaf $master))) {
+        if ($measured.ContainsKey($k)) { $lufsKey = $k; break }
+    }
 
     # The grade must match what the proxies got, per camera. A shot graded
     # differently here than in the cut that was approved is the whole point
     # of conforming, undone.
     $grade = Get-GradeFor -FileName $shot.file -Map $LutMap -SingleLut $Lut -Approximate:$LogFootage
 
-    $args = @(
-        '-nostdin','-y','-loglevel','error',
-        '-ss',"$($shot.startSec)",
-        '-i',$master,
-        '-t',"$grab"
-    )
-    if ($grade) { $args += @('-vf',$grade) }
-    $args += @(
-        # -g 12: a keyframe every half second. The safe render has Chrome
-        # seek to every frame, and a seek decodes from the last keyframe -
-        # with the default 250-frame gap that is up to ten seconds of 4K
-        # decoded per rendered frame.
-        '-c:v','libx264','-preset','slow','-crf',"$Crf",'-g','12',
-        '-pix_fmt','yuv420p','-movflags','+faststart'
-    )
-    # Silent shots lose their audio track here rather than at render time.
-    if ($shot.audible) {
-        $args += @('-c:a','aac','-b:a','192k')
-        if (-not $NoAudioFix) {
-            # A fixed gain from the measured loudness, then a limiter to
-            # catch the peaks. Order matters: gain first, limit second, so
-            # the limiter only touches what actually exceeds the ceiling.
-            $chain = @()
-            if ($measured.ContainsKey($shot.file)) {
-                $gain = [math]::Round($TargetLufs - $measured[$shot.file], 2)
-                if ([math]::Abs($gain) -gt 0.1) { $chain += "volume=${gain}dB" }
+    $keyExtra = ''
+    if ($shot.audioOnly) {
+        # Exactly the range: render-safe places it by its start, and a tail
+        # would carry the next words in.
+        $args = @(
+            '-nostdin','-y','-loglevel','error',
+            '-ss',"$($shot.startSec)",
+            '-i',$master,
+            '-t',"$need",
+            '-vn','-c:a','aac','-b:a','192k'
+        )
+        # Levelled from a measurement taken just before encoding, so the key
+        # records the level it is brought to rather than the gain.
+        if (-not $NoAudioFix) { $keyExtra = " level=$TargetLufs ceiling=$PeakCeilingDb" }
+    } else {
+        $args = @(
+            '-nostdin','-y','-loglevel','error',
+            '-ss',"$($shot.startSec)",
+            '-i',$master,
+            '-t',"$grab"
+        )
+        if ($grade) { $args += @('-vf',$grade) }
+        $args += @(
+            # -g 12: a keyframe every half second. The safe render has Chrome
+            # seek to every frame, and a seek decodes from the last keyframe -
+            # with the default 250-frame gap that is up to ten seconds of 4K
+            # decoded per rendered frame.
+            '-c:v','libx264','-preset','slow','-crf',"$Crf",'-g','12',
+            '-pix_fmt','yuv420p','-movflags','+faststart'
+        )
+        # Silent shots lose their audio track here rather than at render time.
+        if ($shot.audible) {
+            $args += @('-c:a','aac','-b:a','192k')
+            if (-not $NoAudioFix) {
+                # A fixed gain from the measured loudness, then a limiter to
+                # catch the peaks. Order matters: gain first, limit second, so
+                # the limiter only touches what actually exceeds the ceiling.
+                $chain = @()
+                if ($lufsKey) {
+                    $gain = [math]::Round($TargetLufs - $measured[$lufsKey], 2)
+                    if ([math]::Abs($gain) -gt 0.1) { $chain += "volume=${gain}dB" }
+                }
+                $ceiling = [math]::Round([math]::Pow(10, $PeakCeilingDb / 20.0), 4)
+                $chain += "alimiter=limit=${ceiling}:attack=5:release=50:level=false"
+                $args += @('-af', ($chain -join ','))
             }
-            $ceiling = [math]::Round([math]::Pow(10, $PeakCeilingDb / 20.0), 4)
-            $chain += "alimiter=limit=${ceiling}:attack=5:release=50:level=false"
-            $args += @('-af', ($chain -join ','))
-        }
-    } else { $args += @('-an') }
+        } else { $args += @('-an') }
+    }
 
     # Same master, same range, same grade and settings as last time: the
     # file on disk is already right, so keep it. Re-encoding 4K for
     # nothing is the slowest part of every edit change - a new caption
     # would otherwise mean conforming all forty shots again.
-    $key = (@($master) + $args) -join ' '
+    $key = ((@($master) + $args) -join ' ') + $keyExtra
     $keyFile = "$dest.key"
     if (-not $Force -and (Test-Path -LiteralPath $dest) -and
         (Get-Item -LiteralPath $dest).Length -gt 0 -and
@@ -317,6 +362,20 @@ foreach ($shot in $cut.shots) {
     # Drop the old key first, so an encode that dies half way can never
     # leave a broken file next to a key that says it is fine.
     Remove-Item -LiteralPath $keyFile -ErrorAction SilentlyContinue
+
+    if ($shot.audioOnly -and -not $NoAudioFix) {
+        $ceiling = [math]::Round([math]::Pow(10, $PeakCeilingDb / 20.0), 4)
+        $chain = @()
+        $level = Get-Loudness -File $master -Start "$($shot.startSec)" -Duration "$need"
+        if ($null -eq $level -and $lufsKey) { $level = $measured[$lufsKey] }
+        if ($null -ne $level) {
+            $gain = [math]::Round($TargetLufs - $level, 2)
+            Write-Host ("    measured {0} LUFS, gain {1} dB" -f $level, $gain) -ForegroundColor DarkGray
+            if ([math]::Abs($gain) -gt 0.1) { $chain += "volume=${gain}dB" }
+        }
+        $chain += "alimiter=limit=${ceiling}:attack=5:release=50:level=false"
+        $args += @('-af', ($chain -join ','))
+    }
 
     $args += $dest
 

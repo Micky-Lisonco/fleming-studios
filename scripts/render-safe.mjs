@@ -5,6 +5,7 @@
  *   npm run video:render:safe -- brand-wide --final      delivery, from 4K
  *   npm run video:render:safe -- brand-wide --final --4k 3840x2160 output
  *   npm run video:render:safe -- elite-header-wide --final --web
+ *   npm run video:render:safe -- elite-ad --final        with its voice track
  *
  * --web is for website header backgrounds: a light file that starts
  * playing fast (1920x1080 wide, 720x1280 vertical - phones do not need
@@ -31,11 +32,16 @@
  *   3. The system ffmpeg - the one the analysis scripts already use -
  *      turns the frames into an MP4.
  *
- * Silent output: the films have no music yet and every shot is muted.
+ * Sound: Remotion renders muted (its audio path is the same crashing
+ * binary), so a film with a voice track gets it mixed in by ffmpeg here,
+ * from the same ranges edit.ts lays out - the conformed, levelled .m4a
+ * clips with --final, the proxies' own audio otherwise. Films without a
+ * voice track come out silent.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { FILMS, FPS, VOICE_LUFS } from "../remotion/edit.ts";
 
 const argv = process.argv.slice(2);
 const id = argv.find((a) => !a.startsWith("--")) ?? "brand-wide";
@@ -46,6 +52,15 @@ if (web && argv.includes("--4k")) {
   process.stdout.write("--web ignores --4k: a header background has to load fast.\n");
 }
 const frames = join("out", "frames", id);
+// Same folder the picture comes from: the conformed clips with --final,
+// otherwise whatever REMOTION_MEDIA_DIR points at, the proxies by default.
+const mediaDir = final ? "media" : process.env.REMOTION_MEDIA_DIR || "media-proxy";
+const voice = FILMS[id]?.voice ?? [];
+const conformedVoice = mediaDir === "media";
+// A conformed clip is cut and levelled already; otherwise it is the whole
+// source, sought into and levelled at mix time.
+const voiceSource = (v) =>
+  join("public", ...(v.project ? [v.project] : []), mediaDir, conformedVoice ? `${v.id}.m4a` : v.file);
 const output = join("out", `${id}${final ? "" : "-draft"}${uhd ? "-4k" : ""}${web ? "-web" : ""}.mp4`);
 const win = process.platform === "win32";
 
@@ -95,7 +110,8 @@ if (final) {
     .flatMap((p) => JSON.parse(readFileSync(p, "utf8")).shots)
     .filter((s) => s.film === id || s.film === film);
   const needed = shots.map((s) => s.id);
-  const where = (s) => join("public", ...(s.project ? [s.project] : []), "media", `${s.id}.mp4`);
+  const where = (s) =>
+    join("public", ...(s.project ? [s.project] : []), "media", `${s.id}.${s.audioOnly ? "m4a" : "mp4"}`);
   const missing = shots.filter((s) => !existsSync(where(s))).map((s) => where(s));
   if (needed.length === 0) {
     process.stderr.write(`out/cut.json has no shots for ${id}. Run: npm run cut:export\n`);
@@ -109,6 +125,13 @@ if (final) {
     process.exit(1);
   }
   process.stdout.write(`All ${needed.length} conformed clips found.\n`);
+}
+
+// Checked before rendering, not after twenty minutes of frames.
+const noVoice = voice.map(voiceSource).filter((p) => !existsSync(p));
+if (noVoice.length) {
+  process.stderr.write(`Voice clips not found:\n  ${noVoice.join("\n  ")}\n`);
+  process.exit(1);
 }
 
 rmSync(frames, { recursive: true, force: true });
@@ -153,10 +176,55 @@ const jpegSize = (path) => {
 };
 const size = jpegSize(join(frames, first));
 const vertical = size.h > size.w;
+const count = readdirSync(frames).filter((f) => f.startsWith("frame-")).length;
+
+// The voice track, one ffmpeg input per clip, each placed at its frame on
+// the timeline. A source that is not conformed is levelled here to the
+// same loudness conform delivers.
+const ceiling = 10 ** (-1.4 / 20);
+const audioInputs = [];
+const audioChains = [];
+voice.forEach((v, i) => {
+  const dur = v.durationInFrames / FPS;
+  audioInputs.push(
+    ...(conformedVoice ? [] : ["-ss", (v.startFrom / FPS).toFixed(3), "-t", dur.toFixed(3)]),
+    "-i", voiceSource(v),
+  );
+  const level = conformedVoice
+    ? []
+    : [`volume=${(VOICE_LUFS - v.lufs).toFixed(2)}dB`, `alimiter=limit=${ceiling.toFixed(4)}:level=false`];
+  audioChains.push(
+    `[${i + 1}:a]` +
+      [
+        "aformat=sample_rates=48000:channel_layouts=stereo",
+        ...level,
+        `atrim=0:${dur.toFixed(3)}`,
+        "asetpts=PTS-STARTPTS",
+        // A few milliseconds each end, so a cut mid-breath does not click.
+        "afade=t=in:d=0.02",
+        `afade=t=out:st=${Math.max(0, dur - 0.08).toFixed(3)}:d=0.08`,
+        `adelay=delays=${Math.round((v.from / FPS) * 1000)}:all=1`,
+      ].join(",") +
+      `[v${i}]`,
+  );
+});
+const audio = voice.length
+  ? [
+      "-filter_complex",
+      audioChains.join(";") + ";" +
+        voice.map((_, i) => `[v${i}]`).join("") +
+        `amix=inputs=${voice.length}:normalize=0:dropout_transition=0,` +
+        `apad=whole_dur=${(count / FPS).toFixed(3)}[voice]`,
+      "-map", "0:v", "-map", "[voice]",
+      "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+    ]
+  : [];
+if (voice.length) process.stdout.write(`\nVoice track: ${voice.length} clips from ${mediaDir}.\n`);
 
 run("ffmpeg", [
   "-y", "-loglevel", "error", "-framerate", "25",
   "-i", join(frames, `frame-%0${digits}d.${ext}`),
+  ...audioInputs,
   // Chrome's JPEG frames are full-range BT.601. Left as they are, the
   // MP4 comes out flagged full-range (yuvj420p), and players and ad
   // platforms that assume normal range show it washed out or crushed.
@@ -182,6 +250,7 @@ run("ffmpeg", [
   ...(web ? ["-profile:v", "high"] : []),
   "-crf", web ? "26" : final ? "16" : "18", "-preset", final || web ? "slow" : "medium",
   "-movflags", "+faststart",
+  ...audio,
   output,
 ]);
 

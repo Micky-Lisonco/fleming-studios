@@ -1,5 +1,6 @@
 /**
- * Writes out/cut.json: every piece of master footage the films use, one
+ * Writes out/cut.json: every piece of master footage the films use (the
+ * shots, and the voice clips a film lays on its own sound track), one
  * file per client project - out/cut.json for Normocare (no project) and
  * out/<project>/cut.json for the rest, which is where conform.ps1
  * -Project <name> looks.
@@ -66,6 +67,36 @@ for (const film of films) {
   }
 }
 
+// The voice track: sound only, cut from the master's own audio and levelled
+// by conform into <id>.m4a. atSec is where it sits on the timeline, which
+// render-safe needs to lay it back under the picture.
+for (const film of films) {
+  for (const v of film.voice ?? []) {
+    const key = JSON.stringify(["voice", v.file, v.startFrom, v.durationInFrames]);
+    const key2 = `${v.project ?? ""}/${v.id}`;
+    if (byId.has(key2)) {
+      if (byId.get(key2) !== key) {
+        throw new Error(`Voice id "${v.id}" is used for two different pieces of sound. Rename one.`);
+      }
+      continue;
+    }
+    byId.set(key2, key);
+    shots.push({
+      id: v.id,
+      project: v.project ?? null,
+      film: film.id,
+      file: v.file,
+      audioOnly: true,
+      atSec: +(v.from / FPS).toFixed(3),
+      startSec: +(v.startFrom / FPS).toFixed(3),
+      durationSec: +(v.durationInFrames / FPS).toFixed(3),
+      sourceSec: +(v.durationInFrames / FPS).toFixed(3),
+      durationInFrames: v.durationInFrames,
+      audible: true,
+    });
+  }
+}
+
 const missing = Object.values(FILMS).flatMap((f) =>
   f.shots.filter((s) => !s.file).map((s) => `${f.id}/${s.id}`)
 );
@@ -77,8 +108,13 @@ for (const project of projects) {
   const mine = shots.filter((s) => s.project === project);
   mkdirSync(dir, { recursive: true });
   writeFileSync(`${dir}/cut.json`, JSON.stringify({ fps: FPS, project, shots: mine }, null, 2));
-  const seconds = mine.reduce((n, s) => n + s.durationSec, 0);
-  console.log(`Wrote ${dir}/cut.json — ${mine.length} shots, ${seconds.toFixed(1)}s of footage.`);
+  const pictures = mine.filter((s) => !s.audioOnly);
+  const voices = mine.length - pictures.length;
+  const seconds = pictures.reduce((n, s) => n + s.durationSec, 0);
+  console.log(
+    `Wrote ${dir}/cut.json — ${pictures.length} shots, ${seconds.toFixed(1)}s of footage` +
+      (voices ? `, ${voices} voice clips.` : "."),
+  );
 }
 for (const film of Object.values(FILMS)) {
   console.log(`  ${film.id.padEnd(12)} ${(filmFrames(film) / FPS).toFixed(2)}s`);

@@ -59,7 +59,7 @@ MANUAL = {
     "h14-window": {"mid": 8},
     "h15-crouch": {"mid": 8},
     "h16-glass":  {"mid": 6},
-    "s06-work":   {"mid": 10},
+    "a01-glass":  {"mid": 8},     # the one walking into the glass is backlit
     # Mobile header: the vertical slices vary more than the wide frame.
     "m03-street": {"mid": -15},   # sun-blown street, brightest slice
     "m15-crouch": {"mid": 10},    # Tino in a dark corner

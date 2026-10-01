@@ -82,7 +82,16 @@ shots themselves, so moving a clip moves its ducking with it. The
 cameraman'"'"'s questions stay out of the cut.
 
 Subtitle frames are relative to the shot, not the timeline: the time in the
-`.srt` minus `startFrom` in seconds, times 30.
+`.srt` minus `startFrom` in seconds, times 25.
+
+A sentence that has to run on over a cutaway goes on the film's own sound
+track instead. `voice` on the film places each clip on the timeline with
+its range in the source, `subtitles` on the film are in timeline frames,
+and the shots stay muted. `conform.ps1` cuts each voice clip from the
+master's audio into `<id>.m4a`, levelled to -14 LUFS from a measurement of
+that exact range, and `render-safe.mjs` mixes them back under the picture
+with ffmpeg, because the Remotion render itself is muted. The Elite advert
+is cut this way.
 
 ## Proxies, when you want to judge motion
 
