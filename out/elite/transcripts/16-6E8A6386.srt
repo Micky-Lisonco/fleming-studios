@@ -1,0 +1,16 @@
+1
+00:00:00,000 --> 00:00:04,000
+Hey Tino, hoe vaak moet je zo'n ramen wassen?
+
+2
+00:00:04,000 --> 00:00:06,000
+Hier om de zes weken.
+
+3
+00:00:06,000 --> 00:00:07,000
+En waarom?
+
+4
+00:00:07,000 --> 00:00:12,000
+Omdat er hier veel passages van klanten en er toch wel regelmatig vingerappdrukken op de ramen zijn.
+

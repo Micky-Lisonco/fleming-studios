@@ -1,0 +1,28 @@
+1
+00:00:00,000 --> 00:00:04,000
+Hey Tino, hoe vaak moet je die ramen wassen?
+
+2
+00:00:04,000 --> 00:00:06,000
+Hier in dit geval is dat zes weken.
+
+3
+00:00:06,000 --> 00:00:07,000
+En waarom?
+
+4
+00:00:07,000 --> 00:00:12,000
+Omdat er hier veel passage is van klanten die binnen en buiten komen en toch wel een
+
+5
+00:00:12,000 --> 00:00:15,000
+maatig vingerafdrukken op de glasramen zijn.
+
+6
+00:00:15,000 --> 00:00:17,000
+Zijn dat geen glasramen?
+
+7
+00:00:17,000 --> 00:00:20,000
+Ja, gaspartij of glasesramen, ik weet niet.
+

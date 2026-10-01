@@ -1,0 +1,28 @@
+1
+00:00:00,000 --> 00:00:03,400
+Hey Tino, hoe vaak moet je die ramen wassen?
+
+2
+00:00:03,400 --> 00:00:06,120
+Hier in dit geval is het om de zes weken.
+
+3
+00:00:06,120 --> 00:00:07,120
+En waarom?
+
+4
+00:00:07,120 --> 00:00:11,480
+Omdat er hier veel passagen is van klanten die binnen en buiten komen en er toch regelmatig
+
+5
+00:00:11,480 --> 00:00:13,640
+wat vingeraf te kunnen op de ramen zijn.
+
+6
+00:00:13,640 --> 00:00:15,440
+En is dat bij iedereen zo?
+
+7
+00:00:15,440 --> 00:00:18,880
+Nee dat is niet zo het geval, dat hangt af van externe factoren.
+

@@ -1,0 +1,24 @@
+1
+00:00:00,000 --> 00:00:04,000
+Hey Tino, hoe vaak moet je ramen wassen?
+
+2
+00:00:04,000 --> 00:00:06,000
+Hier in dit geval zes weken.
+
+3
+00:00:06,000 --> 00:00:07,000
+En waarom?
+
+4
+00:00:07,000 --> 00:00:12,000
+Om dit geval passeren er veel kanten en zijn er toch regelmatig wat vingerafdukken op de ramen.
+
+5
+00:00:12,000 --> 00:00:14,000
+En is dat bij ieder huis zo?
+
+6
+00:00:14,000 --> 00:00:17,000
+Nee, dat hangt af van verschillende externe factoren.
+

@@ -1,0 +1,28 @@
+1
+00:00:00,000 --> 00:00:02,000
+Actie T3.
+
+2
+00:00:08,000 --> 00:00:11,000
+Martino, wil je niet werken?
+
+3
+00:00:11,000 --> 00:00:13,000
+Wat ben ik aan het doen?
+
+4
+00:00:13,000 --> 00:00:14,000
+Wat ben je dan aan het doen?
+
+5
+00:00:14,000 --> 00:00:19,000
+Ik ben nu de kwaliteit aan het controleren, zodat we toch alles klopper en zeer positief kunnen afreden.
+
+6
+00:00:19,000 --> 00:00:20,000
+En?
+
+7
+00:00:20,000 --> 00:00:22,000
+Het is klopper.
+
