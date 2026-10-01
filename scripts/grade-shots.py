@@ -1,7 +1,7 @@
 """Solve one colour grade per shot so every shot lands on the same look,
 and write them into remotion/edit.ts (the <elite-grades> block).
 
-    python scripts/grade-shots.py                 # elite-header-wide, elite-ad
+    python scripts/grade-shots.py                 # both headers and the advert
     python scripts/grade-shots.py --sheets out    # also writes before/after sheets
 
 Run it after any change to the Elite shot lists: a new in-point or a new
@@ -41,7 +41,7 @@ import json, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageStat
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILMS = ["elite-header-wide", "elite-ad"]
+FILMS = ["elite-header-wide", "elite-header-vertical", "elite-ad"]
 # Percentiles (5, 20, 50, 80, 95) of a well-exposed daylight frame, 0-255.
 REFERENCE = (16, 52, 112, 178, 222)
 PCTS = (.05, .20, .50, .80, .95)
@@ -60,6 +60,9 @@ MANUAL = {
     "h15-crouch": {"mid": 8},
     "h16-glass":  {"mid": 6},
     "s06-work":   {"mid": 10},
+    # Mobile header: the vertical slices vary more than the wide frame.
+    "m03-street": {"mid": -15},   # sun-blown street, brightest slice
+    "m15-crouch": {"mid": 10},    # Tino in a dark corner
 }
 
 def lookbook(project):
