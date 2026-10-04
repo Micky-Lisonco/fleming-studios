@@ -28,6 +28,16 @@ import { Subtitles } from "./components/Subtitles";
 const DUCK_FADE = 6;
 
 /**
+ * Set by scripts/render-safe.mjs. That render mixes the voice and music
+ * in itself, with the system ffmpeg, so the frames are drawn without
+ * them: an <Audio> here, even in a muted render, has Remotion probe the
+ * file with its bundled ffprobe.exe - the binary that crashes on the
+ * Windows edit machine and that the safe render exists to avoid.
+ */
+const SAFE_RENDER =
+  typeof process !== "undefined" && process.env?.REMOTION_BROWSER_VIDEO === "1";
+
+/**
  * Loudness the voice plays at in the Studio. Lower than the delivered
  * -14 on purpose: the preview has no limiter, and the loudest lines peak
  * near full scale in the source.
@@ -206,9 +216,9 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
 
       {/* The voice track. A conformed clip is already cut to its range and
           levelled; a proxy is the whole source, so seek into it and level
-          it here. Only heard in the Studio: the safe render is muted and
+          it here. Only in the Studio: the safe render leaves it out and
           mixes the same ranges itself, with ffmpeg. */}
-      {(film.voice ?? []).map((v) => (
+      {(SAFE_RENDER ? [] : film.voice ?? []).map((v) => (
         <Sequence
           key={v.id}
           from={v.from}
@@ -231,7 +241,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
         </Sequence>
       ))}
 
-      {MUSIC.file ? (
+      {MUSIC.file && !SAFE_RENDER ? (
         <Audio
           src={staticFile(resolveMedia(MUSIC.file))}
           startFrom={MUSIC.startFrom}

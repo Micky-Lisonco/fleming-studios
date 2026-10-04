@@ -1535,6 +1535,6 @@ FILMS["elite-ad"] = {
   // The subtitles carry their own backing, line by line.
   plain: true,
   endCard: ELITE_END_CARD,
-  // At most 18s of story + 1.8s of logo.
-  targetFrames: 18 * FPS + 45,
+  // 16.2s of story + 1.8s of logo (the brief was at most 18s + logo).
+  targetFrames: 406 + 45,
 };
