@@ -889,6 +889,7 @@ const S = {
   // slice only, where he is out of shot.
   glass2:   { file: "06-6E8A6376.mp4",                  startFrom: 719,               grade: ELITE_GRADE.indoor },  // behind the glass, other side
   rise:     { file: "25-DJI_20260905111509_0012_D.mp4", startFrom: 111,   speed: 1.3, grade: ELITE_GRADE.drone },   // drone rising off Tino
+  roof:     { file: "32-DJI_20260905124510_0032_D.mp4", startFrom: 43,    speed: 1.3, grade: ELITE_GRADE.drone },   // close on windows, glass railing, solar panels
   church:   { file: "29-DJI_20260905112604_0021_D.mp4", startFrom: 617,   speed: 1.3, grade: ELITE_GRADE.drone },   // village church
   village:  { file: "27-DJI_20260905112103_0014_D.mp4", startFrom: 250,   speed: 1.4, grade: ELITE_GRADE.drone },   // rising over the street
 };
@@ -992,6 +993,36 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.0237, 0.0475, 0.071, 0.0937, 0.115, 0.1349, 0.1541, 0.1731, 0.1923, 0.2123, 0.2336, 0.2566, 0.282, 0.3101, 0.3439, 0.3836, 0.4272, 0.4727, 0.5184, 0.5673, 0.6186, 0.6692, 0.7166, 0.7632, 0.8073, 0.8449, 0.8758, 0.903, 0.9278, 0.9515, 0.9751, 1] },
   "m20-village": { gamma: 1, contrast: 1, saturation: 1.26, warmth: 1.02,
     curve: [0, 0.0246, 0.0504, 0.0891, 0.1533, 0.1991, 0.2365, 0.2698, 0.2999, 0.3279, 0.3548, 0.3817, 0.4096, 0.4379, 0.4649, 0.491, 0.5166, 0.5418, 0.5671, 0.5926, 0.6188, 0.6458, 0.674, 0.7038, 0.736, 0.7713, 0.8079, 0.8439, 0.8775, 0.909, 0.9395, 0.9696, 1] },
+  "g01-reflect": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0354, 0.07, 0.1035, 0.1365, 0.1697, 0.2037, 0.2382, 0.2731, 0.3083, 0.3437, 0.3792, 0.4147, 0.4504, 0.4862, 0.5222, 0.5582, 0.5942, 0.6301, 0.6665, 0.7046, 0.7422, 0.7767, 0.8061, 0.832, 0.8558, 0.878, 0.8989, 0.9191, 0.9388, 0.9586, 0.9789, 1] },
+  "g02-out": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0285, 0.0597, 0.105, 0.1572, 0.196, 0.2294, 0.2596, 0.2875, 0.3137, 0.3389, 0.364, 0.3896, 0.4165, 0.4451, 0.474, 0.5029, 0.5319, 0.5611, 0.5907, 0.6208, 0.6514, 0.6828, 0.7151, 0.7496, 0.7853, 0.8207, 0.8544, 0.8854, 0.9148, 0.9433, 0.9714, 1] },
+  "g03-ladderoff": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0307, 0.0658, 0.1163, 0.1679, 0.2111, 0.2521, 0.2908, 0.327, 0.3608, 0.392, 0.4207, 0.4475, 0.4726, 0.4966, 0.5199, 0.5429, 0.566, 0.5896, 0.6142, 0.6402, 0.6681, 0.6984, 0.7334, 0.7713, 0.8088, 0.8427, 0.8721, 0.8992, 0.9248, 0.9496, 0.9745, 1] },
+  "g04-glass": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0539, 0.1155, 0.2254, 0.3725, 0.4245, 0.4645, 0.5001, 0.5319, 0.56, 0.585, 0.6072, 0.627, 0.6447, 0.6607, 0.6755, 0.6893, 0.7027, 0.7159, 0.7294, 0.7434, 0.7585, 0.775, 0.7932, 0.8136, 0.836, 0.8589, 0.8822, 0.9057, 0.9293, 0.9529, 0.9765, 1] },
+  "g05-roof": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0284, 0.057, 0.0859, 0.1152, 0.1446, 0.1742, 0.2037, 0.2331, 0.262, 0.2907, 0.3194, 0.3482, 0.3774, 0.4072, 0.4377, 0.4692, 0.502, 0.5361, 0.571, 0.6063, 0.6418, 0.6769, 0.7115, 0.746, 0.7806, 0.8148, 0.8482, 0.8802, 0.9108, 0.9407, 0.9702, 1] },
+  "g06-vanrear": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0263, 0.0562, 0.1134, 0.1764, 0.2206, 0.2593, 0.2938, 0.3255, 0.3556, 0.3856, 0.4146, 0.4424, 0.4691, 0.4948, 0.5197, 0.544, 0.5679, 0.5915, 0.6151, 0.6387, 0.6626, 0.687, 0.7114, 0.7317, 0.7489, 0.7649, 0.7819, 0.8019, 0.8272, 0.8597, 0.9016, 1] },
+  "g07-room": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0657, 0.1849, 0.3117, 0.3828, 0.4238, 0.4606, 0.4937, 0.5235, 0.5502, 0.5742, 0.5959, 0.6157, 0.6338, 0.6506, 0.6665, 0.6818, 0.6969, 0.7122, 0.7279, 0.7444, 0.7621, 0.7814, 0.8025, 0.8246, 0.8466, 0.8686, 0.8905, 0.9124, 0.9343, 0.9562, 0.9781, 1] },
+  "g08-solar": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.02, 0.0385, 0.0588, 0.0842, 0.1235, 0.182, 0.2276, 0.2668, 0.3028, 0.3366, 0.3694, 0.4021, 0.4356, 0.4691, 0.5022, 0.5348, 0.5669, 0.5982, 0.6288, 0.6584, 0.6869, 0.7135, 0.7388, 0.7634, 0.788, 0.813, 0.8392, 0.867, 0.8975, 0.9309, 0.9656, 1] },
+  "g09-atvan": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0232, 0.0463, 0.07, 0.0948, 0.1208, 0.1475, 0.175, 0.2029, 0.2311, 0.2595, 0.2886, 0.3184, 0.3485, 0.3788, 0.4091, 0.4391, 0.4685, 0.4972, 0.5239, 0.5485, 0.5717, 0.5945, 0.6174, 0.6414, 0.667, 0.6952, 0.7267, 0.7622, 0.804, 0.8631, 0.9323, 1] },
+  "g10-vanair": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0244, 0.05, 0.0887, 0.1538, 0.228, 0.3067, 0.3627, 0.4094, 0.4506, 0.4873, 0.5207, 0.5519, 0.5813, 0.6086, 0.6342, 0.6583, 0.6814, 0.7037, 0.7255, 0.7471, 0.7689, 0.7911, 0.813, 0.8345, 0.8556, 0.8765, 0.8971, 0.9176, 0.9381, 0.9586, 0.9792, 1] },
+  "g11-van": { gamma: 1, contrast: 1, saturation: 1.389, warmth: 1.02,
+    curve: [0, 0.0288, 0.079, 0.1774, 0.2454, 0.2997, 0.342, 0.3786, 0.4112, 0.4406, 0.4676, 0.4931, 0.5181, 0.5432, 0.5695, 0.5978, 0.6275, 0.6578, 0.688, 0.7176, 0.7457, 0.7719, 0.796, 0.8188, 0.8405, 0.8614, 0.8817, 0.9014, 0.9209, 0.9403, 0.9598, 0.9797, 1] },
+  "g12-solarair": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0212, 0.0414, 0.0632, 0.0887, 0.1227, 0.1651, 0.207, 0.2434, 0.2779, 0.3114, 0.3443, 0.3771, 0.4106, 0.4452, 0.4813, 0.5183, 0.5555, 0.5922, 0.6278, 0.6615, 0.693, 0.7231, 0.7522, 0.7805, 0.8083, 0.8361, 0.864, 0.8916, 0.9188, 0.9459, 0.9729, 1] },
+  "g13-church": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0208, 0.0404, 0.0619, 0.0884, 0.1266, 0.1768, 0.2286, 0.2843, 0.3412, 0.3956, 0.4514, 0.5057, 0.5532, 0.5896, 0.6205, 0.6483, 0.6735, 0.6967, 0.7185, 0.7396, 0.7606, 0.7822, 0.8048, 0.8274, 0.8496, 0.8714, 0.8929, 0.9143, 0.9357, 0.957, 0.9784, 1] },
+  "g14-road": { gamma: 1, contrast: 1, saturation: 1.281, warmth: 1.02,
+    curve: [0, 0.0196, 0.0389, 0.0581, 0.0777, 0.0978, 0.1187, 0.1401, 0.1616, 0.1834, 0.2059, 0.2291, 0.2535, 0.2792, 0.3065, 0.336, 0.3685, 0.4033, 0.4398, 0.4772, 0.515, 0.5526, 0.5904, 0.6291, 0.6696, 0.7125, 0.7594, 0.8165, 0.8694, 0.9076, 0.9397, 0.9693, 1] },
+  "g15-road2": { gamma: 1, contrast: 1, saturation: 1.198, warmth: 1.02,
+    curve: [0, 0.0237, 0.0475, 0.071, 0.0937, 0.115, 0.1349, 0.1541, 0.1731, 0.1923, 0.2123, 0.2336, 0.2566, 0.282, 0.3101, 0.3439, 0.3836, 0.4272, 0.4727, 0.5184, 0.5673, 0.6186, 0.6692, 0.7166, 0.7632, 0.8073, 0.8449, 0.8758, 0.903, 0.9278, 0.9515, 0.9751, 1] },
   "a01-glass": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.1087, 0.2116, 0.2818, 0.3288, 0.3637, 0.3947, 0.4223, 0.4469, 0.4689, 0.4888, 0.5071, 0.524, 0.54, 0.5557, 0.5713, 0.5874, 0.6043, 0.6225, 0.6424, 0.6644, 0.6881, 0.7122, 0.7368, 0.7621, 0.788, 0.8148, 0.8424, 0.8709, 0.9012, 0.9337, 0.967, 1] },
   "a02-arrive": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
@@ -1064,6 +1095,7 @@ const MOBILE_FOCUS: Record<string, string> = {
   reflect: "70% 50%",
   solar: "40% 50%", solarAir: "50% 50%",
   hotel: "50% 50%", rise: "50% 50%", road2: "50% 50%", village: "50% 50%",
+  roof: "50% 50%", church: "76% 50%", churchAir: "56% 50%",
 };
 const MOBILE_ORDER: Array<[keyof typeof S, number]> = [
   ["road", 22], ["cobbles", 18], ["street", 16], ["vanAir", 44], ["van", 16], ["out", 34],
@@ -1147,6 +1179,36 @@ const SUBTITLES_ELITE_AD: Subtitle[] = [
   { from: 362, to: 406, text: "Het is proper!" },
 ];
 
+/**
+ * The same mobile header for anywhere on elitecleaning.be, not about one
+ * client: nothing that names or points at Flanders Cobblestone. Out: Tino
+ * at the entrance between the hotel's banners (both drone shots), the walk
+ * with the ladder past the lettering on the building, the hotel from the
+ * air, the street with the cyclists, and the cobbled street that flies
+ * towards the hotel's lettering. In: the roof close up (windows,
+ * glass railing, solar panels) and the church in its village.
+ *
+ * A mix rather than the arrival in order: it opens on Tino himself, his
+ * grin at the window and stepping out of the van, and keeps him coming
+ * back between the roofs and panels; the church and the streets close it.
+ * Every shot it shares with the mobile header keeps that shot's moment,
+ * framing and grade.
+ */
+const GENERIC_ORDER: Array<[keyof typeof S, number]> = [
+  ["reflect", 44], ["out", 40], ["ladderOff", 30], ["glass", 36], ["roof", 36], ["vanRear", 28],
+  ["room", 32], ["solar", 32], ["atVan", 24], ["vanAir", 48], ["van", 24], ["solarAir", 34],
+  ["church", 30], ["road", 32], ["road2", 30],
+];
+export const SHOTS_ELITE_GENERIC: Shot[] = graded(inProject("elite",
+  GENERIC_ORDER.map(([key, frames], i) => ({
+    id: `g${String(i + 1).padStart(2, "0")}-${key.toLowerCase()}`,
+    ...S[key],
+    kind: "video" as const,
+    durationInFrames: frames,
+    focus: MOBILE_FOCUS[key],
+  })),
+));
+
 FILMS["elite-header-wide"] = {
   id: "elite-header-wide",
   label: "Elite Cleaning - website header (16:9)",
@@ -1165,6 +1227,19 @@ FILMS["elite-header-vertical"] = {
   label: "Elite Cleaning - mobile website header (9:16)",
   format: "vertical",
   shots: SHOTS_ELITE_MOBILE,
+  energy: "fast",
+  captions: {},
+  endCard: null,
+  plain: true,
+  loopFade: 8,
+  targetFrames: HEADER_FRAMES,
+};
+
+FILMS["elite-header-vertical-generic"] = {
+  id: "elite-header-vertical-generic",
+  label: "Elite Cleaning - mobile website header, generic (9:16)",
+  format: "vertical",
+  shots: SHOTS_ELITE_GENERIC,
   energy: "fast",
   captions: {},
   endCard: null,

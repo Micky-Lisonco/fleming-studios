@@ -1,7 +1,7 @@
 """Solve one colour grade per shot so every shot lands on the same look,
 and write them into remotion/edit.ts (the <elite-grades> block).
 
-    python scripts/grade-shots.py                 # both headers and the advert
+    python scripts/grade-shots.py                 # the headers and the advert
     python scripts/grade-shots.py --sheets out    # also writes before/after sheets
 
 Run it after any change to the Elite shot lists: a new in-point or a new
@@ -41,7 +41,7 @@ import json, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageStat
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILMS = ["elite-header-wide", "elite-header-vertical", "elite-ad"]
+FILMS = ["elite-header-wide", "elite-header-vertical", "elite-header-vertical-generic", "elite-ad"]
 # Percentiles (5, 20, 50, 80, 95) of a well-exposed daylight frame, 0-255.
 REFERENCE = (16, 52, 112, 178, 222)
 PCTS = (.05, .20, .50, .80, .95)
@@ -75,6 +75,9 @@ MANUAL = {
     # street shots. Brought to 95-100 inside, short of daylight on purpose.
     "m12-room":   {"subject": [.36, .34, .66, .58, 95], "sat": 1.0},
     "m13-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
+    # The generic mobile header: same moments, same framing, same grade.
+    "g07-room":   {"subject": [.36, .34, .66, .58, 95], "sat": 1.0},
+    "g04-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
 }
 
 def lookbook(project):
