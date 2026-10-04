@@ -83,6 +83,16 @@ MANUAL = {
     "t03-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
     "p04-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
     "p06-room":   {"subject": [.36, .34, .66, .58, 95], "sat": 1.0},
+    # Talking-head takes at the entrance: daylight, already well exposed.
+    # Pulled towards REFERENCE they came out darker, harder and redder in
+    # the face, so they keep the camera's own tones and get only a little
+    # colour. Same for the two takes in the speaking film.
+    **{k: {"pull": 0, "sat": 1.1} for k in (
+        "b01-opnemen", "b02-error", "b03-nee", "b05-glasramen", "b06-kijken", "b07-bloopers",
+        "t01-vraag", "t06-ingang")},
+    # The glass gag from inside: dark, so it still comes up, but without
+    # the saturation that turned the red hoodie loud.
+    "b04-enthousiast": {"sat": 1.0, "mid": 8},
 }
 
 def lookbook(project):
