@@ -10,7 +10,8 @@ export const Caption: React.FC<{
   text: string;
   sub?: string;
   accent: string;
-}> = ({ text, sub, accent }) => {
+  fontFamily?: string;
+}> = ({ text, sub, accent, fontFamily = "system-ui, -apple-system, Helvetica, sans-serif" }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const layout = layoutFor(width, height);
@@ -41,14 +42,14 @@ export const Caption: React.FC<{
       />
       <div
         style={{
-          fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
+          fontFamily,
           fontSize: fitFontSize(
             text,
             width - layout.sidePad * 2,
             text.length > 14 ? layout.captionSizeLong : layout.captionSize,
             // Three lines, like TextCard: a headline that wraps at full
             // size beats one that shrinks to fit two.
-            { fontWeight: 800, letterSpacing: "-0.04em", maxLines: 3 }
+            { fontWeight: 800, letterSpacing: "-0.04em", maxLines: 3, fontFamily }
           ),
           lineHeight: 0.92,
           fontWeight: 800,
@@ -69,7 +70,7 @@ export const Caption: React.FC<{
         <div
           style={{
             marginTop: 24,
-            fontFamily: "system-ui, -apple-system, Helvetica, sans-serif",
+            fontFamily,
             fontSize: layout.subSize,
             fontWeight: 500,
             letterSpacing: "0.01em",

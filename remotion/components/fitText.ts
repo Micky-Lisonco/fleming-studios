@@ -25,6 +25,8 @@ export const fitFontSize = (
     letterSpacing?: string;
     uppercase?: boolean;
     maxLines?: number;
+    /** Measure in the face it will be set in; widths differ per font. */
+    fontFamily?: string;
   } = {}
 ): number => {
   const {
@@ -32,12 +34,13 @@ export const fitFontSize = (
     letterSpacing = "-0.035em",
     uppercase = true,
     maxLines = 1,
+    fontFamily = FONT_FAMILY,
   } = opts;
 
   const value = uppercase ? text.toUpperCase() : text;
   const common = {
     text: value,
-    fontFamily: FONT_FAMILY,
+    fontFamily,
     fontWeight,
     letterSpacing,
   };

@@ -41,7 +41,8 @@ import json, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageStat
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILMS = ["elite-header-wide", "elite-header-vertical", "elite-header-vertical-generic", "elite-ad"]
+FILMS = ["elite-header-wide", "elite-header-vertical", "elite-header-vertical-generic", "elite-ad",
+         "elite-bloopers", "elite-tino-speaking", "elite-ad-serious"]
 # Percentiles (5, 20, 50, 80, 95) of a well-exposed daylight frame, 0-255.
 REFERENCE = (16, 52, 112, 178, 222)
 PCTS = (.05, .20, .50, .80, .95)
@@ -78,6 +79,10 @@ MANUAL = {
     # The generic mobile header: same moments, same framing, same grade.
     "g07-room":   {"subject": [.36, .34, .66, .58, 95], "sat": 1.0},
     "g04-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
+    # The same two moments in the speaking film and the serious advert.
+    "t03-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
+    "p04-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
+    "p06-room":   {"subject": [.36, .34, .66, .58, 95], "sat": 1.0},
 }
 
 def lookbook(project):

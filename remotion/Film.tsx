@@ -20,6 +20,7 @@ import type { Film as FilmDef } from "./edit";
 import { EndCard } from "./components/EndCard";
 import { TextCard } from "./components/TextCard";
 import { ProgressBar } from "./components/ProgressBar";
+import { Caption } from "./components/Caption";
 import { Shot } from "./components/Shot";
 import { Subtitles } from "./components/Subtitles";
 
@@ -39,6 +40,36 @@ const PREVIEW_LUFS = -19;
  * sequences are invisible until their real start.
  */
 const PREMOUNT = 12;
+
+/**
+ * One line of a film's on-screen copy, held across the cuts under it. It
+ * brings its own backing: a soft navy gradient up from the bottom, only
+ * while the line is up, instead of a scrim darkening every shot.
+ */
+const Title: React.FC<{
+  text: string;
+  sub?: string;
+  durationInFrames: number;
+  accent: string;
+  fontFamily?: string;
+}> = ({ text, sub, durationInFrames, accent, fontFamily }) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [0, 8, durationInFrames - 6, durationInFrames], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill style={{ opacity, pointerEvents: "none" }}>
+      <AbsoluteFill
+        style={{
+          background:
+            "linear-gradient(to top, rgba(11,30,61,0.62) 0%, rgba(11,30,61,0.38) 24%, rgba(11,30,61,0) 46%)",
+        }}
+      />
+      <Caption text={text} sub={sub} accent={accent} fontFamily={fontFamily} />
+    </AbsoluteFill>
+  );
+};
 
 export type FilmProps = {
   /** Which film to lay out. See FILMS in edit.ts. */
@@ -146,13 +177,30 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
         />
       ) : null}
 
+      {(film.titles ?? []).map((t, i) => (
+        <Sequence
+          key={`title-${i}`}
+          from={t.from}
+          durationInFrames={t.to - t.from}
+          name={`Title: ${t.text}`}
+        >
+          <Title
+            text={t.text}
+            sub={t.sub}
+            durationInFrames={t.to - t.from}
+            accent={film.endCard?.accent ?? BRAND.oxygen}
+            fontFamily={film.font}
+          />
+        </Sequence>
+      ))}
+
       {/* Burned in: most of Meta and TikTok plays muted. Timed to the
           voice track, over the footage and the end card. */}
       {film.subtitles?.length ? (
         <Subtitles
           lines={film.subtitles}
           accent={film.endCard?.accent ?? BRAND.oxygen}
-          fontFamily={film.subtitleFont}
+          fontFamily={film.font}
         />
       ) : null}
 

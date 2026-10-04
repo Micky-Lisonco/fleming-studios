@@ -600,8 +600,15 @@ export type Film = {
   voice?: VoiceClip[];
   /** Burned-in subtitles in timeline frames, for the voice track. */
   subtitles?: Subtitle[];
-  /** Font for those subtitles. Unset: system sans. */
-  subtitleFont?: string;
+  /**
+   * Lines of type that run across several cuts, in timeline frames: the
+   * on-screen copy of a silent advert. A per-shot caption would animate
+   * in again at every cut. Each carries its own soft backing, so the
+   * footage does not have to be darkened for it.
+   */
+  titles?: Array<{ from: number; to: number; text: string; sub?: string }>;
+  /** Typeface for the titles and subtitles. Unset: system sans. */
+  font?: string;
 };
 
 const CTA = "flanderscobblestoneparadise.be";
@@ -810,17 +817,20 @@ export const speechRanges = (film: Film): Array<[number, number]> => {
  * "honderden klanten", never a number. Real footage of Tino at work is
  * the brand's strongest asset, so generated images are the exception.
  *
- * Three films:
+ * Films:
  *   elite-header-wide  the website header behind elitecleaning.be, 16:9.
  *                      No text, no sound (the site sets its own headline,
  *                      and browsers only autoplay muted video), and it
  *                      loops, so both ends fade. Elite only: no hotel, no
  *                      chamber, no Cobblestone banners.
  *   elite-header-vertical  the same header for phones, 9:16.
- *   elite-ad           the advert, 9:16, with Tino's own voice from the
- *                      shoot and burned-in subtitles. The hotel may appear,
- *                      briefly - it is where he works, not what the ad is
- *                      about.
+ *   elite-header-vertical-generic  the phone header with nothing of
+ *                      Flanders Cobblestone, opening on Tino.
+ *   elite-ad           the first spoken advert, 9:16, the glass gag and
+ *                      Tino's lines (parked: the sound did not carry it).
+ *   elite-bloopers     the takes that went wrong, with their sound.
+ *   elite-tino-speaking  Tino answering a question, then his pitch.
+ *   elite-ad-serious   silent advert: the work, four lines of copy, offer.
  *
  * Shot choices come from the contact sheets (out/elite/lookbook). Canon
  * clips are 50p and the drone 25p; startFrom is in timeline frames at 25
@@ -1035,6 +1045,56 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.0422, 0.0792, 0.113, 0.1449, 0.1758, 0.2064, 0.2359, 0.2644, 0.2923, 0.32, 0.3476, 0.3755, 0.4041, 0.4335, 0.4638, 0.4943, 0.525, 0.5562, 0.5883, 0.6213, 0.6556, 0.6913, 0.7315, 0.7757, 0.8176, 0.8513, 0.8799, 0.9056, 0.9295, 0.9525, 0.9757, 1] },
   "a06-proper": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.0519, 0.0892, 0.1208, 0.1493, 0.1768, 0.205, 0.2316, 0.2567, 0.2808, 0.3044, 0.3279, 0.3518, 0.3766, 0.4028, 0.4307, 0.461, 0.494, 0.5304, 0.5697, 0.6118, 0.6563, 0.7039, 0.763, 0.8142, 0.8469, 0.8745, 0.8983, 0.9195, 0.9391, 0.9583, 0.9782, 1] },
+  "b01-opnemen": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0255, 0.051, 0.0766, 0.1021, 0.1276, 0.1531, 0.1788, 0.2049, 0.2316, 0.2589, 0.2857, 0.3122, 0.3391, 0.3667, 0.3957, 0.4265, 0.4598, 0.496, 0.5394, 0.5896, 0.6417, 0.6906, 0.7361, 0.7807, 0.8207, 0.8534, 0.8816, 0.907, 0.9305, 0.9531, 0.976, 1] },
+  "b02-error": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0268, 0.0536, 0.0806, 0.1073, 0.134, 0.1608, 0.188, 0.216, 0.2448, 0.274, 0.3036, 0.3338, 0.3647, 0.3964, 0.429, 0.4627, 0.4982, 0.536, 0.5753, 0.6152, 0.6546, 0.6928, 0.7303, 0.7679, 0.8044, 0.8383, 0.8688, 0.8968, 0.9231, 0.9486, 0.9739, 1] },
+  "b03-nee": { gamma: 1, contrast: 1, saturation: 1.045, warmth: 1.02,
+    curve: [0, 0.0204, 0.0405, 0.0607, 0.0815, 0.1032, 0.1261, 0.1497, 0.174, 0.1991, 0.225, 0.2519, 0.2796, 0.3082, 0.3375, 0.3677, 0.3992, 0.4322, 0.467, 0.5039, 0.544, 0.5882, 0.6356, 0.6847, 0.7356, 0.7936, 0.843, 0.8769, 0.9052, 0.9299, 0.9527, 0.9755, 1] },
+  "b04-enthousiast": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.1092, 0.2033, 0.2623, 0.3032, 0.3381, 0.3696, 0.3981, 0.4239, 0.4475, 0.4692, 0.4893, 0.5082, 0.5263, 0.5439, 0.5613, 0.579, 0.5973, 0.6166, 0.6372, 0.6595, 0.6836, 0.7081, 0.7329, 0.7581, 0.7839, 0.8106, 0.8382, 0.8669, 0.8975, 0.9309, 0.9656, 1] },
+  "b05-glasramen": { gamma: 1, contrast: 1, saturation: 1.2, warmth: 1.02,
+    curve: [0, 0.0221, 0.044, 0.0661, 0.0889, 0.1122, 0.1357, 0.1596, 0.1838, 0.2087, 0.2345, 0.2612, 0.2887, 0.3156, 0.3427, 0.371, 0.4013, 0.4346, 0.4719, 0.5144, 0.5704, 0.6371, 0.7066, 0.7861, 0.8297, 0.861, 0.8867, 0.9083, 0.927, 0.9442, 0.9612, 0.9793, 1] },
+  "b06-kijken": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0276, 0.0553, 0.084, 0.1135, 0.1436, 0.1739, 0.2041, 0.2339, 0.2628, 0.2911, 0.3194, 0.3481, 0.3776, 0.4085, 0.4411, 0.4763, 0.5156, 0.5579, 0.6012, 0.6436, 0.6834, 0.7222, 0.7603, 0.7964, 0.8288, 0.8573, 0.8834, 0.9076, 0.9307, 0.9534, 0.9763, 1] },
+  "b07-bloopers": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0294, 0.0624, 0.1129, 0.1649, 0.2, 0.2307, 0.258, 0.2826, 0.3052, 0.3267, 0.3477, 0.369, 0.3914, 0.4155, 0.4421, 0.4719, 0.5052, 0.5412, 0.5789, 0.6176, 0.6563, 0.6942, 0.733, 0.7728, 0.8109, 0.8448, 0.8743, 0.9011, 0.9263, 0.9505, 0.9748, 1] },
+  "t01-vraag": { gamma: 1, contrast: 1, saturation: 1.096, warmth: 1.02,
+    curve: [0, 0.0218, 0.0434, 0.0652, 0.0876, 0.1106, 0.1339, 0.1575, 0.1815, 0.2061, 0.2314, 0.2574, 0.2844, 0.3111, 0.3377, 0.365, 0.3935, 0.4242, 0.4576, 0.4946, 0.5365, 0.5881, 0.6478, 0.7128, 0.7962, 0.8439, 0.8759, 0.9018, 0.9231, 0.9418, 0.9597, 0.9785, 1] },
+  "t02-reflect": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0354, 0.07, 0.1035, 0.1365, 0.1697, 0.2037, 0.2382, 0.2731, 0.3083, 0.3437, 0.3792, 0.4147, 0.4504, 0.4862, 0.5222, 0.5582, 0.5942, 0.6301, 0.6665, 0.7046, 0.7422, 0.7767, 0.8061, 0.832, 0.8558, 0.878, 0.8989, 0.9191, 0.9388, 0.9586, 0.9789, 1] },
+  "t03-glass": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0539, 0.1155, 0.2254, 0.3725, 0.4245, 0.4645, 0.5001, 0.5319, 0.56, 0.585, 0.6072, 0.627, 0.6447, 0.6607, 0.6755, 0.6893, 0.7027, 0.7159, 0.7294, 0.7434, 0.7585, 0.775, 0.7932, 0.8136, 0.836, 0.8589, 0.8822, 0.9057, 0.9293, 0.9529, 0.9765, 1] },
+  "t04-out": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0285, 0.0597, 0.105, 0.1572, 0.196, 0.2294, 0.2596, 0.2875, 0.3137, 0.3389, 0.364, 0.3896, 0.4165, 0.4451, 0.474, 0.5029, 0.5319, 0.5611, 0.5907, 0.6208, 0.6514, 0.6828, 0.7151, 0.7496, 0.7853, 0.8207, 0.8544, 0.8854, 0.9148, 0.9433, 0.9714, 1] },
+  "t05-ladder": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0307, 0.0658, 0.1163, 0.1679, 0.2111, 0.2521, 0.2908, 0.327, 0.3608, 0.392, 0.4207, 0.4475, 0.4726, 0.4966, 0.5199, 0.5429, 0.566, 0.5896, 0.6142, 0.6402, 0.6681, 0.6984, 0.7334, 0.7713, 0.8088, 0.8427, 0.8721, 0.8992, 0.9248, 0.9496, 0.9745, 1] },
+  "t06-ingang": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0276, 0.0553, 0.084, 0.1135, 0.1436, 0.1739, 0.2041, 0.2339, 0.2628, 0.2911, 0.3194, 0.3481, 0.3776, 0.4085, 0.4411, 0.4763, 0.5156, 0.5579, 0.6012, 0.6436, 0.6834, 0.7222, 0.7603, 0.7964, 0.8288, 0.8573, 0.8834, 0.9076, 0.9307, 0.9534, 0.9763, 1] },
+  "p01-vanair": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0244, 0.05, 0.0887, 0.1538, 0.228, 0.3067, 0.3627, 0.4094, 0.4506, 0.4873, 0.5207, 0.5519, 0.5813, 0.6086, 0.6342, 0.6583, 0.6814, 0.7037, 0.7255, 0.7471, 0.7689, 0.7911, 0.813, 0.8345, 0.8556, 0.8765, 0.8971, 0.9176, 0.9381, 0.9586, 0.9792, 1] },
+  "p02-out": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0285, 0.0597, 0.105, 0.1572, 0.196, 0.2294, 0.2596, 0.2875, 0.3137, 0.3389, 0.364, 0.3896, 0.4165, 0.4451, 0.474, 0.5029, 0.5319, 0.5611, 0.5907, 0.6208, 0.6514, 0.6828, 0.7151, 0.7496, 0.7853, 0.8207, 0.8544, 0.8854, 0.9148, 0.9433, 0.9714, 1] },
+  "p03-ladderoff": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0307, 0.0658, 0.1163, 0.1679, 0.2111, 0.2521, 0.2908, 0.327, 0.3608, 0.392, 0.4207, 0.4475, 0.4726, 0.4966, 0.5199, 0.5429, 0.566, 0.5896, 0.6142, 0.6402, 0.6681, 0.6984, 0.7334, 0.7713, 0.8088, 0.8427, 0.8721, 0.8992, 0.9248, 0.9496, 0.9745, 1] },
+  "p04-glass": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0539, 0.1155, 0.2254, 0.3725, 0.4245, 0.4645, 0.5001, 0.5319, 0.56, 0.585, 0.6072, 0.627, 0.6447, 0.6607, 0.6755, 0.6893, 0.7027, 0.7159, 0.7294, 0.7434, 0.7585, 0.775, 0.7932, 0.8136, 0.836, 0.8589, 0.8822, 0.9057, 0.9293, 0.9529, 0.9765, 1] },
+  "p05-reflect": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0354, 0.07, 0.1035, 0.1365, 0.1697, 0.2037, 0.2382, 0.2731, 0.3083, 0.3437, 0.3792, 0.4147, 0.4504, 0.4862, 0.5222, 0.5582, 0.5942, 0.6301, 0.6665, 0.7046, 0.7422, 0.7767, 0.8061, 0.832, 0.8558, 0.878, 0.8989, 0.9191, 0.9388, 0.9586, 0.9789, 1] },
+  "p06-room": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0657, 0.1849, 0.3117, 0.3828, 0.4238, 0.4606, 0.4937, 0.5235, 0.5502, 0.5742, 0.5959, 0.6157, 0.6338, 0.6506, 0.6665, 0.6818, 0.6969, 0.7122, 0.7279, 0.7444, 0.7621, 0.7814, 0.8025, 0.8246, 0.8466, 0.8686, 0.8905, 0.9124, 0.9343, 0.9562, 0.9781, 1] },
+  "p07-roof": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0284, 0.057, 0.0859, 0.1152, 0.1446, 0.1742, 0.2037, 0.2331, 0.262, 0.2907, 0.3194, 0.3482, 0.3774, 0.4072, 0.4377, 0.4692, 0.502, 0.5361, 0.571, 0.6063, 0.6418, 0.6769, 0.7115, 0.746, 0.7806, 0.8148, 0.8482, 0.8802, 0.9108, 0.9407, 0.9702, 1] },
+  "p08-solar": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0198, 0.038, 0.0579, 0.083, 0.1224, 0.1839, 0.2299, 0.2693, 0.305, 0.3385, 0.3709, 0.4034, 0.4368, 0.4701, 0.5031, 0.5356, 0.5675, 0.5987, 0.629, 0.6585, 0.6868, 0.7132, 0.7382, 0.7625, 0.7867, 0.8115, 0.8374, 0.8651, 0.8954, 0.9293, 0.9648, 1] },
+  "p09-solarair": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+    curve: [0, 0.0212, 0.0414, 0.0632, 0.0887, 0.1227, 0.1651, 0.207, 0.2434, 0.2779, 0.3114, 0.3443, 0.3771, 0.4106, 0.4452, 0.4813, 0.5183, 0.5555, 0.5922, 0.6278, 0.6615, 0.693, 0.7231, 0.7522, 0.7805, 0.8083, 0.8361, 0.864, 0.8916, 0.9188, 0.9459, 0.9729, 1] },
+  "p10-van": { gamma: 1, contrast: 1, saturation: 1.389, warmth: 1.02,
+    curve: [0, 0.0288, 0.079, 0.1774, 0.2454, 0.2997, 0.342, 0.3786, 0.4112, 0.4406, 0.4676, 0.4931, 0.5181, 0.5432, 0.5695, 0.5978, 0.6275, 0.6578, 0.688, 0.7176, 0.7457, 0.7719, 0.796, 0.8188, 0.8405, 0.8614, 0.8817, 0.9014, 0.9209, 0.9403, 0.9598, 0.9797, 1] },
+  "p11-atvan": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0232, 0.0463, 0.07, 0.0948, 0.1208, 0.1475, 0.175, 0.2029, 0.2311, 0.2595, 0.2886, 0.3184, 0.3485, 0.3788, 0.4091, 0.4391, 0.4685, 0.4972, 0.5239, 0.5485, 0.5717, 0.5945, 0.6174, 0.6414, 0.667, 0.6952, 0.7267, 0.7622, 0.804, 0.8631, 0.9323, 1] },
+  "p12-vanrear": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0263, 0.0562, 0.1134, 0.1764, 0.2206, 0.2593, 0.2938, 0.3255, 0.3556, 0.3856, 0.4146, 0.4424, 0.4691, 0.4948, 0.5197, 0.544, 0.5679, 0.5915, 0.6151, 0.6387, 0.6626, 0.687, 0.7114, 0.7317, 0.7489, 0.7649, 0.7819, 0.8019, 0.8272, 0.8597, 0.9016, 1] },
 };
 // </elite-grades>
 
@@ -1209,6 +1269,159 @@ export const SHOTS_ELITE_GENERIC: Shot[] = graded(inProject("elite",
   })),
 ));
 
+/**
+ * Light card: the logo is black and dark grey on light-blue bubbles and
+ * disappears on navy, and it may not be altered - so the card goes light
+ * rather than the logo going white.
+ */
+const ELITE_END_CARD: NonNullable<Film["endCard"]> = {
+  durationInFrames: 45,
+  wordmark: "ELITE CLEANING",
+  line: "Specialist in reiniging",
+  venue: "Geraardsbergen en omstreken",
+  cta: "elitecleaning.be",
+  logo: "images/elite-cleaning-logo.png",
+  logoBlend: "normal",
+  accent: ELITE.blue,
+  background: ELITE.skyLight,
+  ink: ELITE.navy,
+  fontFamily: ELITE_FONT,
+};
+
+/**
+ * Sound for shots that carry their own: one voice clip per listed shot, in
+ * sync with its picture and placed where that shot sits on the timeline.
+ * lufs is measured per stretch from out/elite/audio.
+ */
+const ownSound = (shots: Shot[], lufs: Record<string, number>): VoiceClip[] => {
+  const clips: VoiceClip[] = [];
+  let from = 0;
+  for (const shot of shots) {
+    if (shot.id in lufs && shot.file) {
+      clips.push({
+        id: `${shot.id}-sound`, file: shot.file, project: shot.project, from,
+        startFrom: shot.startFrom ?? 0, durationInFrames: shot.durationInFrames,
+        lufs: lufs[shot.id],
+      });
+    }
+    from += shot.durationInFrames;
+  }
+  return clips;
+};
+
+/** A talking-head clip from the shoot, its own sound in sync. */
+const take = (id: string, file: string, startSec: number, seconds: number, focus: string): Shot => ({
+  id, file, kind: "video", startFrom: Math.round(startSec * FPS),
+  durationInFrames: Math.round(seconds * FPS), focus, punch: false,
+  grade: ELITE_GRADE.outdoor,
+});
+
+/**
+ * Bloopers: the takes that went wrong, with their own sound and subtitles.
+ * 36s and the logo, for social. Cut on the pauses in the audio. In order:
+ * the camera already rolling, Tino's "Error.", the crew fluffing the
+ * question, take 2 of the glass gag and the note that came after it, the
+ * argument about "glasramen", "naar mij kijken", and someone on set
+ * naming the reel. The entrance banners are mostly outside the 9:16
+ * slice; where an edge shows, that is fine for a reel shot on location.
+ */
+export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
+  take("b01-opnemen",     "07-6E8A6377.mp4",   0.00, 3.20, "50% 50%"),
+  take("b02-error",       "10-6E8A6380.mp4",  12.00, 7.92, "53% 50%"),
+  take("b03-nee",         "13-6E8A6383.mp4",   4.00, 3.32, "68% 50%"),
+  { ...take("b04-enthousiast", "06-6E8A6376.mp4", 15.32, 3.88, "35% 50%"), grade: ELITE_GRADE.indoor },
+  take("b05-glasramen",   "19-6E8A6389.mp4",  13.00, 7.00, "65% 50%"),
+  take("b06-kijken",      "10-6E8A6380.mp4",  54.20, 5.40, "65% 50%"),
+  take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 5.08, "65% 50%"),
+]));
+
+const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
+  { from: 1,   to: 40,  text: "Hij is aan het opnemen!" },
+  { from: 56,  to: 80,  text: "Wachten!" },
+  { from: 80,  to: 166, text: "Wilt u, als B2B-bedrijf, meer..." },
+  { from: 188, to: 241, text: "Error." },
+  { from: 242, to: 278, text: "Dat geeft niet. Dat is normaal." },
+  { from: 281, to: 334, text: "Hé Tino, hoeveel keer..." },
+  { from: 340, to: 361, text: "Nee." },
+  { from: 362, to: 395, text: "Oh, ik had dat niet gezien." },
+  { from: 396, to: 458, text: "We moeten wel een beetje enthousiast zijn." },
+  { from: 458, to: 498, text: "...op de glasramen zijn." },
+  { from: 512, to: 556, text: "Zijn dat geen glasramen?" },
+  { from: 557, to: 633, text: "Ja, glaspartij of glazen ramen, ik weet niet." },
+  { from: 633, to: 646, text: "Eh?" },
+  { from: 653, to: 688, text: "Dan is een propere ingang..." },
+  { from: 688, to: 731, text: "Oké, maar ik moet naar daar kijken." },
+  { from: 734, to: 753, text: "Nee, naar mij kijken." },
+  { from: 753, to: 768, text: "Oké." },
+  { from: 770, to: 812, text: "Wilt u, als B2..." },
+  { from: 836, to: 895, text: "De bloopers." },
+];
+
+/**
+ * Tino speaking: a question from behind the camera, his answer, his pitch.
+ * 18.2s and the logo. He answers on camera and the end of the answer runs
+ * on over him at the glass; the question to businesses plays over the van
+ * and he says the last line into the lens. All of it his own sound.
+ *
+ *    0  "Hey Tino, hoe vaak moet je zo'n ramen wassen?"   on camera
+ *       "Hier om de zes weken." "En waarom?" "Omdat er hier veel
+ *       passage is van klanten
+ *  200  en er toch wel regelmatig vingerafdrukken op de ramen zijn."
+ *                                                         at the window, the glass
+ *  267  "Wilt u, als B2B-bedrijf, meer zichtbaarheid?"     the van, the ladder
+ *  349  "Dan is een propere ingang een visitekaartje van uw bedrijf."
+ *                                                         on camera
+ */
+export const SHOTS_ELITE_TINO: Shot[] = graded(inProject("elite", [
+  // Framed to keep the hotel's banner, just left of him, out of the slice.
+  take("t01-vraag", "16-6E8A6386.mp4", 1.60, 8.00, "74% 50%"),
+  { id: "t02-reflect", ...S.reflect,   kind: "video", durationInFrames: 34, focus: MOBILE_FOCUS.reflect,   punch: false },
+  { id: "t03-glass",   ...S.glass,     kind: "video", durationInFrames: 33, focus: MOBILE_FOCUS.glass,     punch: false },
+  { id: "t04-out",     ...S.out,       kind: "video", durationInFrames: 41, focus: MOBILE_FOCUS.out,       punch: false },
+  { id: "t05-ladder",  ...S.ladderOff, kind: "video", durationInFrames: 41, focus: MOBILE_FOCUS.ladderOff, punch: false },
+  take("t06-ingang", "10-6E8A6380.mp4", 60.00, 4.20, "65% 50%"),
+]));
+
+const VOICE_ELITE_TINO: VoiceClip[] = [
+  // 1.60-12.28s: the question, the answer, the follow-up and the reason.
+  { id: "t-voice1-vraag",   file: "16-6E8A6386.mp4", project: "elite", from: 0,   startFrom: 40,   durationInFrames: 267, lufs: -21.94 },
+  { id: "t-voice2-b2b",     file: "10-6E8A6380.mp4", project: "elite", from: 271, startFrom: 663,  durationInFrames: 78,  lufs: -20.81 },
+  { id: "t-voice3-ingang",  file: "10-6E8A6380.mp4", project: "elite", from: 349, startFrom: 1500, durationInFrames: 99,  lufs: -21.23 },
+];
+
+const SUBTITLES_ELITE_TINO: Subtitle[] = [
+  { from: 2,   to: 62,  text: "Hey Tino, hoe vaak moet je zo'n ramen wassen?" },
+  { from: 76,  to: 118, text: "Hier om de zes weken." },
+  { from: 126, to: 150, text: "En waarom?" },
+  { from: 152, to: 198, text: "Omdat er hier veel passage is van klanten" },
+  { from: 198, to: 226, text: "en er toch wel regelmatig" },
+  { from: 226, to: 266, text: "vingerafdrukken op de ramen zijn." },
+  { from: 272, to: 348, text: "Wilt u, als B2B-bedrijf, meer zichtbaarheid?" },
+  { from: 349, to: 388, text: "Dan is een propere ingang" },
+  { from: 388, to: 452, text: "een visitekaartje van uw bedrijf." },
+];
+
+/**
+ * The serious advert: no talking, the best of the work with four lines of
+ * copy and the offer on the logo. 17s and the logo, for Meta (which plays
+ * muted). Cold-traffic copy per the brand document: short, direct, a
+ * consequence, a quote. Nothing of Flanders Cobblestone in frame.
+ */
+export const SHOTS_ELITE_SERIOUS: Shot[] = graded(inProject("elite",
+  ([
+    ["vanAir", 46], ["out", 42], ["ladderOff", 32], ["glass", 38], ["reflect", 44], ["room", 36],
+    ["roof", 34], ["solar", 36], ["solarAir", 32], ["van", 24], ["atVan", 28], ["vanRear", 34],
+  ] as Array<[keyof typeof S, number]>).map(([key, frames], i) => ({
+    id: `p${String(i + 1).padStart(2, "0")}-${key.toLowerCase()}`,
+    ...S[key],
+    kind: "video" as const,
+    durationInFrames: frames,
+    focus: MOBILE_FOCUS[key],
+    move: "push" as const,
+    punch: false,
+  })),
+));
+
 FILMS["elite-header-wide"] = {
   id: "elite-header-wide",
   label: "Elite Cleaning - website header (16:9)",
@@ -1248,6 +1461,64 @@ FILMS["elite-header-vertical-generic"] = {
   targetFrames: HEADER_FRAMES,
 };
 
+FILMS["elite-bloopers"] = {
+  id: "elite-bloopers",
+  label: "Elite Cleaning - bloopers (9:16)",
+  format: "vertical",
+  shots: SHOTS_ELITE_BLOOPERS,
+  // Hard cuts: a blooper lands on the cut.
+  energy: "fast",
+  captions: {},
+  voice: ownSound(SHOTS_ELITE_BLOOPERS, {
+    "b01-opnemen": -18.73, "b02-error": -20.75, "b03-nee": -20.9, "b04-enthousiast": -17.9,
+    "b05-glasramen": -22.86, "b06-kijken": -21.59, "b07-bloopers": -20.97,
+  }),
+  subtitles: SUBTITLES_ELITE_BLOOPERS,
+  font: ELITE_FONT,
+  plain: true,
+  endCard: ELITE_END_CARD,
+  // 35.8s of takes + 1.8s of logo.
+  targetFrames: 895 + 45,
+};
+
+FILMS["elite-tino-speaking"] = {
+  id: "elite-tino-speaking",
+  label: "Elite Cleaning - Tino speaking (9:16)",
+  format: "vertical",
+  shots: SHOTS_ELITE_TINO,
+  energy: "high",
+  captions: {},
+  voice: VOICE_ELITE_TINO,
+  subtitles: SUBTITLES_ELITE_TINO,
+  font: ELITE_FONT,
+  plain: true,
+  endCard: ELITE_END_CARD,
+  // 18.2s of Tino + 1.8s of logo.
+  targetFrames: 454 + 45,
+};
+
+FILMS["elite-ad-serious"] = {
+  id: "elite-ad-serious",
+  label: "Elite Cleaning - advert, serious (9:16)",
+  format: "vertical",
+  shots: SHOTS_ELITE_SERIOUS,
+  // 6-frame dissolves and a slow push on every shot: considered, not hectic.
+  energy: "high",
+  captions: {},
+  titles: [
+    { from: 4,   to: 116, text: "Ramen, zonnepanelen, dak en gevel.", sub: "Elite Cleaning, Geraardsbergen" },
+    { from: 124, to: 234, text: "Zo proper dat het opvalt." },
+    { from: 242, to: 336, text: "Vuile panelen kosten je rendement." },
+    { from: 344, to: 424, text: "Honderden klanten gingen je voor." },
+  ],
+  font: ELITE_FONT,
+  plain: true,
+  // The offer on the logo card: the site's own call to action.
+  endCard: { ...ELITE_END_CARD, line: "Vraag je gratis offerte" },
+  // 17s of footage + 1.8s of logo.
+  targetFrames: 426 + 45,
+};
+
 FILMS["elite-ad"] = {
   id: "elite-ad",
   label: "Elite Cleaning - advert (9:16)",
@@ -1258,27 +1529,12 @@ FILMS["elite-ad"] = {
   captions: {},
   voice: VOICE_ELITE_AD,
   subtitles: SUBTITLES_ELITE_AD,
-  subtitleFont: ELITE_FONT,
+  font: ELITE_FONT,
   // No vignette or bottom scrim: they were taking back a third of the
   // brightness the grade put in (median luma 132 graded, 98 on screen).
   // The subtitles carry their own backing, line by line.
   plain: true,
-  // Light card: the logo is black and dark grey on light-blue bubbles and
-  // disappears on navy, and it may not be altered - so the card goes light
-  // rather than the logo going white.
-  endCard: {
-    durationInFrames: 45,
-    wordmark: "ELITE CLEANING",
-    line: "Specialist in reiniging",
-    venue: "Geraardsbergen en omstreken",
-    cta: "elitecleaning.be",
-    logo: "images/elite-cleaning-logo.png",
-    logoBlend: "normal",
-    accent: ELITE.blue,
-    background: ELITE.skyLight,
-    ink: ELITE.navy,
-    fontFamily: ELITE_FONT,
-  },
+  endCard: ELITE_END_CARD,
   // At most 18s of story + 1.8s of logo.
   targetFrames: 18 * FPS + 45,
 };
