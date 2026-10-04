@@ -50,9 +50,18 @@ TARGET_SAT, SAT_PULL, WARMTH = 70, 0.6, 1.02
 CURVE_POINTS = 33
 
 # Per-shot corrections by eye, applied on top of the measured pull:
-#   pull   override PULL for this shot (0 = leave its tones alone)
-#   mid    extra levels on the 50th percentile (+ brighter, - darker)
-#   sat    override the saturation factor
+#   pull     override PULL for this shot (0 = leave its tones alone)
+#   mid      extra levels on the 50th percentile (+ brighter, - darker)
+#   sat      override the saturation factor
+#   subject  [x0, y0, x1, y1, level]: a box around Tino in the frame the
+#            viewer sees (fractions of its width and height) and the level
+#            his median lands on. The curve is drawn through that point
+#            instead of the frame's own percentiles near it, so Tino comes
+#            up while the blacks stay where they were and the contrast is
+#            kept. For interiors, where the frame's percentiles are the
+#            white walls and the window and say nothing about him. Set sat
+#            with it: the curve works per channel, so a steep lift raises
+#            the colour of the shadows along with their level.
 MANUAL = {
     # Reviewed shot by shot. Backlit: Tino still reads a little dark
     # against the window; the windows have room to spare.
@@ -62,7 +71,10 @@ MANUAL = {
     "a01-glass":  {"mid": 8},     # the one walking into the glass is backlit
     # Mobile header: the vertical slices vary more than the wide frame.
     "m03-street": {"mid": -15},   # sun-blown street, brightest slice
-    "m15-crouch": {"mid": 10},    # Tino in a dark corner
+    # Tino's grey shirt measures 30-34 indoors against 160-170 in the
+    # street shots. Brought to 95-100 inside, short of daylight on purpose.
+    "m12-room":   {"subject": [.36, .34, .66, .58, 95], "sat": 1.0},
+    "m13-glass":  {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
 }
 
 def lookbook(project):
@@ -183,9 +195,20 @@ def grade_film(shots, man, sheet_path=None):
         pull = man_.get("pull", PULL)
         tgt = [v + pull * (r - v) for v, r in zip(src, REFERENCE)]
         tgt[2] += man_.get("mid", 0)
+        pts = list(zip(src, tgt))
+        if "subject" in man_:
+            x0, y0, x1, y1, level = man_["subject"]
+            sx = sum(pct(f.crop((round(x0 * f.width), round(y0 * f.height),
+                                 round(x1 * f.width), round(y1 * f.height))), .5) for f in frames) / len(frames)
+            # Below him, the measured points that stay under his level (the
+            # black point). Above him only the top one: the points between
+            # sit close to his new level and would flatten everything from
+            # his shirt to the wall into one grey.
+            below = [(x, y) for x, y in pts if x < sx - 4 and y < level - 4]
+            pts = below + [(sx, level)] + [pts[-1]]
         # keep the points strictly increasing on both axes
         xs, ys = [0.0], [0.0]
-        for x, y in zip(src, tgt):
+        for x, y in pts:
             if x > xs[-1] + 2 and y > ys[-1] + 2 and x < 253:
                 xs.append(x); ys.append(min(y, 253.0))
         xs.append(255.0); ys.append(255.0)
