@@ -11,7 +11,9 @@ export const Caption: React.FC<{
   sub?: string;
   accent: string;
   fontFamily?: string;
-}> = ({ text, sub, accent, fontFamily = "system-ui, -apple-system, Helvetica, sans-serif" }) => {
+  /** Pixels above the usual caption line, to clear subtitles under it. */
+  raise?: number;
+}> = ({ text, sub, accent, fontFamily = "system-ui, -apple-system, Helvetica, sans-serif", raise = 0 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const layout = layoutFor(width, height);
@@ -26,7 +28,7 @@ export const Caption: React.FC<{
         position: "absolute",
         left: layout.sidePad,
         right: layout.sidePad,
-        bottom: layout.captionBottom,
+        bottom: layout.captionBottom + raise,
         transform: `translateY(${y}px)`,
         opacity,
       }}

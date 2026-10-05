@@ -606,7 +606,14 @@ export type Film = {
    * in again at every cut. Each carries its own soft backing, so the
    * footage does not have to be darkened for it.
    */
-  titles?: Array<{ from: number; to: number; text: string; sub?: string }>;
+  titles?: Array<{
+    from: number;
+    to: number;
+    text: string;
+    sub?: string;
+    /** Sit above the subtitles, for a line held while someone speaks. */
+    aboveSubtitles?: boolean;
+  }>;
   /** Typeface for the titles and subtitles. Unset: system sans. */
   font?: string;
 };
@@ -1096,21 +1103,17 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.0232, 0.0463, 0.07, 0.0948, 0.1208, 0.1475, 0.175, 0.2029, 0.2311, 0.2595, 0.2886, 0.3184, 0.3485, 0.3788, 0.4091, 0.4391, 0.4685, 0.4972, 0.5239, 0.5485, 0.5717, 0.5945, 0.6174, 0.6414, 0.667, 0.6952, 0.7267, 0.7622, 0.804, 0.8631, 0.9323, 1] },
   "p12-vanrear": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.0263, 0.0562, 0.1134, 0.1764, 0.2206, 0.2593, 0.2938, 0.3255, 0.3556, 0.3856, 0.4146, 0.4424, 0.4691, 0.4948, 0.5197, 0.544, 0.5679, 0.5915, 0.6151, 0.6387, 0.6626, 0.687, 0.7114, 0.7317, 0.7489, 0.7649, 0.7819, 0.8019, 0.8272, 0.8597, 0.9016, 1] },
-  "e01-hook": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7187, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
-  "e02-glass": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
-    curve: [0, 0.0539, 0.1155, 0.2254, 0.3725, 0.4245, 0.4645, 0.5001, 0.5319, 0.56, 0.585, 0.6072, 0.627, 0.6447, 0.6607, 0.6755, 0.6893, 0.7027, 0.7159, 0.7294, 0.7434, 0.7585, 0.775, 0.7932, 0.8136, 0.836, 0.8589, 0.8822, 0.9057, 0.9293, 0.9529, 0.9765, 1] },
-  "e03-ingang": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+  "e01-ingang": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
-  "e04-reflect": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
-    curve: [0, 0.0354, 0.07, 0.1035, 0.1365, 0.1697, 0.2037, 0.2382, 0.2731, 0.3083, 0.3437, 0.3792, 0.4147, 0.4504, 0.4862, 0.5222, 0.5582, 0.5942, 0.6301, 0.6665, 0.7046, 0.7422, 0.7767, 0.8061, 0.832, 0.8558, 0.878, 0.8989, 0.9191, 0.9388, 0.9586, 0.9789, 1] },
-  "e05-roof": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+  "e02-ladder": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0307, 0.0658, 0.1163, 0.1679, 0.2111, 0.2521, 0.2908, 0.327, 0.3608, 0.392, 0.4207, 0.4475, 0.4726, 0.4966, 0.5199, 0.5429, 0.566, 0.5896, 0.6142, 0.6402, 0.6681, 0.6984, 0.7334, 0.7713, 0.8088, 0.8427, 0.8721, 0.8992, 0.9248, 0.9496, 0.9745, 1] },
+  "e03-roof": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.0284, 0.057, 0.0859, 0.1152, 0.1446, 0.1742, 0.2037, 0.2331, 0.262, 0.2907, 0.3194, 0.3482, 0.3774, 0.4072, 0.4377, 0.4692, 0.502, 0.5361, 0.571, 0.6063, 0.6418, 0.6769, 0.7115, 0.746, 0.7806, 0.8148, 0.8482, 0.8802, 0.9108, 0.9407, 0.9702, 1] },
-  "e06-kwaliteit": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+  "e04-kwaliteit": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
     curve: [0, 0.0578, 0.1332, 0.2178, 0.298, 0.3605, 0.4008, 0.4369, 0.4699, 0.5002, 0.5282, 0.5539, 0.5778, 0.6001, 0.621, 0.6409, 0.6599, 0.6785, 0.6968, 0.7151, 0.7337, 0.7529, 0.7729, 0.7941, 0.8166, 0.8398, 0.8628, 0.8858, 0.9086, 0.9315, 0.9543, 0.9771, 1] },
-  "e07-solar": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+  "e05-solar": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.02, 0.0385, 0.0588, 0.0842, 0.1235, 0.182, 0.2276, 0.2668, 0.3028, 0.3366, 0.3694, 0.4021, 0.4356, 0.4691, 0.5022, 0.5348, 0.5669, 0.5982, 0.6288, 0.6584, 0.6869, 0.7135, 0.7388, 0.7634, 0.788, 0.813, 0.8392, 0.867, 0.8975, 0.9309, 0.9656, 1] },
-  "e08-proper": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
+  "e06-proper": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
     curve: [0, 0.0543, 0.1264, 0.2092, 0.2896, 0.3542, 0.396, 0.4323, 0.4657, 0.4963, 0.5246, 0.5506, 0.5748, 0.5974, 0.6186, 0.6387, 0.658, 0.6768, 0.6953, 0.7138, 0.7325, 0.7518, 0.7718, 0.793, 0.8155, 0.8388, 0.862, 0.885, 0.9081, 0.931, 0.954, 0.977, 1] },
 };
 // </elite-grades>
@@ -1443,58 +1446,56 @@ export const SHOTS_ELITE_SERIOUS: Shot[] = graded(inProject("elite",
  * Tino to camera, for Meta and Instagram: the presentable version, with
  * none of the cameraman's questions. It makes the case for a business: be
  * seen; a clean entrance is your business card; the windows want doing
- * every six weeks; he checks the work himself; it is clean. 15.9s and the
+ * every six weeks; he checks the work himself; it is clean. 13.4s and the
  * offer on the logo.
  *
- * The opening question is on screen, not spoken. The only complete take
- * of Tino asking it has him looking up at the drone, which reads as a
- * man with a stiff neck; clip 20 has him looking straight into the lens,
- * silent, while the camera moves in, and his first spoken line answers
- * the question on screen.
+ * Michael's notes on the earlier cuts: open on Tino looking into the lens
+ * (the only complete take of him asking the question has him looking up at
+ * the drone), and never a silence or a silent Tino while his voice plays.
+ * So the first frame is his clearest line, said into the lens, with the
+ * question it answers on screen above the subtitles; the voice-over runs
+ * only over shots where his face is not the subject (the ladder from
+ * behind, the roof).
  *
- *  frame  picture                         sound
- *      0  Tino, into the lens             (title: Wil je als bedrijf meer zichtbaarheid?)
- *     59  him behind the spotless glass   "Dan is een propere ingang
- *     99  Tino, to camera                  een visitekaartje van uw bedrijf."
- *    162  washing the window, the roof    "In dit geval is het toch aangewezen om de zes
- *                                          weken de ramen te doen."  (take 12, cut after "maar")
- *    244  at the window, inside           "Ik ben nu de kwaliteit aan het controleren,
- *                                          dat we toch proper alles achterlaten."
- *    338  clean panels, a beat
- *    354  Tino                            "Het is proper!"
- *    397  logo: Vraag je gratis offerte
+ *  frame  picture                          sound
+ *      0  Tino, into the lens              "Dan is een propere ingang een visitekaartje
+ *         (title: Wil je als bedrijf         van uw bedrijf."
+ *          meer zichtbaarheid?)
+ *    102  the ladder off the van, the roof "In dit geval is het toch aangewezen om de zes
+ *                                           weken de ramen te doen."  (take 12, cut after "maar")
+ *    183  at the window, inside            "Ik ben nu de kwaliteit aan het controleren,
+ *                                           dat we toch proper alles achterlaten."
+ *    277  clean panels, a beat
+ *    293  Tino                             "Het is proper!"
+ *    336  logo: Vraag je gratis offerte
  */
 export const SHOTS_ELITE_AD_TINO: Shot[] = graded(inProject("elite", [
-  // After a blink at 0.6s; framed right of him so the banner, which the
-  // camera's move brings in from the left, stays out.
-  take("e01-hook",  "20-6E8A6390.mp4", 0.80, 2.36, "50% 50%"),
-  { id: "e02-glass",   ...S.glass,   kind: "video", durationInFrames: 40, focus: MOBILE_FOCUS.glass,   punch: false },
-  take("e03-ingang", "10-6E8A6380.mp4", 61.52, 2.52, "65% 50%"),
-  { id: "e04-reflect", ...S.reflect, kind: "video", durationInFrames: 44, focus: MOBILE_FOCUS.reflect, punch: false },
-  { id: "e05-roof",    ...S.roof,    kind: "video", durationInFrames: 38, focus: MOBILE_FOCUS.roof,    punch: false },
-  { ...take("e06-kwaliteit", "03-6E8A6373.mp4", 15.04, 3.76, "57% 50%"), grade: ELITE_GRADE.indoor },
-  { id: "e07-solar",   ...S.solar,   kind: "video", durationInFrames: 16, focus: MOBILE_FOCUS.solar,   punch: false },
-  { ...take("e08-proper", "03-6E8A6373.mp4", 21.08, 1.72, "57% 50%"), grade: ELITE_GRADE.indoor },
+  take("e01-ingang", "10-6E8A6380.mp4", 60.00, 4.08, "65% 50%"),
+  { id: "e02-ladder",  ...S.ladderOff, kind: "video", durationInFrames: 40, focus: MOBILE_FOCUS.ladderOff, punch: false },
+  { id: "e03-roof",    ...S.roof,      kind: "video", durationInFrames: 41, focus: MOBILE_FOCUS.roof,      punch: false },
+  { ...take("e04-kwaliteit", "03-6E8A6373.mp4", 15.04, 3.76, "57% 50%"), grade: ELITE_GRADE.indoor },
+  { id: "e05-solar",   ...S.solar,     kind: "video", durationInFrames: 16, focus: MOBILE_FOCUS.solar,     punch: false },
+  { ...take("e06-proper", "03-6E8A6373.mp4", 21.08, 1.72, "57% 50%"), grade: ELITE_GRADE.indoor },
 ]));
 
 const VOICE_ELITE_AD_TINO: VoiceClip[] = [
-  // In sync with e03 (1500 + 38 frames at 99).
-  { id: "e-voice2-ingang",    file: "10-6E8A6380.mp4", project: "elite", from: 61,  startFrom: 1500, durationInFrames: 99, lufs: -21.23 },
+  // In sync with e01, from its first frame.
+  { id: "e-voice2-ingang",    file: "10-6E8A6380.mp4", project: "elite", from: 0,   startFrom: 1500, durationInFrames: 99, lufs: -21.23 },
   // 20.48-23.64s: starts in the dip after "maar", so it stands alone.
-  { id: "e-voice3-advies",    file: "12-6E8A6382.mp4", project: "elite", from: 164, startFrom: 512,  durationInFrames: 79, lufs: -22.84 },
-  // In sync with e06 (376 + 1 frame at 245).
-  { id: "e-voice4-kwaliteit", file: "03-6E8A6373.mp4", project: "elite", from: 245, startFrom: 377,  durationInFrames: 93, lufs: -24.2 },
-  { id: "e-voice5-proper",    file: "03-6E8A6373.mp4", project: "elite", from: 354, startFrom: 527,  durationInFrames: 43, lufs: -13.55 },
+  { id: "e-voice3-advies",    file: "12-6E8A6382.mp4", project: "elite", from: 104, startFrom: 512,  durationInFrames: 79, lufs: -22.84 },
+  // In sync with e04 (376 + 1 frame at 184).
+  { id: "e-voice4-kwaliteit", file: "03-6E8A6373.mp4", project: "elite", from: 184, startFrom: 377,  durationInFrames: 93, lufs: -24.2 },
+  { id: "e-voice5-proper",    file: "03-6E8A6373.mp4", project: "elite", from: 293, startFrom: 527,  durationInFrames: 43, lufs: -13.55 },
 ];
 
 const SUBTITLES_ELITE_AD_TINO: Subtitle[] = [
-  { from: 61,  to: 100, text: "Dan is een propere ingang" },
-  { from: 100, to: 162, text: "een visitekaartje van uw bedrijf." },
-  { from: 164, to: 206, text: "In dit geval is het toch aangewezen" },
-  { from: 206, to: 244, text: "om de zes weken de ramen te doen." },
-  { from: 245, to: 304, text: "Ik ben nu de kwaliteit aan het controleren," },
-  { from: 304, to: 338, text: "dat we toch proper alles achterlaten." },
-  { from: 355, to: 397, text: "Het is proper!" },
+  { from: 0,   to: 39,  text: "Dan is een propere ingang" },
+  { from: 39,  to: 101, text: "een visitekaartje van uw bedrijf." },
+  { from: 104, to: 146, text: "In dit geval is het toch aangewezen" },
+  { from: 146, to: 183, text: "om de zes weken de ramen te doen." },
+  { from: 184, to: 243, text: "Ik ben nu de kwaliteit aan het controleren," },
+  { from: 243, to: 277, text: "dat we toch proper alles achterlaten." },
+  { from: 294, to: 336, text: "Het is proper!" },
 ];
 
 FILMS["elite-header-wide"] = {
@@ -1604,12 +1605,12 @@ FILMS["elite-ad-tino"] = {
   voice: VOICE_ELITE_AD_TINO,
   subtitles: SUBTITLES_ELITE_AD_TINO,
   // Brand copy, so je/jij; Tino's own words keep his "u".
-  titles: [{ from: 3, to: 57, text: "Wil je als bedrijf meer zichtbaarheid?" }],
+  titles: [{ from: 0, to: 100, text: "Wil je als bedrijf meer zichtbaarheid?", aboveSubtitles: true }],
   font: ELITE_FONT,
   plain: true,
   endCard: { ...ELITE_END_CARD, line: "Vraag je gratis offerte" },
-  // 15.9s of Tino + 1.8s of logo: under the 20s Michael set for Meta.
-  targetFrames: 397 + 45,
+  // 13.4s of Tino + 1.8s of logo: under the 20s Michael set for Meta.
+  targetFrames: 336 + 45,
 };
 
 FILMS["elite-ad"] = {

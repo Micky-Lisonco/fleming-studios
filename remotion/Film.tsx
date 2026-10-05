@@ -5,6 +5,7 @@ import {
   interpolate,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
 import {
   BRAND,
@@ -13,6 +14,7 @@ import {
   FILMS,
   MUSIC,
   crossfadeFor,
+  layoutFor,
   resolveMedia,
   speechRanges,
 } from "./edit";
@@ -62,8 +64,13 @@ const Title: React.FC<{
   durationInFrames: number;
   accent: string;
   fontFamily?: string;
-}> = ({ text, sub, durationInFrames, accent, fontFamily }) => {
+  aboveSubtitles?: boolean;
+}> = ({ text, sub, durationInFrames, accent, fontFamily, aboveSubtitles }) => {
   const frame = useCurrentFrame();
+  const { width, height } = useVideoConfig();
+  const layout = layoutFor(width, height);
+  // Two lines of subtitles and their backing, plus a gap.
+  const raise = aboveSubtitles ? Math.round(layout.subSize * 1.1 * 1.35 * 2 + 56) : 0;
   const opacity = interpolate(frame, [0, 8, durationInFrames - 6, durationInFrames], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -72,11 +79,12 @@ const Title: React.FC<{
     <AbsoluteFill style={{ opacity, pointerEvents: "none" }}>
       <AbsoluteFill
         style={{
-          background:
-            "linear-gradient(to top, rgba(11,30,61,0.62) 0%, rgba(11,30,61,0.38) 24%, rgba(11,30,61,0) 46%)",
+          background: aboveSubtitles
+            ? "linear-gradient(to top, rgba(11,30,61,0.62) 0%, rgba(11,30,61,0.42) 36%, rgba(11,30,61,0) 62%)"
+            : "linear-gradient(to top, rgba(11,30,61,0.62) 0%, rgba(11,30,61,0.38) 24%, rgba(11,30,61,0) 46%)",
         }}
       />
-      <Caption text={text} sub={sub} accent={accent} fontFamily={fontFamily} />
+      <Caption text={text} sub={sub} accent={accent} fontFamily={fontFamily} raise={raise} />
     </AbsoluteFill>
   );
 };
@@ -200,6 +208,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
             durationInFrames={t.to - t.from}
             accent={film.endCard?.accent ?? BRAND.oxygen}
             fontFamily={film.font}
+            aboveSubtitles={t.aboveSubtitles}
           />
         </Sequence>
       ))}

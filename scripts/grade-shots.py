@@ -89,11 +89,10 @@ MANUAL = {
     # colour. Same for the two takes in the speaking film.
     **{k: {"pull": 0, "sat": 1.1} for k in (
         "b01-opnemen", "b02-error", "b03-nee", "b05-glasramen", "b06-kijken", "b07-bloopers",
-        "t01-vraag", "t06-ingang", "e01-hook", "e03-ingang")},
+        "t01-vraag", "t06-ingang", "e01-ingang")},
     # Tino at the window inside, the same lift as the bicycle-wall shot.
-    "e06-kwaliteit": {"subject": [.36, .33, .66, .56, 95], "sat": 1.0},
-    "e08-proper":    {"subject": [.36, .33, .66, .56, 95], "sat": 1.0},
-    "e02-glass":     {"subject": [.42, .33, .72, .50, 100], "sat": 1.0},
+    "e04-kwaliteit": {"subject": [.36, .33, .66, .56, 95], "sat": 1.0},
+    "e06-proper":    {"subject": [.36, .33, .66, .56, 95], "sat": 1.0},
     # The glass gag from inside: dark, so it still comes up, but without
     # the saturation that turned the red hoodie loud.
     "b04-enthousiast": {"sat": 1.0, "mid": 8},
