@@ -1097,7 +1097,7 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
   "p12-vanrear": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
     curve: [0, 0.0263, 0.0562, 0.1134, 0.1764, 0.2206, 0.2593, 0.2938, 0.3255, 0.3556, 0.3856, 0.4146, 0.4424, 0.4691, 0.4948, 0.5197, 0.544, 0.5679, 0.5915, 0.6151, 0.6387, 0.6626, 0.687, 0.7114, 0.7317, 0.7489, 0.7649, 0.7819, 0.8019, 0.8272, 0.8597, 0.9016, 1] },
   "e01-hook": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4687, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9063, 0.9375, 0.9688, 1] },
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7187, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "e02-glass": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
     curve: [0, 0.0539, 0.1155, 0.2254, 0.3725, 0.4245, 0.4645, 0.5001, 0.5319, 0.56, 0.585, 0.6072, 0.627, 0.6447, 0.6607, 0.6755, 0.6893, 0.7027, 0.7159, 0.7294, 0.7434, 0.7585, 0.775, 0.7932, 0.8136, 0.836, 0.8589, 0.8822, 0.9057, 0.9293, 0.9529, 0.9765, 1] },
   "e03-ingang": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
@@ -1441,26 +1441,33 @@ export const SHOTS_ELITE_SERIOUS: Shot[] = graded(inProject("elite",
 
 /**
  * Tino to camera, for Meta and Instagram: the presentable version, with
- * none of the cameraman's questions. Every line is Tino's own, said into
- * the lens or at work, and together they make the case for a business:
- * be seen, a clean entrance is your business card, the windows want doing
- * every six weeks, he checks the work himself, and it is clean. 16.6s and
- * the offer on the logo.
+ * none of the cameraman's questions. It makes the case for a business: be
+ * seen; a clean entrance is your business card; the windows want doing
+ * every six weeks; he checks the work himself; it is clean. 15.9s and the
+ * offer on the logo.
+ *
+ * The opening question is on screen, not spoken. The only complete take
+ * of Tino asking it has him looking up at the drone, which reads as a
+ * man with a stiff neck; clip 20 has him looking straight into the lens,
+ * silent, while the camera moves in, and his first spoken line answers
+ * the question on screen.
  *
  *  frame  picture                         sound
- *      0  Tino, to camera                 "Wilt u, als B2B-bedrijf, meer zichtbaarheid?"
- *     78  him behind the spotless glass   "Dan is een propere ingang
- *    118  Tino, to camera                  een visitekaartje van uw bedrijf."
- *    181  washing the window, the roof    "In dit geval is het toch aangewezen om de zes
+ *      0  Tino, into the lens             (title: Wil je als bedrijf meer zichtbaarheid?)
+ *     59  him behind the spotless glass   "Dan is een propere ingang
+ *     99  Tino, to camera                  een visitekaartje van uw bedrijf."
+ *    162  washing the window, the roof    "In dit geval is het toch aangewezen om de zes
  *                                          weken de ramen te doen."  (take 12, cut after "maar")
- *    263  at the window, inside           "Ik ben nu de kwaliteit aan het controleren,
+ *    244  at the window, inside           "Ik ben nu de kwaliteit aan het controleren,
  *                                          dat we toch proper alles achterlaten."
- *    357  clean panels, a beat
- *    373  Tino                            "Het is proper!"
- *    416  logo: Vraag je gratis offerte
+ *    338  clean panels, a beat
+ *    354  Tino                            "Het is proper!"
+ *    397  logo: Vraag je gratis offerte
  */
 export const SHOTS_ELITE_AD_TINO: Shot[] = graded(inProject("elite", [
-  take("e01-hook",  "10-6E8A6380.mp4", 26.52, 3.12, "65% 50%"),
+  // After a blink at 0.6s; framed right of him so the banner, which the
+  // camera's move brings in from the left, stays out.
+  take("e01-hook",  "20-6E8A6390.mp4", 0.80, 2.36, "50% 50%"),
   { id: "e02-glass",   ...S.glass,   kind: "video", durationInFrames: 40, focus: MOBILE_FOCUS.glass,   punch: false },
   take("e03-ingang", "10-6E8A6380.mp4", 61.52, 2.52, "65% 50%"),
   { id: "e04-reflect", ...S.reflect, kind: "video", durationInFrames: 44, focus: MOBILE_FOCUS.reflect, punch: false },
@@ -1471,25 +1478,23 @@ export const SHOTS_ELITE_AD_TINO: Shot[] = graded(inProject("elite", [
 ]));
 
 const VOICE_ELITE_AD_TINO: VoiceClip[] = [
-  { id: "e-voice1-hook",      file: "10-6E8A6380.mp4", project: "elite", from: 0,   startFrom: 663,  durationInFrames: 78, lufs: -20.81 },
-  // In sync with e03 (1500 + 38 frames at 118).
-  { id: "e-voice2-ingang",    file: "10-6E8A6380.mp4", project: "elite", from: 80,  startFrom: 1500, durationInFrames: 99, lufs: -21.23 },
+  // In sync with e03 (1500 + 38 frames at 99).
+  { id: "e-voice2-ingang",    file: "10-6E8A6380.mp4", project: "elite", from: 61,  startFrom: 1500, durationInFrames: 99, lufs: -21.23 },
   // 20.48-23.64s: starts in the dip after "maar", so it stands alone.
-  { id: "e-voice3-advies",    file: "12-6E8A6382.mp4", project: "elite", from: 183, startFrom: 512,  durationInFrames: 79, lufs: -22.84 },
-  // In sync with e06 (376 + 1 frame at 264).
-  { id: "e-voice4-kwaliteit", file: "03-6E8A6373.mp4", project: "elite", from: 264, startFrom: 377,  durationInFrames: 93, lufs: -24.2 },
-  { id: "e-voice5-proper",    file: "03-6E8A6373.mp4", project: "elite", from: 373, startFrom: 527,  durationInFrames: 43, lufs: -13.55 },
+  { id: "e-voice3-advies",    file: "12-6E8A6382.mp4", project: "elite", from: 164, startFrom: 512,  durationInFrames: 79, lufs: -22.84 },
+  // In sync with e06 (376 + 1 frame at 245).
+  { id: "e-voice4-kwaliteit", file: "03-6E8A6373.mp4", project: "elite", from: 245, startFrom: 377,  durationInFrames: 93, lufs: -24.2 },
+  { id: "e-voice5-proper",    file: "03-6E8A6373.mp4", project: "elite", from: 354, startFrom: 527,  durationInFrames: 43, lufs: -13.55 },
 ];
 
 const SUBTITLES_ELITE_AD_TINO: Subtitle[] = [
-  { from: 2,   to: 76,  text: "Wilt u, als B2B-bedrijf, meer zichtbaarheid?" },
-  { from: 80,  to: 119, text: "Dan is een propere ingang" },
-  { from: 119, to: 181, text: "een visitekaartje van uw bedrijf." },
-  { from: 183, to: 225, text: "In dit geval is het toch aangewezen" },
-  { from: 225, to: 263, text: "om de zes weken de ramen te doen." },
-  { from: 264, to: 323, text: "Ik ben nu de kwaliteit aan het controleren," },
-  { from: 323, to: 357, text: "dat we toch proper alles achterlaten." },
-  { from: 374, to: 416, text: "Het is proper!" },
+  { from: 61,  to: 100, text: "Dan is een propere ingang" },
+  { from: 100, to: 162, text: "een visitekaartje van uw bedrijf." },
+  { from: 164, to: 206, text: "In dit geval is het toch aangewezen" },
+  { from: 206, to: 244, text: "om de zes weken de ramen te doen." },
+  { from: 245, to: 304, text: "Ik ben nu de kwaliteit aan het controleren," },
+  { from: 304, to: 338, text: "dat we toch proper alles achterlaten." },
+  { from: 355, to: 397, text: "Het is proper!" },
 ];
 
 FILMS["elite-header-wide"] = {
@@ -1598,11 +1603,13 @@ FILMS["elite-ad-tino"] = {
   captions: {},
   voice: VOICE_ELITE_AD_TINO,
   subtitles: SUBTITLES_ELITE_AD_TINO,
+  // Brand copy, so je/jij; Tino's own words keep his "u".
+  titles: [{ from: 3, to: 57, text: "Wil je als bedrijf meer zichtbaarheid?" }],
   font: ELITE_FONT,
   plain: true,
   endCard: { ...ELITE_END_CARD, line: "Vraag je gratis offerte" },
-  // 16.6s of Tino + 1.8s of logo: under the 20s Michael set for Meta.
-  targetFrames: 416 + 45,
+  // 15.9s of Tino + 1.8s of logo: under the 20s Michael set for Meta.
+  targetFrames: 397 + 45,
 };
 
 FILMS["elite-ad"] = {
