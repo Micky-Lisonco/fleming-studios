@@ -7,7 +7,7 @@
  *   npm run video:render:safe -- elite-header-wide --final --web
  *   npm run video:render:safe -- elite-ad --final        with its voice track
  *
- * --web is for website header backgrounds: a light file that starts
+ * --web is for website header backgrounds: a file that starts
  * playing fast (1920x1080 wide, 720x1280 vertical - phones do not need
  * more behind a headline), plus <film>-poster.jpg for the <video poster>
  * attribute, taken just after the fade-in rather than from the black
@@ -245,10 +245,12 @@ run("ffmpeg", [
   "-c:v", "libx264", "-x264-params", "colorprim=bt709:transfer=bt709:colormatrix=bt709:range=tv",
   // Delivery: lower CRF and a slower preset spend bits on detail - the
   // cobbles and the brushed steel are exactly what a fast encode smears.
-  // Web: CRF 26 is where a background loop stops growing visibly better
-  // and only gets heavier; high profile plays on every current browser.
+  // Web: CRF 17, visually lossless. A lower setting (26 here before) and
+  // a header behind a dark page overlay break into blocks in the shadows
+  // and on anything moving - the website agent measured exactly that on a
+  // 5 Mbps hero. High profile plays on every current browser.
   ...(web ? ["-profile:v", "high"] : []),
-  "-crf", web ? "26" : final ? "16" : "18", "-preset", final || web ? "slow" : "medium",
+  "-crf", web ? "17" : final ? "16" : "18", "-preset", final || web ? "slow" : "medium",
   "-movflags", "+faststart",
   ...audio,
   output,
