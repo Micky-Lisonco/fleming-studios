@@ -757,6 +757,79 @@ FILMS["ad-explainer-nl"] = {
   },
 };
 
+/**
+ * The explainer with Fien's own voice from the interviews, for Michael's
+ * pitch to Normocare: 22s and the end card. Every line is hers, inside
+ * the client's language (recovery, relaxation, groups; none of the
+ * conditions or healing she also mentions), cut on the pauses in her
+ * audio. She is on screen only when it is her own sound; the rest of her
+ * voice runs over the chamber, the chairs and the drone.
+ *
+ *  frame  picture                          Fien
+ *      0  the chamber from the air, panning "Het lichaam heeft zuurstof nodig om te herstellen."
+ *     80  Fien, in the chamber              "Hier krijg je dubbel zoveel zuurstof gedurende
+ *                                            twee uur lang."
+ *    184  the aisle, a chair, the seats     "Je kan hier gewoon twee uur lang zitten, een boek
+ *                                            lezen, een beetje tv kijken of gewoon rusten."
+ *    314  Fien, then the crowd outside      "Je kan hier met zeventien personen plaatsnemen, dus
+ *                                            daarom is het ideaal voor groepen of bedrijven die
+ *                                            op zoek zijn naar een unieke locatie."
+ *    497  the chamber, its logo             "De normobarische kamer is de enige in de Benelux."
+ *    551  end card
+ */
+export const SHOTS_EXPLAINER_VO: Shot[] = [
+  { id: "v01-air",    file: "25-DJI_20260905124246_0024_D.mp4", kind: "video", durationInFrames: 80,  startFrom: 150, pan: [18, 68], punch: false, accent: BRAND.oxygen },
+  // In sync with her voice: 669 + 80 frames.
+  { id: "v02-fien",   file: "08-6E8A6399.mp4",                  kind: "video", durationInFrames: 104, startFrom: 749,  focus: "57% 50%", punch: false, accent: BRAND.oxygen },
+  { id: "v03-aisle",  file: "06-6E8A6397.mp4",                  kind: "video", durationInFrames: 42,  startFrom: 55,   focus: "57% 50%", move: "push", punch: false, accent: BRAND.oxygen },
+  // The normocare logo on the headrest.
+  { id: "v04-chair",  file: "18-6E8A6409.mp4",                  kind: "video", durationInFrames: 44,  startFrom: 186,  focus: "79% 50%", move: "push", punch: false, accent: BRAND.pulse },
+  { id: "v05-row",    file: "05-6E8A6396.mp4",                  kind: "video", durationInFrames: 44,  startFrom: 250,  focus: "38% 50%", move: "push", punch: false, accent: BRAND.pulse },
+  // In sync with her voice: 65 - 4 frames.
+  { id: "v06-groups", file: "11-6E8A6402.mp4",                  kind: "video", durationInFrames: 106, startFrom: 61,   focus: "57% 50%", punch: false, accent: BRAND.oxygen },
+  { id: "v07-crowd",  file: "23-DJI_20260905124037_0022_D.mp4", kind: "video", durationInFrames: 77,  startFrom: 1150, focus: "38% 50%", punch: false, accent: BRAND.oxygen },
+  { id: "v08-logo",   file: "24-DJI_20260905124227_0023_D.mp4", kind: "video", durationInFrames: 54,  startFrom: 60,   focus: "23% 50%", move: "push", punch: false, accent: BRAND.oxygen },
+];
+
+const VOICE_EXPLAINER_VO: VoiceClip[] = [
+  // 26.76-33.96s, after the cameraman's "En waarvoor doe je dat?".
+  { id: "v-fien1-herstel",  file: "08-6E8A6399.mp4", from: 0,   startFrom: 669,  durationInFrames: 180, lufs: -20.94 },
+  // 93.48-98.52s.
+  { id: "v-fien2-rusten",   file: "08-6E8A6399.mp4", from: 188, startFrom: 2337, durationInFrames: 126, lufs: -19.72 },
+  // 2.60-9.76s, after "Met hoeveel personen kan je hier zitten?".
+  { id: "v-fien3-groepen",  file: "11-6E8A6402.mp4", from: 318, startFrom: 65,   durationInFrames: 179, lufs: -20.39 },
+  // 101.44-103.44s, after "Dat is wel vrij uniek toch, zoiets?".
+  { id: "v-fien4-benelux",  file: "08-6E8A6399.mp4", from: 501, startFrom: 2536, durationInFrames: 50,  lufs: -21.19 },
+];
+
+const SUBTITLES_EXPLAINER_VO: Subtitle[] = [
+  { from: 1,   to: 35,  text: "Het lichaam heeft zuurstof nodig" },
+  { from: 35,  to: 78,  text: "om te herstellen." },
+  { from: 90,  to: 143, text: "Hier krijg je dubbel zoveel zuurstof" },
+  { from: 143, to: 184, text: "gedurende twee uur lang." },
+  { from: 188, to: 239, text: "Je kan hier gewoon twee uur lang zitten," },
+  { from: 239, to: 289, text: "een boek lezen, een beetje tv kijken" },
+  { from: 289, to: 314, text: "of gewoon rusten." },
+  { from: 319, to: 375, text: "Je kan hier met zeventien personen plaatsnemen," },
+  { from: 375, to: 440, text: "dus daarom is het ideaal voor groepen of bedrijven" },
+  { from: 440, to: 497, text: "die op zoek zijn naar een unieke locatie." },
+  { from: 501, to: 551, text: "De normobarische kamer is de enige in de Benelux." },
+];
+
+FILMS["ad-explainer-nl-vo"] = {
+  id: "ad-explainer-nl-vo",
+  label: "Zuurstofkamer - uitleg, met Fien (9:16)",
+  format: "vertical",
+  shots: SHOTS_EXPLAINER_VO,
+  energy: "high",
+  captions: {},
+  voice: VOICE_EXPLAINER_VO,
+  subtitles: SUBTITLES_EXPLAINER_VO,
+  endCard: FILMS["ad-explainer-nl"].endCard,
+  // 22s of Fien + the end card; Michael allowed up to 25s for the explainer.
+  targetFrames: 551 + (FILMS["ad-explainer-nl"].endCard?.durationInFrames ?? 0),
+};
+
 export const DEFAULT_FILM = "ad-nl";
 
 /** Who is on camera, if a name super is ever wanted. */
