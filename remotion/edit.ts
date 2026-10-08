@@ -1470,7 +1470,8 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   // Snap-zoom onto his face for "Error." (16.68-17.12s), then the
   // generated screen flashing ERROR, sped up, then back for his answer.
   { ...take("b02z-error",  "10-6E8A6380.mp4",  16.60, 0.60, "53% 50%"), zoom: 1.6, zoomOrigin: "50% 16%" },
-  { id: "c01-error", file: "error.mp4", generated: true, kind: "video", startFrom: 25, speed: 2, durationInFrames: 36, punch: false },
+  // Only the red screen with ERROR blinking (2.0s to the end), at 2x.
+  { id: "c01-error", file: "error.mp4", generated: true, kind: "video", startFrom: 50, speed: 2, durationInFrames: 24, punch: false },
   take("b02y-normaal",    "10-6E8A6380.mp4",  18.72, 1.16, "53% 50%"),
   { ...take("b04-enthousiast", "06-6E8A6376.mp4", 15.40, 3.60, "35% 50%"), grade: ELITE_GRADE.indoor },
   // Back in, with the slap: from "glasramen zijn" to "glazen ramen", ending
@@ -1479,8 +1480,8 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   // "...naar daar kijken." - and there is a kestrel, looking back at him.
   take("b06-kijken",      "10-6E8A6380.mp4",  56.40, 1.68, "65% 50%"),
   // Kling: a kestrel (torenvalk) hangs in an empty sky, looks down at him
-  // and calls. Its own sound, so at normal speed to keep the sound on it.
-  { id: "c02-bird", file: "kestrel.mp4", generated: true, kind: "video", startFrom: 10, durationInFrames: 50, punch: false },
+  // and calls (0.88-2.88s holds all three calls, measured -22.6 LUFS). Its own sound, so at normal speed to keep the sound on it.
+  { id: "c02-bird", file: "kestrel.mp4", generated: true, kind: "video", startFrom: 22, durationInFrames: 50, punch: false },
   take("b06b-mij",        "10-6E8A6380.mp4",  58.24, 1.04, "65% 50%"),
   take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 1.68, "65% 50%"),
   // Just "De bloopers.", said once.
@@ -1494,16 +1495,16 @@ const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
   { from: 1,   to: 40,  text: "Hij is aan het opnemen!" },
   { from: 40,  to: 122, text: "Wilt u, als B2B-bedrijf, meer..." },
   { from: 123, to: 137, text: "Error." },
-  { from: 174, to: 202, text: "Dat geeft niet. Dat is normaal." },
-  { from: 203, to: 234, text: "Oh, ik had dat niet gezien." },
-  { from: 236, to: 292, text: "We moeten wel een beetje enthousiast zijn." },
-  { from: 292, to: 328, text: "...glasramen zijn." },
-  { from: 342, to: 370, text: "Zijn dat geen glasramen?" },
-  { from: 372, to: 419, text: "Ja, glaspartij of glazen ramen." },
-  { from: 420, to: 461, text: "Oké, maar ik moet naar daar kijken." },
-  { from: 512, to: 537, text: "Nee, naar mij kijken." },
-  { from: 539, to: 579, text: "Wilt u, als B2..." },
-  { from: 579, to: 604, text: "De bloopers!" },
+  { from: 162, to: 190, text: "Dat geeft niet. Dat is normaal." },
+  { from: 191, to: 222, text: "Oh, ik had dat niet gezien." },
+  { from: 224, to: 280, text: "We moeten wel een beetje enthousiast zijn." },
+  { from: 280, to: 316, text: "...glasramen zijn." },
+  { from: 330, to: 358, text: "Zijn dat geen glasramen?" },
+  { from: 360, to: 407, text: "Ja, glaspartij of glazen ramen." },
+  { from: 408, to: 449, text: "Oké, maar ik moet naar daar kijken." },
+  { from: 500, to: 525, text: "Nee, naar mij kijken." },
+  { from: 527, to: 567, text: "Wilt u, als B2..." },
+  { from: 567, to: 592, text: "De bloopers!" },
 ];
 
 /**
@@ -1676,20 +1677,20 @@ FILMS["elite-bloopers"] = {
   captions: {},
   voice: ownSound(SHOTS_ELITE_BLOOPERS, {
     "b01-opnemen": -18.73, "b02-error": -20.75, "b02z-error": -20.75, "b04-enthousiast": -17.9,
-    "b02y-normaal": -20.75, "c02-bird": -16, "b05-glasramen": -22.86, "b06-kijken": -21.59, "b06b-mij": -21.59,
+    "b02y-normaal": -20.75, "c02-bird": -22.6, "b05-glasramen": -22.86, "b06-kijken": -21.59, "b06b-mij": -21.59,
     "b07-bloopers": -20.97, "b07a-de": -20.97,
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   pops: [
     { from: 0,   to: 38,  text: "BLOOPERS", flash: true, color: ELITE.gold, y: 0.4, size: 0.15 },
-    { from: 604, to: 679, text: "We zijn niet in alles top...", y: 0.3, size: 0.085, tilt: -2 },
-    { from: 630, to: 679, text: "maar wel in schoonmaken!", color: ELITE.gold, y: 0.44, size: 0.1, tilt: -4 },
+    { from: 592, to: 667, text: "We zijn niet in alles top...", y: 0.3, size: 0.085, tilt: -2 },
+    { from: 618, to: 667, text: "maar wel in schoonmaken!", color: ELITE.gold, y: 0.44, size: 0.1, tilt: -4 },
   ],
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 24.2s of takes and cutaways, 3s of punchline, 1.8s of logo.
-  targetFrames: 679 + 45,
+  // 23.7s of takes and cutaways, 3s of punchline, 1.8s of logo.
+  targetFrames: 667 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {
