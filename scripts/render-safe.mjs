@@ -127,6 +127,16 @@ if (final) {
   process.stdout.write(`All ${needed.length} conformed clips found.\n`);
 }
 
+// Generated cutaways live in git, or were downloaded next to it by hand.
+const noClip = (FILMS[id.replace(/-titled$/, "")]?.shots ?? [])
+  .filter((s) => s.generated)
+  .map((s) => join("public", ...(s.project ? [s.project] : []), "generated", s.file))
+  .filter((p) => !existsSync(p));
+if (noClip.length) {
+  process.stderr.write(`Generated clips not found - download them into:\n  ${noClip.join("\n  ")}\n`);
+  process.exit(1);
+}
+
 // Checked before rendering, not after twenty minutes of frames.
 const noVoice = voice.map(voiceSource).filter((p) => !existsSync(p));
 if (noVoice.length) {

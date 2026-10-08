@@ -158,6 +158,7 @@ export const resolveMedia = (file: string, project?: string): string =>
  */
 export const shotSource = (shot: Shot): string | null => {
   if (shot.kind === "image") return shot.file ? `images/${shot.file}` : null;
+  if (shot.generated) return `${shot.project ? `${shot.project}/` : ""}generated/${shot.file}`;
   if (CONFORMED) return resolveMedia(`${shot.id}.mp4`, shot.project);
   return shot.file ? resolveMedia(shot.file, shot.project) : null;
 };
@@ -172,7 +173,7 @@ export const inProject = (project: string, shots: Shot[]): Shot[] =>
  * the shot was chosen for.
  */
 export const shotStartFrom = (shot: Shot): number =>
-  shot.kind === "image" ? 0 : CONFORMED ? 0 : (shot.startFrom ?? 0);
+  shot.kind === "image" ? 0 : CONFORMED && !shot.generated ? 0 : (shot.startFrom ?? 0);
 
 /**
  * Palette: clinical oxygen blues against the warm stone of the cobbles,
@@ -249,6 +250,13 @@ export type Shot = {
    */
   file: string | null;
   kind: "video" | "image";
+  /**
+   * A finished clip made for the edit (a Higgsfield cutaway), kept in git
+   * at public/<project>/generated/<file>. There is no master to conform
+   * it from, so it plays from that file, trimmed by startFrom, in every
+   * mode, and it carries no sound.
+   */
+  generated?: boolean;
   /** 25 frames = 1 second. */
   durationInFrames: number;
   /** Trim: start this many frames into the source. Video only. */
@@ -1139,21 +1147,19 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5937, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b02z-error": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b02y-normaal": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b04-enthousiast": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
     curve: [0, 0.1084, 0.2157, 0.289, 0.3346, 0.3691, 0.3998, 0.4271, 0.4513, 0.473, 0.4924, 0.5102, 0.5266, 0.5421, 0.5571, 0.572, 0.5873, 0.6033, 0.6205, 0.6393, 0.6601, 0.6832, 0.7072, 0.7318, 0.757, 0.7831, 0.8101, 0.838, 0.8669, 0.8975, 0.9309, 0.9656, 1] },
   "b05-glasramen": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8437, 0.875, 0.9063, 0.9375, 0.9688, 1] },
   "b06-kijken": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b06b-mij": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b07-bloopers": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b07a-de": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
-  "b07b-bloo": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
-  "b07c-bloo": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
-  "b07d-bloopers": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "t01-vraag": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0937, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
@@ -1439,36 +1445,38 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   // Nee.") is out.
   take("b01-opnemen",     "07-6E8A6377.mp4",   0.00, 1.60, "50% 50%"),
   take("b02-error",       "10-6E8A6380.mp4",  12.00, 3.28, "53% 50%"),
-  // Snap-zoom onto his face for "Error.", the silence before it cut out.
-  { ...take("b02z-error",  "10-6E8A6380.mp4",  16.60, 3.28, "53% 50%"), zoom: 1.6, zoomOrigin: "50% 16%" },
+  // Snap-zoom onto his face for "Error." (16.68-17.12s), then the
+  // generated screen flashing ERROR, sped up, then back for his answer.
+  { ...take("b02z-error",  "10-6E8A6380.mp4",  16.60, 0.60, "53% 50%"), zoom: 1.6, zoomOrigin: "50% 16%" },
+  { id: "c01-error", file: "error.mp4", generated: true, kind: "video", startFrom: 25, speed: 2, durationInFrames: 36, punch: false },
+  take("b02y-normaal",    "10-6E8A6380.mp4",  18.72, 1.16, "53% 50%"),
   { ...take("b04-enthousiast", "06-6E8A6376.mp4", 15.40, 3.60, "35% 50%"), grade: ELITE_GRADE.indoor },
   // Back in, with the slap: from "glasramen zijn" to "glazen ramen", ending
   // before "ik weet niet".
   take("b05-glasramen",   "19-6E8A6389.mp4",  13.96, 5.08, "65% 50%"),
-  take("b06-kijken",      "10-6E8A6380.mp4",  56.40, 2.88, "65% 50%"),
+  // "...naar daar kijken." - and there is a crow, looking back at him.
+  take("b06-kijken",      "10-6E8A6380.mp4",  56.40, 1.68, "65% 50%"),
+  { id: "c02-bird", file: "bird.mp4", generated: true, kind: "video", startFrom: 25, speed: 1.5, durationInFrames: 30, punch: false },
+  take("b06b-mij",        "10-6E8A6380.mp4",  58.24, 1.04, "65% 50%"),
   take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 1.68, "65% 50%"),
-  // "De bloopers." stutters: the "bloo" (114.24-114.40s) plays three
-  // times, the frame jumping closer each time, then the whole word.
-  take("b07a-de",         "07-6E8A6377.mp4", 113.88, 0.52, "65% 50%"),
-  { ...take("b07b-bloo",   "07-6E8A6377.mp4", 114.24, 0.16, "65% 50%"), zoom: 1.2, zoomOrigin: "50% 22%" },
-  { ...take("b07c-bloo",   "07-6E8A6377.mp4", 114.24, 0.16, "65% 50%"), zoom: 1.4, zoomOrigin: "50% 22%" },
-  { ...take("b07d-bloopers", "07-6E8A6377.mp4", 114.24, 0.96, "65% 50%"), zoom: 1.6, zoomOrigin: "50% 22%" },
+  // Just "De bloopers.", said once.
+  take("b07a-de",         "07-6E8A6377.mp4", 113.88, 1.00, "65% 50%"),
 ]));
 
 const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
   { from: 1,   to: 40,  text: "Hij is aan het opnemen!" },
   { from: 40,  to: 122, text: "Wilt u, als B2B-bedrijf, meer..." },
-  { from: 124, to: 176, text: "Error." },
-  { from: 176, to: 204, text: "Dat geeft niet. Dat is normaal." },
-  { from: 205, to: 236, text: "Oh, ik had dat niet gezien." },
-  { from: 238, to: 294, text: "We moeten wel een beetje enthousiast zijn." },
-  { from: 294, to: 330, text: "...glasramen zijn." },
-  { from: 344, to: 372, text: "Zijn dat geen glasramen?" },
-  { from: 374, to: 421, text: "Ja, glaspartij of glazen ramen." },
-  { from: 422, to: 462, text: "Oké, maar ik moet naar daar kijken." },
-  { from: 466, to: 493, text: "Nee, naar mij kijken." },
-  { from: 495, to: 535, text: "Wilt u, als B2..." },
-  { from: 535, to: 580, text: "De bloo-bloo-bloo-bloopers!" },
+  { from: 123, to: 137, text: "Error." },
+  { from: 174, to: 202, text: "Dat geeft niet. Dat is normaal." },
+  { from: 203, to: 234, text: "Oh, ik had dat niet gezien." },
+  { from: 236, to: 292, text: "We moeten wel een beetje enthousiast zijn." },
+  { from: 292, to: 328, text: "...glasramen zijn." },
+  { from: 342, to: 370, text: "Zijn dat geen glasramen?" },
+  { from: 372, to: 419, text: "Ja, glaspartij of glazen ramen." },
+  { from: 420, to: 461, text: "Oké, maar ik moet naar daar kijken." },
+  { from: 492, to: 517, text: "Nee, naar mij kijken." },
+  { from: 519, to: 559, text: "Wilt u, als B2..." },
+  { from: 559, to: 584, text: "De bloopers!" },
 ];
 
 /**
@@ -1641,15 +1649,15 @@ FILMS["elite-bloopers"] = {
   captions: {},
   voice: ownSound(SHOTS_ELITE_BLOOPERS, {
     "b01-opnemen": -18.73, "b02-error": -20.75, "b02z-error": -20.75, "b04-enthousiast": -17.9,
-    "b05-glasramen": -22.86, "b06-kijken": -21.59, "b07-bloopers": -20.97, "b07a-de": -20.97,
-    "b07b-bloo": -20.97, "b07c-bloo": -20.97, "b07d-bloopers": -20.97,
+    "b02y-normaal": -20.75, "b05-glasramen": -22.86, "b06-kijken": -21.59, "b06b-mij": -21.59,
+    "b07-bloopers": -20.97, "b07a-de": -20.97,
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 23.2s of takes + 1.8s of logo: the 25s Michael asked for.
-  targetFrames: 580 + 45,
+  // 23.4s of takes and cutaways + 1.8s of logo.
+  targetFrames: 584 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {

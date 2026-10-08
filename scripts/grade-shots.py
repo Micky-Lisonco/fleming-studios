@@ -89,7 +89,7 @@ MANUAL = {
     # colour. Same for the two takes in the speaking film.
     **{k: {"pull": 0, "sat": 1.1} for k in (
         "b01-opnemen", "b02-error", "b02z-error", "b05-glasramen", "b06-kijken", "b07-bloopers",
-        "b07a-de", "b07b-bloo", "b07c-bloo", "b07d-bloopers",
+        "b07a-de", "b02y-normaal", "b06b-mij",
         "t01-vraag", "t06-ingang", "e01-ingang")},
     # Tino at the window inside, the same lift as the bicycle-wall shot.
     "e04-kwaliteit": {"subject": [.36, .33, .66, .56, 95], "sat": 1.0},
@@ -178,7 +178,7 @@ def solve(fn, target, lo, hi, increasing):
 
 def export_shots():
     js = ("import('./remotion/edit.ts').then(({FILMS})=>{const o={};for(const id of %s){const f=FILMS[id];"
-          "o[id]=f.shots.map(s=>({id:s.id,project:s.project??null,file:s.file,startFrom:s.startFrom??0,"
+          "o[id]=f.shots.filter(s=>!s.generated).map(s=>({id:s.id,project:s.project??null,file:s.file,startFrom:s.startFrom??0,"
           "durationInFrames:s.durationInFrames,speed:s.speed??1,"
           "focusX:s.focus?parseFloat(s.focus):50,pan:s.pan??null,vertical:f.format==='vertical'}))}"
           "console.log(JSON.stringify(o))})") % json.dumps(FILMS)

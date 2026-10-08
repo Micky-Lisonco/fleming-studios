@@ -39,6 +39,8 @@ for (const film of films) {
     if (!shot.file) continue;
     // Stills are already final and have no master to trim from.
     if (shot.kind === "image") continue;
+    // Generated cutaways are already final, in git, and play as they are.
+    if (shot.generated) continue;
     const speed = shot.speed ?? 1;
     const key = JSON.stringify([shot.file, shot.startFrom ?? 0, shot.durationInFrames, speed]);
     const key2 = `${shot.project ?? ""}/${shot.id}`;
