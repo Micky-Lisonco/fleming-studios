@@ -19,6 +19,14 @@ Rules:
 - Say plainly when something is blocked and whether it blocks him or
   only me.
 
+## Spending credits
+
+Never spend credits on Higgsfield, Kling or any other paid generator
+without asking Michael first. Every time, quote the model, the exact
+credit cost and the cheapest option that would do the job (Kling is
+usually far cheaper), then wait for his yes. Cutaways of 1-2 s go at
+the lowest resolution and duration that will cover them.
+
 ## Project
 
 A 20s ad for the oxygen room at Flanders Cobblestone Paradise, cut in
