@@ -205,7 +205,7 @@ export const Shot: React.FC<{
     ? interpolate(spring({ frame, fps, config: { damping: 200, mass: 0.35 } }), [0, 1], [1.06, 1])
     : 1;
 
-  const scale = drift * punch * moveScale;
+  const scale = drift * punch * moveScale * (shot.zoom ?? 1);
 
   const fit = shot.fit ?? "cover";
   const mediaStyle: React.CSSProperties = {
@@ -220,6 +220,7 @@ export const Shot: React.FC<{
         })}% ${(shot.focus ?? "50% 50%").split(" ")[1] ?? "50%"}`
       : shot.focus ?? "50% 50%",
     transform: `translateX(${moveX}%) scale(${scale})`,
+    transformOrigin: shot.zoomOrigin ?? "50% 50%",
     filter: shot.grade ? `url(#grade-${shot.id})` : undefined,
   };
 

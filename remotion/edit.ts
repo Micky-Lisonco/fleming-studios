@@ -317,6 +317,13 @@ export type Shot = {
   move?: "push" | "pull" | "left" | "right";
   /** Playback rate. 1.2 on a drone shot buys energy for free. */
   speed?: number;
+  /**
+   * Hold the frame this much closer for the whole shot (1.4 = 40% in),
+   * centred on zoomOrigin (CSS transform-origin, default the middle). A
+   * comic snap-zoom is two shots of the same take, the second zoomed.
+   */
+  zoom?: number;
+  zoomOrigin?: string;
   /** Punch-in on the cut — a fast settle from slightly oversized. On by default. */
   punch?: boolean;
   /**
@@ -1129,16 +1136,22 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
   "b01-opnemen": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2813, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4687, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8437, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b02-error": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0313, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5937, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b02z-error": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b03-nee": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0313, 0.0625, 0.0938, 0.125, 0.1563, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4063, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b04-enthousiast": { gamma: 1, contrast: 1, saturation: 1.0, warmth: 1.02,
     curve: [0, 0.1084, 0.2157, 0.289, 0.3346, 0.3691, 0.3998, 0.4271, 0.4513, 0.473, 0.4924, 0.5102, 0.5266, 0.5421, 0.5571, 0.572, 0.5873, 0.6033, 0.6205, 0.6393, 0.6601, 0.6832, 0.7072, 0.7318, 0.757, 0.7831, 0.8101, 0.838, 0.8669, 0.8975, 0.9309, 0.9656, 1] },
-  "b05-glasramen": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8437, 0.875, 0.9063, 0.9375, 0.9688, 1] },
   "b06-kijken": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b07-bloopers": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b07b-bloo": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b07c-bloo": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b07d-bloopers": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "t01-vraag": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0937, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
@@ -1420,12 +1433,20 @@ const take = (id: string, file: string, startSec: number, seconds: number, focus
  */
 export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   take("b01-opnemen",     "07-6E8A6377.mp4",   0.00, 3.20, "50% 50%"),
-  take("b02-error",       "10-6E8A6380.mp4",  12.00, 7.92, "53% 50%"),
+  take("b02-error",       "10-6E8A6380.mp4",  12.00, 4.68, "53% 50%"),
+  // Snap-zoom onto his face for "Error.", same take, no break in the sound.
+  { ...take("b02z-error",  "10-6E8A6380.mp4",  16.68, 3.24, "53% 50%"), zoom: 1.6, zoomOrigin: "50% 16%" },
   take("b03-nee",         "13-6E8A6383.mp4",   4.00, 3.32, "68% 50%"),
   { ...take("b04-enthousiast", "06-6E8A6376.mp4", 15.32, 3.88, "35% 50%"), grade: ELITE_GRADE.indoor },
-  take("b05-glasramen",   "19-6E8A6389.mp4",  13.00, 7.00, "65% 50%"),
+  // The "glasramen" exchange is out at Michael's request (Tino does not
+  // like it).
   take("b06-kijken",      "10-6E8A6380.mp4",  54.20, 5.40, "65% 50%"),
-  take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 5.08, "65% 50%"),
+  // "De bloopers." stutters: the "bloo" (114.24-114.40s) plays three
+  // times, the frame jumping closer each time, then the whole word.
+  take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 3.28, "65% 50%"),
+  { ...take("b07b-bloo",   "07-6E8A6377.mp4", 114.24, 0.16, "65% 50%"), zoom: 1.2, zoomOrigin: "50% 22%" },
+  { ...take("b07c-bloo",   "07-6E8A6377.mp4", 114.24, 0.16, "65% 50%"), zoom: 1.4, zoomOrigin: "50% 22%" },
+  { ...take("b07d-bloopers", "07-6E8A6377.mp4", 114.24, 1.96, "65% 50%"), zoom: 1.6, zoomOrigin: "50% 22%" },
 ]));
 
 const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
@@ -1438,16 +1459,13 @@ const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
   { from: 340, to: 361, text: "Nee." },
   { from: 362, to: 395, text: "Oh, ik had dat niet gezien." },
   { from: 396, to: 458, text: "We moeten wel een beetje enthousiast zijn." },
-  { from: 458, to: 498, text: "...op de glasramen zijn." },
-  { from: 512, to: 556, text: "Zijn dat geen glasramen?" },
-  { from: 557, to: 633, text: "Ja, glaspartij of glazen ramen, ik weet niet." },
-  { from: 633, to: 646, text: "Eh?" },
-  { from: 653, to: 688, text: "Dan is een propere ingang..." },
-  { from: 688, to: 731, text: "Oké, maar ik moet naar daar kijken." },
-  { from: 734, to: 753, text: "Nee, naar mij kijken." },
-  { from: 753, to: 768, text: "Oké." },
-  { from: 770, to: 812, text: "Wilt u, als B2..." },
-  { from: 836, to: 895, text: "De bloopers." },
+  { from: 458, to: 471, text: "Eh?" },
+  { from: 478, to: 513, text: "Dan is een propere ingang..." },
+  { from: 513, to: 556, text: "Oké, maar ik moet naar daar kijken." },
+  { from: 559, to: 578, text: "Nee, naar mij kijken." },
+  { from: 578, to: 593, text: "Oké." },
+  { from: 595, to: 637, text: "Wilt u, als B2..." },
+  { from: 661, to: 732, text: "De bloo-bloo-bloo-bloopers!" },
 ];
 
 /**
@@ -1619,15 +1637,16 @@ FILMS["elite-bloopers"] = {
   energy: "fast",
   captions: {},
   voice: ownSound(SHOTS_ELITE_BLOOPERS, {
-    "b01-opnemen": -18.73, "b02-error": -20.75, "b03-nee": -20.9, "b04-enthousiast": -17.9,
-    "b05-glasramen": -22.86, "b06-kijken": -21.59, "b07-bloopers": -20.97,
+    "b01-opnemen": -18.73, "b02-error": -20.75, "b02z-error": -20.75, "b03-nee": -20.9,
+    "b04-enthousiast": -17.9, "b06-kijken": -21.59, "b07-bloopers": -20.97,
+    "b07b-bloo": -20.97, "b07c-bloo": -20.97, "b07d-bloopers": -20.97,
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 35.8s of takes + 1.8s of logo.
-  targetFrames: 895 + 45,
+  // 29.3s of takes + 1.8s of logo.
+  targetFrames: 732 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {

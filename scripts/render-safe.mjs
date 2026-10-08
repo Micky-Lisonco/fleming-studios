@@ -202,7 +202,8 @@ voice.forEach((v, i) => {
         "asetpts=PTS-STARTPTS",
         // A few milliseconds each end, so a cut mid-breath does not click.
         "afade=t=in:d=0.02",
-        `afade=t=out:st=${Math.max(0, dur - 0.08).toFixed(3)}:d=0.08`,
+        // A quarter of the clip at most: a stuttered syllable is 0.16s.
+        `afade=t=out:st=${Math.max(0, dur - Math.min(0.08, dur / 4)).toFixed(3)}:d=${Math.min(0.08, dur / 4).toFixed(3)}`,
         `adelay=delays=${Math.round((v.from / FPS) * 1000)}:all=1`,
       ].join(",") +
       `[v${i}]`,
