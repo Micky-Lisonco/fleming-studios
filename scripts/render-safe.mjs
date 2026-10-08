@@ -59,8 +59,12 @@ const voice = FILMS[id]?.voice ?? [];
 const conformedVoice = mediaDir === "media";
 // A conformed clip is cut and levelled already; otherwise it is the whole
 // source, sought into and levelled at mix time.
+// A generated cutaway's sound plays from the clip itself, never conformed.
+const isConformed = (v) => conformedVoice && !v.generated;
 const voiceSource = (v) =>
-  join("public", ...(v.project ? [v.project] : []), mediaDir, conformedVoice ? `${v.id}.m4a` : v.file);
+  v.generated
+    ? join("public", ...(v.project ? [v.project] : []), "generated", v.file)
+    : join("public", ...(v.project ? [v.project] : []), mediaDir, conformedVoice ? `${v.id}.m4a` : v.file);
 const output = join("out", `${id}${final ? "" : "-draft"}${uhd ? "-4k" : ""}${web ? "-web" : ""}.mp4`);
 const win = process.platform === "win32";
 
@@ -197,10 +201,10 @@ const audioChains = [];
 voice.forEach((v, i) => {
   const dur = v.durationInFrames / FPS;
   audioInputs.push(
-    ...(conformedVoice ? [] : ["-ss", (v.startFrom / FPS).toFixed(3), "-t", dur.toFixed(3)]),
+    ...(isConformed(v) ? [] : ["-ss", (v.startFrom / FPS).toFixed(3), "-t", dur.toFixed(3)]),
     "-i", voiceSource(v),
   );
-  const level = conformedVoice
+  const level = isConformed(v)
     ? []
     : [`volume=${(VOICE_LUFS - v.lufs).toFixed(2)}dB`, `alimiter=limit=${ceiling.toFixed(4)}:level=false`];
   audioChains.push(

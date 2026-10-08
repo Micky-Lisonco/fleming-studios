@@ -235,13 +235,17 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
           name={`Voice: ${v.id}`}
         >
           <Audio
-            src={staticFile(resolveMedia(CONFORMED ? `${v.id}.m4a` : v.file, v.project))}
-            startFrom={CONFORMED ? 0 : v.startFrom}
+            src={staticFile(
+              v.generated
+                ? `${v.project ? `${v.project}/` : ""}generated/${v.file}`
+                : resolveMedia(CONFORMED ? `${v.id}.m4a` : v.file, v.project),
+            )}
+            startFrom={CONFORMED && !v.generated ? 0 : v.startFrom}
             volume={(f) =>
               interpolate(f, [0, 1, v.durationInFrames - 2, v.durationInFrames], [0, 1, 1, 0], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
-              }) * (CONFORMED ? 1 : 10 ** ((PREVIEW_LUFS - v.lufs) / 20))
+              }) * (CONFORMED && !v.generated ? 1 : 10 ** ((PREVIEW_LUFS - v.lufs) / 20))
             }
             // A quiet line needs a gain above 1, which a plain <audio>
             // element cannot play.

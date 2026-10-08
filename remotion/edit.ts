@@ -222,6 +222,8 @@ export type VoiceClip = {
    * conform measures the master itself for the delivery.
    */
   lufs: number;
+  /** Sound of a generated cutaway: plays from public/<project>/generated. */
+  generated?: boolean;
 };
 
 /** Loudness the voice is delivered at: what Meta and TikTok play at. */
@@ -1415,7 +1417,7 @@ const ownSound = (shots: Shot[], lufs: Record<string, number>): VoiceClip[] => {
       clips.push({
         id: `${shot.id}-sound`, file: shot.file, project: shot.project, from,
         startFrom: shot.startFrom ?? 0, durationInFrames: shot.durationInFrames,
-        lufs: lufs[shot.id],
+        lufs: lufs[shot.id], generated: shot.generated,
       });
     }
     from += shot.durationInFrames;
@@ -1456,7 +1458,8 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   take("b05-glasramen",   "19-6E8A6389.mp4",  13.96, 5.08, "65% 50%"),
   // "...naar daar kijken." - and there is a crow, looking back at him.
   take("b06-kijken",      "10-6E8A6380.mp4",  56.40, 1.68, "65% 50%"),
-  { id: "c02-bird", file: "bird.mp4", generated: true, kind: "video", startFrom: 25, speed: 1.5, durationInFrames: 30, punch: false },
+  // Kling, with its own squawk, so at normal speed to keep the sound on it.
+  { id: "c02-bird", file: "bird.mp4", generated: true, kind: "video", startFrom: 25, durationInFrames: 50, punch: false },
   take("b06b-mij",        "10-6E8A6380.mp4",  58.24, 1.04, "65% 50%"),
   take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 1.68, "65% 50%"),
   // Just "De bloopers.", said once.
@@ -1474,9 +1477,9 @@ const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
   { from: 342, to: 370, text: "Zijn dat geen glasramen?" },
   { from: 372, to: 419, text: "Ja, glaspartij of glazen ramen." },
   { from: 420, to: 461, text: "Oké, maar ik moet naar daar kijken." },
-  { from: 492, to: 517, text: "Nee, naar mij kijken." },
-  { from: 519, to: 559, text: "Wilt u, als B2..." },
-  { from: 559, to: 584, text: "De bloopers!" },
+  { from: 512, to: 537, text: "Nee, naar mij kijken." },
+  { from: 539, to: 579, text: "Wilt u, als B2..." },
+  { from: 579, to: 604, text: "De bloopers!" },
 ];
 
 /**
@@ -1649,15 +1652,15 @@ FILMS["elite-bloopers"] = {
   captions: {},
   voice: ownSound(SHOTS_ELITE_BLOOPERS, {
     "b01-opnemen": -18.73, "b02-error": -20.75, "b02z-error": -20.75, "b04-enthousiast": -17.9,
-    "b02y-normaal": -20.75, "b05-glasramen": -22.86, "b06-kijken": -21.59, "b06b-mij": -21.59,
+    "b02y-normaal": -20.75, "c02-bird": -16, "b05-glasramen": -22.86, "b06-kijken": -21.59, "b06b-mij": -21.59,
     "b07-bloopers": -20.97, "b07a-de": -20.97,
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 23.4s of takes and cutaways + 1.8s of logo.
-  targetFrames: 584 + 45,
+  // 24.2s of takes and cutaways + 1.8s of logo.
+  targetFrames: 604 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {

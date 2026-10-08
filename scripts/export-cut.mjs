@@ -74,6 +74,7 @@ for (const film of films) {
 // render-safe needs to lay it back under the picture.
 for (const film of films) {
   for (const v of film.voice ?? []) {
+    if (v.generated) continue;
     const key = JSON.stringify(["voice", v.file, v.startFrom, v.durationInFrames]);
     const key2 = `${v.project ?? ""}/${v.id}`;
     if (byId.has(key2)) {
