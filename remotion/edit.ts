@@ -631,8 +631,26 @@ export type Film = {
     /** Sit above the subtitles, for a line held while someone speaks. */
     aboveSubtitles?: boolean;
   }>;
+  /** Loud text effects on top of everything, see components/Pop.tsx. */
+  pops?: PopText[];
   /** Typeface for the titles and subtitles. Unset: system sans. */
   font?: string;
+};
+
+export type PopText = {
+  /** Timeline frames. */
+  from: number;
+  to: number;
+  text: string;
+  /** Blinks a few times as it lands. */
+  flash?: boolean;
+  color?: string;
+  /** Top of the text, as a fraction of the frame height. Default 0.2. */
+  y?: number;
+  /** Font size as a fraction of the frame width. Default 0.16. */
+  size?: number;
+  /** Degrees. Default -4. */
+  tilt?: number;
 };
 
 const CTA = "flanderscobblestoneparadise.be";
@@ -1163,6 +1181,8 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b07a-de": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b08-proper": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
+    curve: [0, 0.0354, 0.07, 0.1035, 0.1365, 0.1697, 0.2037, 0.2382, 0.2731, 0.3083, 0.3437, 0.3792, 0.4147, 0.4504, 0.4862, 0.5222, 0.5582, 0.5942, 0.6301, 0.6665, 0.7046, 0.7422, 0.7767, 0.8061, 0.832, 0.8558, 0.878, 0.8989, 0.9191, 0.9388, 0.9586, 0.9789, 1] },
   "t01-vraag": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0937, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "t02-reflect": { gamma: 1, contrast: 1, saturation: 1.45, warmth: 1.02,
@@ -1465,6 +1485,9 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 1.68, "65% 50%"),
   // Just "De bloopers.", said once.
   take("b07a-de",         "07-6E8A6377.mp4", 113.88, 1.00, "65% 50%"),
+  // The punchline: Tino at the window, doing it properly, under the two
+  // lines of text (see pops).
+  { id: "b08-proper", ...S.reflect, kind: "video", durationInFrames: 75, focus: MOBILE_FOCUS.reflect, punch: false },
 ]));
 
 const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
@@ -1657,11 +1680,16 @@ FILMS["elite-bloopers"] = {
     "b07-bloopers": -20.97, "b07a-de": -20.97,
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
+  pops: [
+    { from: 0,   to: 38,  text: "BLOOPERS", flash: true, color: ELITE.gold, y: 0.4, size: 0.15 },
+    { from: 604, to: 679, text: "We zijn niet in alles top...", y: 0.3, size: 0.085, tilt: -2 },
+    { from: 630, to: 679, text: "maar wel in schoonmaken!", color: ELITE.gold, y: 0.44, size: 0.1, tilt: -4 },
+  ],
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 24.2s of takes and cutaways + 1.8s of logo.
-  targetFrames: 604 + 45,
+  // 24.2s of takes and cutaways, 3s of punchline, 1.8s of logo.
+  targetFrames: 679 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {

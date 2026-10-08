@@ -25,6 +25,7 @@ import { ProgressBar } from "./components/ProgressBar";
 import { Caption } from "./components/Caption";
 import { Shot } from "./components/Shot";
 import { Subtitles } from "./components/Subtitles";
+import { Pop } from "./components/Pop";
 
 /** Frames of lead-in and tail on the music duck, so it breathes. */
 const DUCK_FADE = 6;
@@ -222,6 +223,12 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
           fontFamily={film.font}
         />
       ) : null}
+
+      {(film.pops ?? []).map((p, i) => (
+        <Sequence key={`pop-${i}`} from={p.from} durationInFrames={p.to - p.from} name={`Pop: ${p.text}`}>
+          <Pop pop={p} fontFamily={film.font} outline={film.endCard?.ink ?? BRAND.black} />
+        </Sequence>
+      ))}
 
       {/* The voice track. A conformed clip is already cut to its range and
           levelled; a proxy is the whole source, so seek into it and level
