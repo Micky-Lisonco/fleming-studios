@@ -1456,9 +1456,10 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   // Back in, with the slap: from "glasramen zijn" to "glazen ramen", ending
   // before "ik weet niet".
   take("b05-glasramen",   "19-6E8A6389.mp4",  13.96, 5.08, "65% 50%"),
-  // "...naar daar kijken." - and there is a crow, looking back at him.
+  // "...naar daar kijken." - and there is a flamingo, looking back at him.
   take("b06-kijken",      "10-6E8A6380.mp4",  56.40, 1.68, "65% 50%"),
-  // Kling, with its own squawk, so at normal speed to keep the sound on it.
+  // Kling: a flamingo lands on the roof and looks down at him. Its own
+  // sound, so at normal speed to keep the sound on it.
   { id: "c02-bird", file: "bird.mp4", generated: true, kind: "video", startFrom: 25, durationInFrames: 50, punch: false },
   take("b06b-mij",        "10-6E8A6380.mp4",  58.24, 1.04, "65% 50%"),
   take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 1.68, "65% 50%"),
