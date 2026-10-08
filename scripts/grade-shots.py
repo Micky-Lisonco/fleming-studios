@@ -88,8 +88,8 @@ MANUAL = {
     # the face, so they keep the camera's own tones and get only a little
     # colour. Same for the two takes in the speaking film.
     **{k: {"pull": 0, "sat": 1.1} for k in (
-        "b01-opnemen", "b02-error", "b02z-error", "b03-nee", "b06-kijken", "b07-bloopers",
-        "b07b-bloo", "b07c-bloo", "b07d-bloopers",
+        "b01-opnemen", "b02-error", "b02z-error", "b05-glasramen", "b06-kijken", "b07-bloopers",
+        "b07a-de", "b07b-bloo", "b07c-bloo", "b07d-bloopers",
         "t01-vraag", "t06-ingang", "e01-ingang")},
     # Tino at the window inside, the same lift as the bicycle-wall shot.
     "e04-kwaliteit": {"subject": [.36, .33, .66, .56, 95], "sat": 1.0},
