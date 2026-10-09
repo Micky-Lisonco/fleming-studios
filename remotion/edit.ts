@@ -642,19 +642,23 @@ export type PopText = {
   from: number;
   to: number;
   text: string;
-  /** Blinks a few times as it lands. */
-  flash?: boolean;
-  /** Words land one at a time, this many frames apart. */
+  /** Frames between one word (or letter) landing and the next. Default 3. */
   beat?: number;
-  /** Text colour. Default white. */
-  color?: string;
-  /** Colour of the edge around the letters. Default Elite blue. */
-  edge?: string;
-  /** Soft see-through band behind it: [top, height] as fractions of the frame. */
-  band?: [number, number];
+  /** Stagger the letters rather than the words. */
+  letters?: boolean;
+  /** Words (without punctuation) that get a brand-blue pill behind them. */
+  highlight?: string[];
+  /** Two quick colour-split flickers. */
+  glitch?: boolean;
+  /** A brand-blue glow around the letters. */
+  glow?: boolean;
+  /** Use nearly the full width of the frame. */
+  wide?: boolean;
+  /** Soft navy darkening rising from the bottom of the frame. */
+  shade?: boolean;
   /** Top of the text, as a fraction of the frame height. Default 0.2. */
   y?: number;
-  /** Font size as a fraction of the frame width. Default 0.12. */
+  /** Font size as a fraction of the frame width. Default 0.1. */
   size?: number;
 };
 
@@ -1688,11 +1692,10 @@ FILMS["elite-bloopers"] = {
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   pops: [
-    { from: 0,   to: 34,  text: "BLOOPERS", flash: true, y: 0.4, size: 0.16 },
-    // Word by word, on the beat: a statement, then the answer.
-    { from: 581, to: 666, text: "We kunnen niet top zijn in alles.", beat: 5, edge: ELITE.navy,
-      y: 0.3, size: 0.08, band: [0.26, 0.3] },
-    { from: 619, to: 666, text: "Maar in schoonmaken zijn we de beste.", beat: 5, y: 0.42, size: 0.08 },
+    { from: 0,   to: 34,  text: "BLOOPERS", letters: true, beat: 2, glitch: true, glow: true, y: 0.4, size: 0.17 },
+    // Below his face: the statement, then the answer.
+    { from: 581, to: 666, text: "We kunnen niet | top zijn in alles.", beat: 4, shade: true, wide: true, y: 0.53, size: 0.09 },
+    { from: 616, to: 666, text: "Maar in schoonmaken | zijn we de beste.", beat: 4, highlight: ["beste"], wide: true, y: 0.665, size: 0.09 },
   ],
   font: ELITE_FONT,
   plain: true,
