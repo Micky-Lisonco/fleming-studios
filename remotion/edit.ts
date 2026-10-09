@@ -652,6 +652,12 @@ export type PopText = {
   glitch?: boolean;
   /** A brand-blue glow around the letters. */
   glow?: boolean;
+  /** Title treatment: whole lines (split on "|") rise out of a mask. */
+  lines?: boolean;
+  /** A short brand-blue rule that draws in above the lines. */
+  rule?: boolean;
+  /** Font weight. Default 900. */
+  weight?: number;
   /** Use nearly the full width of the frame. */
   wide?: boolean;
   /** Soft navy darkening rising from the bottom of the frame. */
@@ -1693,9 +1699,11 @@ FILMS["elite-bloopers"] = {
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   pops: [
     { from: 0,   to: 34,  text: "BLOOPERS", letters: true, beat: 2, glitch: true, glow: true, y: 0.4, size: 0.17 },
-    // Below his face: the statement, then the answer.
-    { from: 581, to: 666, text: "We kunnen niet | top zijn in alles.", beat: 4, shade: true, wide: true, y: 0.53, size: 0.09 },
-    { from: 616, to: 666, text: "Maar in schoonmaken | zijn we de beste.", beat: 4, highlight: ["beste"], wide: true, y: 0.665, size: 0.09 },
+    // Below his face, as titles: the set-up line, a gap, then the answer.
+    { from: 581, to: 666, text: "We kunnen niet | in alles top zijn.", lines: true, beat: 4, rule: true, shade: true,
+      weight: 800, y: 0.5, size: 0.075 },
+    { from: 598, to: 666, text: "Maar in schoonmaken | zijn we de beste.", lines: true, beat: 6,
+      highlight: ["schoonmaken", "beste"], y: 0.665, size: 0.088 },
   ],
   font: ELITE_FONT,
   plain: true,

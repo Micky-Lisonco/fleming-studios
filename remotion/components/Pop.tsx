@@ -34,6 +34,118 @@ export const Pop: React.FC<{ pop: PopText; fontFamily?: string }> = ({ pop, font
   const glitching = pop.glitch && ((frame >= 9 && frame < 11) || (frame >= 15 && frame < 17));
   const split = glitching ? Math.round(size * 0.06) : 0;
 
+  const shade = pop.shade ? (
+    // A soft darkening rising from the bottom of the frame, so the words
+    // read without a block behind them.
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        opacity: interpolate(frame, [0, 8, duration - 5, duration], [0, 1, 1, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
+        background:
+          "linear-gradient(to top, rgba(11,30,61,0.8) 0%, rgba(11,30,61,0.58) 34%, rgba(11,30,61,0) 60%)",
+      }}
+    />
+  ) : null;
+
+  if (pop.lines) {
+    // Title treatment: each line rises as a whole out from behind a mask,
+    // one after the other, a brand-blue rule draws in above, and the
+    // highlighted words get their pill once their line has landed.
+    const lines = pop.text.split("|").map((l) => l.trim());
+    const rule = interpolate(frame, [0, 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    return (
+      <>
+        {shade}
+        <div
+          style={{
+            position: "absolute",
+            left: width * 0.035,
+            right: width * 0.035,
+            top: height * (pop.y ?? 0.2),
+            textAlign: "center",
+            fontFamily,
+            fontSize: size,
+            lineHeight: 1.12,
+            pointerEvents: "none",
+            opacity: out,
+          }}
+        >
+          {pop.rule ? (
+            <div
+              style={{
+                width: width * 0.14,
+                height: Math.max(4, Math.round(size * 0.07)),
+                margin: `0 auto ${Math.round(size * 0.32)}px`,
+                borderRadius: 99,
+                background: BLUE,
+                transform: `scaleX(${rule})`,
+              }}
+            />
+          ) : null}
+          {lines.map((line, li) => {
+            const local = frame - li * step;
+            const rise = spring({ frame: local, fps, config: { damping: 200, mass: 0.6, stiffness: 140 } });
+            return (
+              <div key={li} style={{ overflow: "hidden", padding: "0.04em 0 0.08em" }}>
+                <div
+                  style={{
+                    transform: `translateY(${interpolate(rise, [0, 1], [110, 0])}%)`,
+                    fontWeight: pop.weight ?? 900,
+                    letterSpacing: "-0.015em",
+                    color: "#ffffff",
+                    textShadow: `0 ${Math.round(size * 0.04)}px ${Math.round(size * 0.2)}px rgba(4,14,30,0.5)`,
+                  }}
+                >
+                  {line.split(" ").map((w, wi) => {
+                    const key = w.replace(/[.,!?]/g, "");
+                    const on = highlight.has(key);
+                    const pill = on
+                      ? interpolate(local, [8, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+                      : 0;
+                    return (
+                      <Fragment key={wi}>
+                        {wi ? " " : null}
+                        <span
+                          style={{
+                            position: "relative",
+                            display: "inline-block",
+                            isolation: "isolate",
+                            padding: on ? "0 0.14em" : undefined,
+                            margin: on ? "0 -0.03em" : undefined,
+                          }}
+                        >
+                          {on ? (
+                            <span
+                              style={{
+                                position: "absolute",
+                                inset: "0.08em 0 0.02em 0",
+                                background: BLUE,
+                                borderRadius: "0.16em",
+                                transform: `scaleX(${pill})`,
+                                transformOrigin: "left center",
+                                zIndex: -1,
+                              }}
+                            />
+                          ) : null}
+                          {w}
+                        </span>
+                      </Fragment>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       {pop.shade ? (
