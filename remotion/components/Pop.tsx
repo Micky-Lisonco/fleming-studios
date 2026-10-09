@@ -1,36 +1,38 @@
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { layoutFor } from "../edit";
 import type { PopText } from "../edit";
 
 /**
- * Loud on-screen text for the bloopers: big, tilted, outlined, and it
- * lands with an overshoot. With `flash` it blinks a few times before it
- * settles, like a sign switching on. Sits high in the frame, clear of
- * the subtitles at the bottom.
+ * Loud on-screen text for the bloopers, in the brand: the brand typeface,
+ * straight, on solid blocks of the brand colours. No outline, no tilt, no
+ * slow zoom.
+ *
+ * With `beat` the words land one at a time, every `beat` frames, each with
+ * a hard 3-frame punch and a jolt of the whole line: a statement, word by
+ * word. Each word carries its own block, so the band grows as they land.
+ * With `flash` the text blinks a few times before it holds.
  */
-export const Pop: React.FC<{ pop: PopText; fontFamily?: string; outline: string }> = ({
-  pop,
-  fontFamily,
-  outline,
-}) => {
+export const Pop: React.FC<{ pop: PopText; fontFamily?: string }> = ({ pop, fontFamily }) => {
   const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const layout = layoutFor(width, height);
   const duration = pop.to - pop.from;
+  const words = pop.text.split(" ");
+  const beat = pop.beat ?? 0;
 
-  const land = spring({ frame, fps, config: { damping: 9, mass: 0.6, stiffness: 180 } });
-  const scale = interpolate(land, [0, 1], [2.2, 1]);
-  // Off on every other 3-frame step for the first 18 frames, then steady.
-  const blink = pop.flash && frame < 18 && Math.floor(frame / 3) % 2 === 1 ? 0.15 : 1;
-  const out = interpolate(frame, [duration - 4, duration], [1, 0], {
+  const shown = beat ? Math.min(words.length, Math.floor(frame / beat) + 1) : words.length;
+  // Frames since the latest word landed (or since the start).
+  const since = beat ? frame - (shown - 1) * beat : frame;
+  const jolt = since < 3 ? [0, -0.012, 0.006][since] * height : 0;
+
+  const blink = pop.flash && frame < 18 && Math.floor(frame / 3) % 2 === 1 ? 0 : 1;
+  const out = interpolate(frame, [duration - 3, duration], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  // A small shake while it lands, gone once it has.
-  const shake = frame < 10 ? Math.sin(frame * 2.3) * (10 - frame) * 0.8 : 0;
 
-  const size = Math.round(width * (pop.size ?? 0.16));
-  const stroke = Math.max(4, Math.round(size * 0.07));
+  const size = Math.round(width * (pop.size ?? 0.12));
+  const block = pop.background ?? "#0b1e3d";
 
   return (
     <div
@@ -43,24 +45,38 @@ export const Pop: React.FC<{ pop: PopText; fontFamily?: string; outline: string 
         textWrap: "balance",
         pointerEvents: "none",
         opacity: blink * out,
-        transform: `translateX(${shake}px) rotate(${pop.tilt ?? -4}deg) scale(${scale})`,
+        transform: `translateY(${jolt}px)`,
+        lineHeight: 1.18,
       }}
     >
-      <span
-        style={{
-          fontFamily,
-          fontWeight: 800,
-          fontSize: size,
-          lineHeight: 1.05,
-          letterSpacing: "-0.02em",
-          color: pop.color ?? "#ffffff",
-          WebkitTextStroke: `${stroke}px ${outline}`,
-          paintOrder: "stroke fill",
-          textShadow: `0 ${Math.round(stroke * 1.2)}px 0 ${outline}, 0 0 ${stroke * 6}px rgba(0,0,0,0.35)`,
-        }}
-      >
-        {pop.text}
-      </span>
+      {words.map((w, i) => {
+        const age = beat ? frame - i * beat : frame;
+        const visible = i < shown;
+        // A hard punch, not a zoom: two frames big, then home.
+        const punch = age < 0 ? 1 : age === 0 ? 1.28 : age === 1 ? 1.1 : 1;
+        return (
+          <span
+            key={i}
+            style={{
+              display: "inline-block",
+              visibility: visible ? "visible" : "hidden",
+              transform: `scale(${punch})`,
+              fontFamily,
+              fontWeight: 800,
+              fontSize: size,
+              letterSpacing: "-0.01em",
+              color: pop.color ?? "#ffffff",
+              background: block,
+              // Square, and butted up against each other, so the blocks
+              // join into one band per line without seams.
+              padding: `${Math.round(size * 0.06)}px ${Math.round(size * 0.16)}px`,
+              margin: `${Math.round(size * 0.04)}px 0`,
+            }}
+          >
+            {w}
+          </span>
+        );
+      })}
     </div>
   );
 };

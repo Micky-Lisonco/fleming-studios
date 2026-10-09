@@ -644,13 +644,16 @@ export type PopText = {
   text: string;
   /** Blinks a few times as it lands. */
   flash?: boolean;
+  /** Words land one at a time, this many frames apart. */
+  beat?: number;
+  /** Text colour. Default white. */
   color?: string;
+  /** Block behind the words. Default navy. */
+  background?: string;
   /** Top of the text, as a fraction of the frame height. Default 0.2. */
   y?: number;
-  /** Font size as a fraction of the frame width. Default 0.16. */
+  /** Font size as a fraction of the frame width. Default 0.12. */
   size?: number;
-  /** Degrees. Default -4. */
-  tilt?: number;
 };
 
 const CTA = "flanderscobblestoneparadise.be";
@@ -1465,7 +1468,8 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   // Michael: 25s, fast. Every take is cut to its words, the pauses
   // between takes go, and the weakest beat ("Hé Tino, hoeveel keer...
   // Nee.") is out.
-  take("b01-opnemen",     "07-6E8A6377.mp4",   0.00, 1.60, "50% 50%"),
+  // In at 0.44s: the half second before it is only rustle on the mic.
+  take("b01-opnemen",     "07-6E8A6377.mp4",   0.44, 1.16, "50% 50%"),
   take("b02-error",       "10-6E8A6380.mp4",  12.00, 3.28, "53% 50%"),
   // Snap-zoom onto his face for "Error." (16.68-17.12s), then the
   // generated screen flashing ERROR, sped up, then back for his answer.
@@ -1492,19 +1496,19 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
 ]));
 
 const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
-  { from: 1,   to: 40,  text: "Hij is aan het opnemen!" },
-  { from: 40,  to: 122, text: "Wilt u, als B2B-bedrijf, meer..." },
-  { from: 123, to: 137, text: "Error." },
-  { from: 162, to: 190, text: "Dat geeft niet. Dat is normaal." },
-  { from: 191, to: 222, text: "Oh, ik had dat niet gezien." },
-  { from: 224, to: 280, text: "We moeten wel een beetje enthousiast zijn." },
-  { from: 280, to: 316, text: "...glasramen zijn." },
-  { from: 330, to: 358, text: "Zijn dat geen glasramen?" },
-  { from: 360, to: 407, text: "Ja, glaspartij of glazen ramen." },
-  { from: 408, to: 449, text: "Oké, maar ik moet naar daar kijken." },
-  { from: 500, to: 525, text: "Nee, naar mij kijken." },
-  { from: 527, to: 567, text: "Wilt u, als B2..." },
-  { from: 567, to: 592, text: "De bloopers!" },
+  { from: 1,   to: 29,  text: "Hij is aan het opnemen!" },
+  { from: 29,  to: 111, text: "Wilt u, als B2B-bedrijf, meer..." },
+  { from: 112, to: 126, text: "Error." },
+  { from: 151, to: 179, text: "Dat geeft niet. Dat is normaal." },
+  { from: 180, to: 211, text: "Oh, ik had dat niet gezien." },
+  { from: 213, to: 269, text: "We moeten wel een beetje enthousiast zijn." },
+  { from: 269, to: 305, text: "...glasramen zijn." },
+  { from: 319, to: 347, text: "Zijn dat geen glasramen?" },
+  { from: 349, to: 396, text: "Ja, glaspartij of glazen ramen." },
+  { from: 397, to: 438, text: "Oké, maar ik moet naar daar kijken." },
+  { from: 489, to: 514, text: "Nee, naar mij kijken." },
+  { from: 516, to: 556, text: "Wilt u, als B2..." },
+  { from: 556, to: 581, text: "De bloopers!" },
 ];
 
 /**
@@ -1682,15 +1686,17 @@ FILMS["elite-bloopers"] = {
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   pops: [
-    { from: 0,   to: 38,  text: "BLOOPERS", flash: true, color: ELITE.gold, y: 0.4, size: 0.15 },
-    { from: 592, to: 667, text: "We zijn niet in alles top...", y: 0.3, size: 0.085, tilt: -2 },
-    { from: 618, to: 667, text: "maar wel in schoonmaken!", color: ELITE.gold, y: 0.44, size: 0.1, tilt: -4 },
+    { from: 0,   to: 34,  text: "BLOOPERS", flash: true, color: ELITE.blue, background: ELITE.white, y: 0.4, size: 0.15 },
+    // Word by word, on the beat: a statement, then the answer.
+    { from: 581, to: 656, text: "We kunnen niet top zijn in alles.", beat: 5, y: 0.3, size: 0.09 },
+    { from: 616, to: 656, text: "Maar schoonmaken", beat: 6, background: ELITE.blue, y: 0.46, size: 0.085 },
+    { from: 630, to: 656, text: "WEL!", background: ELITE.blue, y: 0.54, size: 0.2 },
   ],
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 23.7s of takes and cutaways, 3s of punchline, 1.8s of logo.
-  targetFrames: 667 + 45,
+  // 23.2s of takes and cutaways, 3s of punchline, 1.8s of logo.
+  targetFrames: 656 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {

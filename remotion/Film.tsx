@@ -226,7 +226,7 @@ export const Film: React.FC<FilmProps> = ({ filmId }) => {
 
       {(film.pops ?? []).map((p, i) => (
         <Sequence key={`pop-${i}`} from={p.from} durationInFrames={p.to - p.from} name={`Pop: ${p.text}`}>
-          <Pop pop={p} fontFamily={film.font} outline={film.endCard?.ink ?? BRAND.black} />
+          <Pop pop={p} fontFamily={film.font} />
         </Sequence>
       ))}
 
