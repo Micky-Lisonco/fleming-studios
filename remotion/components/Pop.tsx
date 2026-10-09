@@ -4,6 +4,7 @@ import { layoutFor } from "../edit";
 import type { PopText } from "../edit";
 
 const BLUE = "#2563c7";
+const SKY = "#4fa3e0";
 
 /**
  * On-screen text for the bloopers, done the way Reels and TikTok captions
@@ -47,43 +48,50 @@ export const Pop: React.FC<{ pop: PopText; fontFamily?: string }> = ({ pop, font
           extrapolateRight: "clamp",
         }),
         background:
-          "linear-gradient(to top, rgba(11,30,61,0.8) 0%, rgba(11,30,61,0.58) 34%, rgba(11,30,61,0) 60%)",
+          "linear-gradient(to top, rgba(11,30,61,0.82) 0%, rgba(11,30,61,0.6) 36%, rgba(11,30,61,0) 62%), linear-gradient(to right, rgba(11,30,61,0.45) 0%, rgba(11,30,61,0) 70%)",
       }}
     />
   ) : null;
 
   if (pop.lines) {
-    // Title treatment: each line rises as a whole out from behind a mask,
-    // one after the other, a brand-blue rule draws in above, and the
-    // highlighted words get their pill once their line has landed.
+    // Title treatment: a left-aligned block with one hard left edge. Each
+    // line rises as a whole out from behind a mask, one after another;
+    // with `bar` a brand-blue bar draws down beside the block. Highlighted
+    // words take the light brand blue - colour, not boxes.
     const lines = pop.text.split("|").map((l) => l.trim());
-    const rule = interpolate(frame, [0, 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    const left = width * (pop.x ?? 0.08);
+    const barW = Math.max(6, Math.round(size * 0.09));
+    const bar = interpolate(frame, [0, 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
     return (
       <>
         {shade}
         <div
           style={{
             position: "absolute",
-            left: width * 0.035,
-            right: width * 0.035,
+            left,
+            width: width * (pop.w ?? 0.72),
             top: height * (pop.y ?? 0.2),
-            textAlign: "center",
+            paddingLeft: pop.bar ? barW + Math.round(size * 0.32) : 0,
+            textAlign: "left",
             fontFamily,
             fontSize: size,
-            lineHeight: 1.12,
+            lineHeight: 1.04,
             pointerEvents: "none",
             opacity: out,
           }}
         >
-          {pop.rule ? (
+          {pop.bar ? (
             <div
               style={{
-                width: width * 0.14,
-                height: Math.max(4, Math.round(size * 0.07)),
-                margin: `0 auto ${Math.round(size * 0.32)}px`,
-                borderRadius: 99,
+                position: "absolute",
+                left: 0,
+                top: "0.14em",
+                bottom: "0.16em",
+                width: barW,
+                borderRadius: barW,
                 background: BLUE,
-                transform: `scaleX(${rule})`,
+                transform: `scaleY(${bar})`,
+                transformOrigin: "top center",
               }}
             />
           ) : null}
@@ -91,52 +99,23 @@ export const Pop: React.FC<{ pop: PopText; fontFamily?: string }> = ({ pop, font
             const local = frame - li * step;
             const rise = spring({ frame: local, fps, config: { damping: 200, mass: 0.6, stiffness: 140 } });
             return (
-              <div key={li} style={{ overflow: "hidden", padding: "0.04em 0 0.08em" }}>
+              <div key={li} style={{ overflow: "hidden", paddingBottom: "0.06em" }}>
                 <div
                   style={{
                     transform: `translateY(${interpolate(rise, [0, 1], [110, 0])}%)`,
                     fontWeight: pop.weight ?? 900,
-                    letterSpacing: "-0.015em",
-                    color: "#ffffff",
-                    textShadow: `0 ${Math.round(size * 0.04)}px ${Math.round(size * 0.2)}px rgba(4,14,30,0.5)`,
+                    letterSpacing: "-0.02em",
+                    color: pop.dim ? "rgba(255,255,255,0.86)" : "#ffffff",
+                    textShadow: `0 ${Math.round(size * 0.03)}px ${Math.round(size * 0.18)}px rgba(4,14,30,0.45)`,
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  {line.split(" ").map((w, wi) => {
-                    const key = w.replace(/[.,!?]/g, "");
-                    const on = highlight.has(key);
-                    const pill = on
-                      ? interpolate(local, [8, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-                      : 0;
-                    return (
-                      <Fragment key={wi}>
-                        {wi ? " " : null}
-                        <span
-                          style={{
-                            position: "relative",
-                            display: "inline-block",
-                            isolation: "isolate",
-                            padding: on ? "0 0.14em" : undefined,
-                            margin: on ? "0 -0.03em" : undefined,
-                          }}
-                        >
-                          {on ? (
-                            <span
-                              style={{
-                                position: "absolute",
-                                inset: "0.08em 0 0.02em 0",
-                                background: BLUE,
-                                borderRadius: "0.16em",
-                                transform: `scaleX(${pill})`,
-                                transformOrigin: "left center",
-                                zIndex: -1,
-                              }}
-                            />
-                          ) : null}
-                          {w}
-                        </span>
-                      </Fragment>
-                    );
-                  })}
+                  {line.split(" ").map((w, wi) => (
+                    <Fragment key={wi}>
+                      {wi ? " " : null}
+                      <span style={{ color: highlight.has(w.replace(/[.,!?]/g, "")) ? SKY : undefined }}>{w}</span>
+                    </Fragment>
+                  ))}
                 </div>
               </div>
             );

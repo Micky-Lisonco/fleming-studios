@@ -654,8 +654,13 @@ export type PopText = {
   glow?: boolean;
   /** Title treatment: whole lines (split on "|") rise out of a mask. */
   lines?: boolean;
-  /** A short brand-blue rule that draws in above the lines. */
-  rule?: boolean;
+  /** A brand-blue bar that draws down beside the lines. */
+  bar?: boolean;
+  /** Slightly softer white, for a set-up line. */
+  dim?: boolean;
+  /** Left edge and width of a `lines` block, as fractions of the frame width. */
+  x?: number;
+  w?: number;
   /** Font weight. Default 900. */
   weight?: number;
   /** Use nearly the full width of the frame. */
@@ -1699,11 +1704,13 @@ FILMS["elite-bloopers"] = {
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   pops: [
     { from: 0,   to: 34,  text: "BLOOPERS", letters: true, beat: 2, glitch: true, glow: true, y: 0.4, size: 0.17 },
-    // Below his face, as titles: the set-up line, a gap, then the answer.
-    { from: 581, to: 666, text: "We kunnen niet | in alles top zijn.", lines: true, beat: 4, rule: true, shade: true,
-      weight: 800, y: 0.5, size: 0.075 },
-    { from: 598, to: 666, text: "Maar in schoonmaken | zijn we de beste.", lines: true, beat: 6,
-      highlight: ["schoonmaken", "beste"], y: 0.665, size: 0.088 },
+    // Below his face, on the dark glass and clear of him: a left-aligned
+    // title block. The set-up (its left edge on the answer's text, not on
+    // the bar), a gap, then the answer with a bar beside it.
+    { from: 581, to: 666, text: "We kunnen niet | in alles top zijn.", lines: true, beat: 4, shade: true,
+      dim: true, weight: 800, x: 0.119, y: 0.5, size: 0.068 },
+    { from: 600, to: 666, text: "Maar in | schoonmaken | zijn we de beste.", lines: true, beat: 5, bar: true,
+      highlight: ["schoonmaken", "beste"], x: 0.08, w: 0.88, y: 0.635, size: 0.096 },
   ],
   font: ELITE_FONT,
   plain: true,
