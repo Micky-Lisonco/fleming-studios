@@ -27,6 +27,24 @@ credit cost and the cheapest option that would do the job (Kling is
 usually far cheaper), then wait for his yes. Cutaways of 1-2 s go at
 the lowest resolution and duration that will cover them.
 
+## On-screen text
+
+We are the professionals: titles must look designed, not typed. What
+Michael approved (Elite bloopers closing title, remotion/components/Pop.tsx
+`lines` mode) is the bar:
+
+- Lay text out around the picture: on empty or dark areas, never across
+  a face or straddling the subject. Left-aligned block with one hard
+  left edge beats centred lines of random widths.
+- Clear hierarchy: a smaller, softer set-up line, white space, then the
+  big statement. Line breaks set by hand, never left to wrap.
+- Brand colours, brand face (Nunito, heavy weights). Highlight key words
+  with colour, not boxes. No outlines, no drop-shadow cartoon look, no
+  solid blocks; soft see-through shading only where it must read.
+- Motion like titles: whole lines rising out of a mask, a bar or rule
+  drawing in. Not word-by-word typing, not slow zooms.
+- Always check at full size on a real frame before showing him.
+
 ## Project
 
 A 20s ad for the oxygen room at Flanders Cobblestone Paradise, cut in
