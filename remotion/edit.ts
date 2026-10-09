@@ -648,8 +648,10 @@ export type PopText = {
   beat?: number;
   /** Text colour. Default white. */
   color?: string;
-  /** Block behind the words. Default navy. */
-  background?: string;
+  /** Colour of the edge around the letters. Default Elite blue. */
+  edge?: string;
+  /** Soft see-through band behind it: [top, height] as fractions of the frame. */
+  band?: [number, number];
   /** Top of the text, as a fraction of the frame height. Default 0.2. */
   y?: number;
   /** Font size as a fraction of the frame width. Default 0.12. */
@@ -1492,7 +1494,7 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   take("b07a-de",         "07-6E8A6377.mp4", 113.88, 1.00, "65% 50%"),
   // The punchline: Tino at the window, doing it properly, under the two
   // lines of text (see pops).
-  { id: "b08-proper", ...S.reflect, kind: "video", durationInFrames: 75, focus: MOBILE_FOCUS.reflect, punch: false },
+  { id: "b08-proper", ...S.reflect, kind: "video", durationInFrames: 85, focus: MOBILE_FOCUS.reflect, punch: false },
 ]));
 
 const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
@@ -1686,17 +1688,17 @@ FILMS["elite-bloopers"] = {
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
   pops: [
-    { from: 0,   to: 34,  text: "BLOOPERS", flash: true, color: ELITE.blue, background: ELITE.white, y: 0.4, size: 0.15 },
+    { from: 0,   to: 34,  text: "BLOOPERS", flash: true, y: 0.4, size: 0.16 },
     // Word by word, on the beat: a statement, then the answer.
-    { from: 581, to: 656, text: "We kunnen niet top zijn in alles.", beat: 5, y: 0.3, size: 0.09 },
-    { from: 616, to: 656, text: "Maar schoonmaken", beat: 6, background: ELITE.blue, y: 0.46, size: 0.085 },
-    { from: 630, to: 656, text: "WEL!", background: ELITE.blue, y: 0.54, size: 0.2 },
+    { from: 581, to: 666, text: "We kunnen niet top zijn in alles.", beat: 5, edge: ELITE.navy,
+      y: 0.3, size: 0.08, band: [0.26, 0.3] },
+    { from: 619, to: 666, text: "Maar in schoonmaken zijn we de beste.", beat: 5, y: 0.42, size: 0.08 },
   ],
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
-  // 23.2s of takes and cutaways, 3s of punchline, 1.8s of logo.
-  targetFrames: 656 + 45,
+  // 23.2s of takes and cutaways, 3.4s of punchline, 1.8s of logo.
+  targetFrames: 666 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {
