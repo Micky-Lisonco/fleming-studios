@@ -1193,10 +1193,10 @@ export const ELITE_SHOT_GRADES: Record<string, NonNullable<Shot["grade"]>> = {
     curve: [0, 0.1084, 0.2157, 0.289, 0.3346, 0.3691, 0.3998, 0.4271, 0.4513, 0.473, 0.4924, 0.5102, 0.5266, 0.5421, 0.5571, 0.572, 0.5873, 0.6033, 0.6205, 0.6393, 0.6601, 0.6832, 0.7072, 0.7318, 0.757, 0.7831, 0.8101, 0.838, 0.8669, 0.8975, 0.9309, 0.9656, 1] },
   "b05-glasramen": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8437, 0.875, 0.9063, 0.9375, 0.9688, 1] },
-  "b06-kijken": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
-  "b06b-mij": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
-    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b06-wijst": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2812, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7188, 0.75, 0.7813, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
+  "b06c-daar": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
+    curve: [0, 0.0312, 0.0625, 0.0937, 0.125, 0.1562, 0.1875, 0.2188, 0.25, 0.2812, 0.3125, 0.3438, 0.375, 0.4063, 0.4375, 0.4687, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6562, 0.6875, 0.7187, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b07-bloopers": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
     curve: [0, 0.0312, 0.0625, 0.0938, 0.125, 0.1562, 0.1875, 0.2187, 0.25, 0.2813, 0.3125, 0.3437, 0.375, 0.4062, 0.4375, 0.4688, 0.5, 0.5312, 0.5625, 0.5938, 0.625, 0.6563, 0.6875, 0.7188, 0.75, 0.7812, 0.8125, 0.8438, 0.875, 0.9062, 0.9375, 0.9688, 1] },
   "b07a-de": { gamma: 1, contrast: 1, saturation: 1.1, warmth: 1.02,
@@ -1498,12 +1498,16 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
   // Back in, with the slap: from "glasramen zijn" to "glazen ramen", ending
   // before "ik weet niet".
   take("b05-glasramen",   "19-6E8A6389.mp4",  13.96, 5.08, "65% 50%"),
-  // "...naar daar kijken." - and there is a kestrel, looking back at him.
-  take("b06-kijken",      "10-6E8A6380.mp4",  56.40, 1.68, "65% 50%"),
+  // Tino points to the side mid-line (35.0-37.4s), the crew asks if he
+  // is looking over there - and there is a kestrel, looking back. Two
+  // shots of one take: the camera zooms out at 37.5s, so the question is
+  // reframed onto him. 57% keeps the whole pointing arm in the slice.
+  take("b06-wijst",       "10-6E8A6380.mp4",  34.84, 2.96, "57% 50%"),
+  take("b06c-daar",       "10-6E8A6380.mp4",  37.80, 1.44, "70% 50%"),
   // Kling: a kestrel (torenvalk) hangs in an empty sky, looks down at him
-  // and calls (0.88-2.88s holds all three calls, measured -22.6 LUFS). Its own sound, so at normal speed to keep the sound on it.
+  // and calls (0.88-2.88s holds all three calls, measured -22.6 LUFS).
+  // Its own sound, so at normal speed to keep the sound on it.
   { id: "c02-bird", file: "kestrel.mp4", generated: true, kind: "video", startFrom: 22, durationInFrames: 50, punch: false },
-  take("b06b-mij",        "10-6E8A6380.mp4",  58.24, 1.04, "65% 50%"),
   take("b07-bloopers",    "07-6E8A6377.mp4", 111.12, 1.68, "65% 50%"),
   // Just "De bloopers.", said once.
   take("b07a-de",         "07-6E8A6377.mp4", 113.88, 1.00, "65% 50%"),
@@ -1513,8 +1517,8 @@ export const SHOTS_ELITE_BLOOPERS: Shot[] = graded(inProject("elite", [
 ]));
 
 const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
-  { from: 1,   to: 29,  text: "Hij is aan het opnemen!" },
-  { from: 29,  to: 111, text: "Wilt u, als B2B-bedrijf, meer..." },
+  { from: 1  , to: 29 ,  text: "Hij is aan het opnemen!" },
+  { from: 29 , to: 111, text: "Wilt u, als B2B-bedrijf, meer..." },
   { from: 112, to: 126, text: "Error." },
   { from: 151, to: 179, text: "Dat geeft niet. Dat is normaal." },
   { from: 180, to: 211, text: "Oh, ik had dat niet gezien." },
@@ -1522,10 +1526,11 @@ const SUBTITLES_ELITE_BLOOPERS: Subtitle[] = [
   { from: 269, to: 305, text: "...glasramen zijn." },
   { from: 319, to: 347, text: "Zijn dat geen glasramen?" },
   { from: 349, to: 396, text: "Ja, glaspartij of glazen ramen." },
-  { from: 397, to: 438, text: "Oké, maar ik moet naar daar kijken." },
-  { from: 489, to: 514, text: "Nee, naar mij kijken." },
-  { from: 516, to: 556, text: "Wilt u, als B2..." },
-  { from: 556, to: 581, text: "De bloopers!" },
+  { from: 396, to: 426, text: "Dan is een propere ingang" },
+  { from: 432, to: 470, text: "een visitekaartje van uw bedrijf." },
+  { from: 474, to: 506, text: "Maar je bent naar daar te kijken, hè?" },
+  { from: 558, to: 598, text: "Wilt u, als B2..." },
+  { from: 598, to: 623, text: "De bloopers!" },
 ];
 
 /**
@@ -1698,7 +1703,7 @@ FILMS["elite-bloopers"] = {
   captions: {},
   voice: ownSound(SHOTS_ELITE_BLOOPERS, {
     "b01-opnemen": -18.73, "b02-error": -20.75, "b02z-error": -20.75, "b04-enthousiast": -17.9,
-    "b02y-normaal": -20.75, "c02-bird": -22.6, "b05-glasramen": -22.86, "b06-kijken": -21.59, "b06b-mij": -21.59,
+    "b02y-normaal": -20.75, "c02-bird": -22.6, "b05-glasramen": -22.86, "b06-wijst": -20.3, "b06c-daar": -21.1,
     "b07-bloopers": -20.97, "b07a-de": -20.97,
   }),
   subtitles: SUBTITLES_ELITE_BLOOPERS,
@@ -1707,16 +1712,16 @@ FILMS["elite-bloopers"] = {
     // Below his face, on the dark glass and clear of him: a left-aligned
     // title block. The set-up (its left edge on the answer's text, not on
     // the bar), a gap, then the answer with a bar beside it.
-    { from: 581, to: 666, text: "We kunnen niet | in alles top zijn.", lines: true, beat: 4, shade: true,
+    { from: 623, to: 708, text: "We kunnen niet | in alles top zijn.", lines: true, beat: 4, shade: true,
       dim: true, weight: 800, x: 0.119, y: 0.5, size: 0.068 },
-    { from: 600, to: 666, text: "Maar in | schoonmaken | zijn we de beste.", lines: true, beat: 5, bar: true,
+    { from: 642, to: 708, text: "Maar in | schoonmaken | zijn we de beste.", lines: true, beat: 5, bar: true,
       highlight: ["schoonmaken", "beste"], x: 0.08, w: 0.88, y: 0.635, size: 0.096 },
   ],
   font: ELITE_FONT,
   plain: true,
   endCard: ELITE_END_CARD,
   // 23.2s of takes and cutaways, 3.4s of punchline, 1.8s of logo.
-  targetFrames: 666 + 45,
+  targetFrames: 708 + 45,
 };
 
 FILMS["elite-tino-speaking"] = {
